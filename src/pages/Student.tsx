@@ -6,7 +6,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
 import { signOut } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
-import { useEmergencySiren } from "@/hooks/useEmergencySiren";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import QRScanner from "@/components/QRScanner";
@@ -42,15 +41,14 @@ import {
 const Student = () => {
   const navigate = useNavigate();
   const { user, loading, userRole } = useAuth();
-  const [currentTrip, setCurrentTrip] = useState<any>(null);
-  const [studentData, setStudentData] = useState<any>(null);
+  const [currentTrip, setCurrentTrip] = useState<unknown>(null);
+  const [studentData, setStudentData] = useState<unknown>(null);
   const [isSending, setIsSending] = useState(false);
-  const [announcements, setAnnouncements] = useState<any[]>([]);
-  const [unreadCount, setUnreadCount] = useState(0);
+  const [announcements, setAnnouncements] = useState<unknown[]>([]);
+  const [unreadCount, setUnreadCount] = useState<unknown>(0);
   const [isScanning, setIsScanning] = useState(false);
   const [isCreatingTrip, setIsCreatingTrip] = useState(false);
   const [showSOSConfirm, setShowSOSConfirm] = useState(false);
-  const { start: startSiren, stop: stopSiren } = useEmergencySiren();
 
   useEffect(() => {
     if (!loading) {
@@ -67,12 +65,12 @@ const Student = () => {
       if (!user || loading || userRole !== "student") return;
 
       const { data: student, error } = (await supabase
-        .from("students" as any)
+        .from("students" as unknown)
         .select("id, is_registered, is_approved, agreement_accepted, created_at")
         .eq("user_id", user.id)
         .order("created_at", { ascending: false })
         .limit(1)
-        .maybeSingle()) as { data: any; error: any };
+        .maybeSingle()) as { data: unknown; error: unknown };
 
       if (error) {
         console.error("Error checking registration:", error);
@@ -93,28 +91,28 @@ const Student = () => {
 
       try {
         const { data: student, error: studentError } = (await supabase
-          .from("students" as any)
+          .from("students" as unknown)
           .select("*")
           .eq("user_id", user.id)
           .order("created_at", { ascending: false })
           .limit(1)
-          .maybeSingle()) as { data: any; error: any };
+          .maybeSingle()) as { data: unknown; error: unknown };
 
         if (studentError) throw studentError;
 
         setStudentData(student);
 
         if (student) {
-          await supabase.from("students" as any).update({ is_active: true }).eq("id", student.id);
+          await supabase.from("students" as unknown).update({ is_active: true }).eq("id", student.id);
 
           const { data: trip, error: tripError } = (await supabase
-            .from("trips" as any)
+            .from("trips" as unknown)
             .select("*, drivers(*)")
             .eq("student_id", student.id)
             .eq("status", "active")
             .order("start_time", { ascending: false })
             .limit(1)
-            .maybeSingle()) as { data: any; error: any };
+            .maybeSingle()) as { data: unknown; error: unknown };
 
           if (tripError) throw tripError;
 
@@ -134,11 +132,11 @@ const Student = () => {
   useEffect(() => {
     const fetchAnnouncements = async () => {
       const { data } = await supabase
-        .from('announcements' as any)
+        .from('announcements' as unknown)
         .select('*')
         .eq('is_active', true)
         .order('created_at', { ascending: false })
-        .limit(10) as { data: any[] | null };
+        .limit(10) as { data: unknown[] | null };
       
       if (data) {
         setAnnouncements(data);
@@ -155,9 +153,9 @@ const Student = () => {
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'announcements' },
         (payload) => {
-          setAnnouncements((prev) => [payload.new as any, ...prev].slice(0, 10));
+          setAnnouncements((prev) => [payload.new as unknown, ...prev].slice(0, 10));
           setUnreadCount((prev) => prev + 1);
-          toast.info("New Announcement!", { description: (payload.new as any).title });
+          toast.info("New Announcement!", { description: (payload.new as unknown).title });
         }
       )
       .subscribe();
@@ -198,10 +196,10 @@ const Student = () => {
 
       // Check if driver exists
       const { data: driver, error: driverError } = await supabase
-        .from('drivers' as any)
+        .from('drivers' as unknown)
         .select('*')
         .eq('id', driverId)
-        .maybeSingle() as { data: any; error: any };
+        .maybeSingle() as { data: unknown; error: unknown };
 
       console.log('Driver lookup result:', driver, driverError);
 
@@ -251,7 +249,7 @@ const Student = () => {
 
       // Create the trip
       const { data: newTrip, error: tripError } = await supabase
-        .from('trips' as any)
+        .from('trips' as unknown)
         .insert({
           student_id: studentData.id,
           driver_id: driver.id,
@@ -260,7 +258,7 @@ const Student = () => {
           start_location_lng: longitude,
         })
         .select('*, drivers(*)')
-        .single() as { data: any; error: any };
+        .single() as { data: unknown; error: unknown };
 
       if (tripError) throw tripError;
 
@@ -269,7 +267,7 @@ const Student = () => {
         description: `You're now riding with ${driver.full_name} (${driver.tricycle_plate_number})` 
       });
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error creating trip:', error);
       toast.error("Failed to start trip", { description: error.message });
     } finally {
@@ -299,7 +297,7 @@ const Student = () => {
       }
 
       const { error } = await supabase
-        .from('trips' as any)
+        .from('trips' as unknown)
         .update({
           status: 'completed',
           end_time: new Date().toISOString(),
@@ -313,7 +311,7 @@ const Student = () => {
       setCurrentTrip(null);
       toast.success("Trip Ended", { description: "Your trip has been completed safely" });
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast.error("Failed to end trip", { description: error.message });
     }
   };
@@ -330,7 +328,6 @@ const Student = () => {
     if (!studentData || isSending) return;
     
     setIsSending(true);
-    startSiren();
 
     try {
       let latitude: number | null = null;
@@ -348,7 +345,7 @@ const Student = () => {
           latitude = position.coords.latitude;
           longitude = position.coords.longitude;
           console.log('GPS Location captured:', latitude, longitude);
-        } catch (geoError: any) {
+        } catch (geoError: unknown) {
           console.error('Geolocation error:', geoError);
           toast.warning("Location Unavailable", { 
             description: "Could not get your GPS location. Alert sent without location." 
@@ -360,7 +357,7 @@ const Student = () => {
         });
       }
 
-      const { error } = await supabase.from('alerts' as any).insert({
+      const { error } = await supabase.from('alerts' as unknown).insert({
         student_id: studentData.id,
         trip_id: currentTrip?.id || null,
         driver_id: currentTrip?.driver_id || null,
@@ -380,14 +377,12 @@ const Student = () => {
       });
 
       setTimeout(() => {
-        stopSiren();
         setIsSending(false);
       }, 3000);
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error sending emergency alert:', error);
       toast.error("Failed to send SOS", { description: error.message });
-      stopSiren();
       setIsSending(false);
     }
   };
@@ -396,7 +391,7 @@ const Student = () => {
     try {
       if (studentData) {
         await supabase
-          .from('students' as any)
+          .from('students' as unknown)
           .update({ is_active: false })
           .eq('id', studentData.id);
       }
@@ -489,7 +484,7 @@ const Student = () => {
         studentId={studentData.id} 
         onAccepted={() => {
           // Refresh student data after accepting agreement
-          setStudentData((prev: any) => ({ ...prev, agreement_accepted: true }));
+          setStudentData((prev: unknown) => ({ ...prev, agreement_accepted: true }));
         }} 
       />
     );
@@ -497,12 +492,12 @@ const Student = () => {
 
   return (
     <div 
-      className="min-h-screen flex flex-col bg-cover bg-center bg-fixed relative"
+      className="min-h-screen flex flex-col bg-cover bg-center bg-fixed relative safe-area-inset"
       style={{ backgroundImage: `url(${campusBg})` }}
     >
       <div className="fixed inset-0 bg-black/40 pointer-events-none" />
       {/* Header */}
-      <header className="relative z-20 border-b border-[#CCFF00]/20 bg-[#001209]/80 backdrop-blur-xl sticky top-0 safe-area-top shadow-lg">
+      <header className="relative z-20 border-b border-[#CCFF00]/20 bg-[#001209]/80 backdrop-blur-xl top-0 safe-area-top shadow-lg">
         <div className="px-4 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">

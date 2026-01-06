@@ -4,11 +4,49 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { signOut } from "@/lib/auth";
 import { resolvePrimaryRole } from "@/lib/roles";
-import { IdCard, Lock, User, Phone, MapPin, GraduationCap, Upload } from "lucide-react";
+import { IdCard, Lock, User, Phone, MapPin, GraduationCap, Upload, Calendar, Users } from "lucide-react";
+
+const COURSES = [
+  "BS Information Technology",
+  "BS Computer Science",
+  "BS Information Systems",
+  "BS Computer Engineering",
+  "BS Electronics Engineering",
+  "BS Electrical Engineering",
+  "BS Civil Engineering",
+  "BS Mechanical Engineering",
+  "BS Agriculture",
+  "BS Forestry",
+  "BS Fisheries",
+  "BS Environmental Science",
+  "BS Biology",
+  "BS Chemistry",
+  "BS Mathematics",
+  "BS Nursing",
+  "BS Midwifery",
+  "BS Pharmacy",
+  "BS Medical Technology",
+  "BS Criminology",
+  "BS Education - Elementary",
+  "BS Education - Secondary",
+  "BS Business Administration",
+  "BS Accountancy",
+  "BS Hospitality Management",
+  "BS Tourism Management",
+  "BS Social Work",
+  "BA Communication",
+  "BA Political Science",
+  "Bachelor of Laws",
+];
+
+const YEAR_LEVELS = ["1st Year", "2nd Year", "3rd Year", "4th Year"];
+
+const SECTIONS = ["1-1", "1-2", "2-1", "2-2", "3-1", "3-2", "4-1", "4-2"];
 
 const StudentAuthPanel = () => {
   const navigate = useNavigate();
@@ -28,6 +66,8 @@ const StudentAuthPanel = () => {
     studentId: "",
     fullName: "",
     course: "",
+    yearLevel: "",
+    section: "",
     contactNumber: "",
     address: "",
     password: "",
@@ -79,7 +119,7 @@ const StudentAuthPanel = () => {
 
       if (rolesError) throw rolesError;
 
-      const roles = (rolesData ?? []).map((r: any) => r.role);
+      const roles = (rolesData ?? []).map((r: unknown) => r.role);
       const primaryRole = resolvePrimaryRole(roles);
 
       if (primaryRole !== 'student') {
@@ -90,7 +130,7 @@ const StudentAuthPanel = () => {
 
       toast.success('Successfully logged in!');
       navigate('/student');
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast.error(error.message || 'Failed to log in');
     } finally {
       setLoading(false);
@@ -158,12 +198,14 @@ const StudentAuthPanel = () => {
           student_id_number: registerData.studentId,
           full_name: registerData.fullName,
           course: registerData.course,
+          year_level: registerData.yearLevel,
+          section: registerData.section,
           contact_number: registerData.contactNumber,
           address: registerData.address,
           photo_url: photoUrl,
           is_registered: true,
           is_active: false,
-        });
+        } as unknown);
 
       if (studentError) throw studentError;
 
@@ -190,7 +232,7 @@ const StudentAuthPanel = () => {
         password: "",
       });
       
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Registration error:', error);
       if (error.message?.includes('already registered')) {
         toast.error("This Student ID is already registered. Please login instead.");
@@ -346,7 +388,7 @@ const StudentAuthPanel = () => {
                     <Input
                       id="regStudentId"
                       type="text"
-                      placeholder="2024-12345"
+                      placeholder="25-151"
                       value={registerData.studentId}
                       onChange={(e) => setRegisterData({ ...registerData, studentId: e.target.value })}
                       className="pl-9 h-10 rounded-xl text-sm"
@@ -362,7 +404,6 @@ const StudentAuthPanel = () => {
                     <Input
                       id="regFullName"
                       type="text"
-                      placeholder="Juan Dela Cruz"
                       value={registerData.fullName}
                       onChange={(e) => setRegisterData({ ...registerData, fullName: e.target.value })}
                       className="pl-9 h-10 rounded-xl text-sm"
@@ -372,37 +413,78 @@ const StudentAuthPanel = () => {
                 </div>
               </div>
               
+              <div className="space-y-1.5">
+                <Label htmlFor="regCourse" className="text-xs font-medium">Course *</Label>
+                <Select
+                  value={registerData.course}
+                  onValueChange={(value) => setRegisterData({ ...registerData, course: value })}
+                >
+                  <SelectTrigger className="h-10 rounded-xl text-sm bg-background">
+                    <SelectValue placeholder="Select course" />
+                  </SelectTrigger>
+                  <SelectContent className="max-h-60 bg-background z-50">
+                    {COURSES.map((course) => (
+                      <SelectItem key={course} value={course}>
+                        {course}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
-                  <Label htmlFor="regCourse" className="text-xs font-medium">Course *</Label>
-                  <div className="relative">
-                    <GraduationCap className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="regCourse"
-                      type="text"
-                      placeholder="BSIT"
-                      value={registerData.course}
-                      onChange={(e) => setRegisterData({ ...registerData, course: e.target.value })}
-                      className="pl-9 h-10 rounded-xl text-sm"
-                      required
-                    />
-                  </div>
+                  <Label htmlFor="regYearLevel" className="text-xs font-medium">Year Level *</Label>
+                  <Select
+                    value={registerData.yearLevel}
+                    onValueChange={(value) => setRegisterData({ ...registerData, yearLevel: value })}
+                  >
+                    <SelectTrigger className="h-10 rounded-xl text-sm bg-background">
+                      <SelectValue placeholder="Select year" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-background z-50">
+                      {YEAR_LEVELS.map((year) => (
+                        <SelectItem key={year} value={year}>
+                          {year}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
                 
                 <div className="space-y-1.5">
-                  <Label htmlFor="regContact" className="text-xs font-medium">Contact *</Label>
-                  <div className="relative">
-                    <Phone className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="regContact"
-                      type="tel"
-                      placeholder="09XXXXXXXXX"
-                      value={registerData.contactNumber}
-                      onChange={(e) => setRegisterData({ ...registerData, contactNumber: e.target.value })}
-                      className="pl-9 h-10 rounded-xl text-sm"
-                      required
-                    />
-                  </div>
+                  <Label htmlFor="regSection" className="text-xs font-medium">Section *</Label>
+                  <Select
+                    value={registerData.section}
+                    onValueChange={(value) => setRegisterData({ ...registerData, section: value })}
+                  >
+                    <SelectTrigger className="h-10 rounded-xl text-sm bg-background">
+                      <SelectValue placeholder="Select section" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-background z-50">
+                      {SECTIONS.map((section) => (
+                        <SelectItem key={section} value={section}>
+                          {section}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="regContact" className="text-xs font-medium">Contact *</Label>
+                <div className="relative">
+                  <Phone className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="regContact"
+                    type="tel"
+                    placeholder="09-000-000-000"
+                    value={registerData.contactNumber}
+                    onChange={(e) => setRegisterData({ ...registerData, contactNumber: e.target.value })}
+                    className="pl-9 h-10 rounded-xl text-sm"
+                    required
+                  />
                 </div>
               </div>
 
@@ -430,7 +512,7 @@ const StudentAuthPanel = () => {
                     <Input
                       id="regPassword"
                       type="password"
-                      placeholder="Min. 6 chars"
+                      placeholder="use your LRN"
                       value={registerData.password}
                       onChange={(e) => setRegisterData({ ...registerData, password: e.target.value })}
                       className="pl-9 h-10 rounded-xl text-sm"

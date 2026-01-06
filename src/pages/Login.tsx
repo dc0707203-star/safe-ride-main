@@ -25,7 +25,7 @@ const Login = () => {
 
         if (rolesError) throw rolesError;
 
-        const roles = (rolesData ?? []).map((r: any) => r.role as 'admin' | 'student' | 'driver');
+        const roles = (rolesData ?? []).map((r: unknown) => r.role as 'admin' | 'student' | 'driver');
         const primaryRole = roles.includes('admin')
           ? 'admin'
           : roles.includes('driver')

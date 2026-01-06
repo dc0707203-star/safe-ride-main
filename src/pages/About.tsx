@@ -187,7 +187,7 @@ const App = () => {
       {/* Footer */}
       <footer className="py-12 border-t border-white/5 text-center relative z-10 reveal">
         <p className="text-white/20 text-[10px] font-black uppercase tracking-[0.4em]">
-          ISU Emergency System © 2025 | Safety Is Our Priority
+          ISU Emergency System © 2026 | Safety Is Our Priority
         </p>
       </footer>
 

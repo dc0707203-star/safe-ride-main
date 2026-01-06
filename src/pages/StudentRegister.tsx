@@ -5,9 +5,47 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+
+const COURSES = [
+  "BS Information Technology",
+  "BS Computer Science",
+  "BS Information Systems",
+  "BS Computer Engineering",
+  "BS Electronics Engineering",
+  "BS Electrical Engineering",
+  "BS Civil Engineering",
+  "BS Mechanical Engineering",
+  "BS Agriculture",
+  "BS Forestry",
+  "BS Fisheries",
+  "BS Environmental Science",
+  "BS Biology",
+  "BS Chemistry",
+  "BS Mathematics",
+  "BS Nursing",
+  "BS Midwifery",
+  "BS Pharmacy",
+  "BS Medical Technology",
+  "BS Criminology",
+  "BS Education - Elementary",
+  "BS Education - Secondary",
+  "BS Business Administration",
+  "BS Accountancy",
+  "BS Hospitality Management",
+  "BS Tourism Management",
+  "BS Social Work",
+  "BA Communication",
+  "BA Political Science",
+  "Bachelor of Laws",
+];
+
+const YEAR_LEVELS = ["1st Year", "2nd Year", "3rd Year", "4th Year"];
+
+const SECTIONS = ["1-1", "1-2", "2-1", "2-2", "3-1", "3-2", "4-1", "4-2"];
 
 const StudentRegister = () => {
   const navigate = useNavigate();
@@ -20,6 +58,8 @@ const StudentRegister = () => {
     studentIdNumber: "",
     fullName: "",
     course: "",
+    yearLevel: "",
+    section: "",
     address: "",
     contactNumber: "",
   });
@@ -80,11 +120,13 @@ const StudentRegister = () => {
           student_id_number: formData.studentIdNumber,
           full_name: formData.fullName,
           course: formData.course,
+          year_level: formData.yearLevel,
+          section: formData.section,
           address: formData.address,
           contact_number: formData.contactNumber,
           photo_url: photoUrl,
           is_registered: true,
-        }, {
+        } as any, {
           onConflict: 'user_id'
         });
 
@@ -171,13 +213,59 @@ const StudentRegister = () => {
 
               <div className="space-y-2">
                 <Label htmlFor="course">Course *</Label>
-                <Input
-                  id="course"
-                  required
+                <Select
                   value={formData.course}
-                  onChange={(e) => setFormData({ ...formData, course: e.target.value })}
-                  placeholder="BS Computer Science"
-                />
+                  onValueChange={(value) => setFormData({ ...formData, course: value })}
+                >
+                  <SelectTrigger id="course">
+                    <SelectValue placeholder="Select course" />
+                  </SelectTrigger>
+                  <SelectContent className="max-h-60">
+                    {COURSES.map((course) => (
+                      <SelectItem key={course} value={course}>
+                        {course}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="yearLevel">Year Level *</Label>
+                <Select
+                  value={formData.yearLevel}
+                  onValueChange={(value) => setFormData({ ...formData, yearLevel: value })}
+                >
+                  <SelectTrigger id="yearLevel">
+                    <SelectValue placeholder="Select year" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {YEAR_LEVELS.map((year) => (
+                      <SelectItem key={year} value={year}>
+                        {year}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="section">Section *</Label>
+                <Select
+                  value={formData.section}
+                  onValueChange={(value) => setFormData({ ...formData, section: value })}
+                >
+                  <SelectTrigger id="section">
+                    <SelectValue placeholder="Select section" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {SECTIONS.map((section) => (
+                      <SelectItem key={section} value={section}>
+                        {section}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
               <div className="space-y-2">

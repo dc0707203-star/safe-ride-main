@@ -7,8 +7,7 @@ import {
   MapPin, 
   Clock, 
   Shield,
-  Facebook,
-  Send
+  Facebook
 } from 'lucide-react';
 
 const Contact = () => {
@@ -29,7 +28,7 @@ const Contact = () => {
     {
       icon: MapPin,
       label: "Address",
-      value: "Isabela State University, Echague, Isabela, Philippines",
+      value: "Isabela State University, Santiago, Extension, Unit Campus",
     },
     {
       icon: Phone,
@@ -39,7 +38,7 @@ const Contact = () => {
     {
       icon: Mail,
       label: "Email",
-      value: "saferide@isu.edu.ph",
+      value: "santiago@isu.edu.ph",
     },
     {
       icon: Clock,
@@ -75,7 +74,7 @@ const Contact = () => {
           <div className="bg-[#CCFF00]/10 p-1.5 rounded-lg border border-[#CCFF00]/20 group-hover:bg-[#CCFF00] transition-all">
             <ChevronLeft className="text-[#CCFF00] group-hover:text-[#004225] w-5 h-5" />
           </div>
-          <span className="font-black text-xl italic tracking-tighter uppercase text-white group-hover:text-[#CCFF00] transition-colors">Bumalik</span>
+          <span className="font-black text-xl italic tracking-tighter uppercase text-white group-hover:text-[#CCFF00] transition-colors">Back</span>
         </div>
       </nav>
 
@@ -83,13 +82,13 @@ const Contact = () => {
       <section className="relative z-10 pt-8 pb-16 px-6 container mx-auto text-center reveal">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#CCFF00]/5 border border-[#CCFF00]/20 mb-6">
           <Mail className="w-3 h-3 text-[#CCFF00]" />
-          <span className="text-[#CCFF00] text-[9px] font-black uppercase tracking-[0.2em]">Makipag-ugnayan sa amin</span>
+          <span className="text-[#CCFF00] text-[9px] font-black uppercase tracking-[0.2em]">Contact Us</span>
         </div>
         <h1 className="text-4xl md:text-7xl font-black mb-4 italic tracking-tighter leading-none uppercase">
           <span className="text-[#CCFF00] drop-shadow-[0_0_20px_rgba(204,255,0,0.5)]">CONTACT</span> US
         </h1>
         <p className="text-white/40 text-sm md:text-lg font-bold max-w-xl mx-auto italic tracking-wide leading-relaxed">
-          May tanong o puna? Makipag-ugnayan sa ISU SafeRide team.
+          Have questions or feedback? Get in touch with the ISU SafeRide team.
         </p>
       </section>
 
@@ -124,18 +123,12 @@ const Contact = () => {
           </h2>
           <div className="flex justify-center gap-4">
             <a 
-              href="https://facebook.com/isu.edu.ph" 
+              href="https://www.facebook.com/profile.php?id=61556821949029" 
               target="_blank" 
               rel="noopener noreferrer"
               className="bg-black/40 backdrop-blur-2xl border border-[#CCFF00]/10 p-4 rounded-xl transition-all duration-500 hover:border-[#CCFF00]/50 hover:shadow-[0_0_40px_rgba(204,255,0,0.15)] group"
             >
               <Facebook className="w-6 h-6 text-[#CCFF00] group-hover:scale-110 transition-transform" />
-            </a>
-            <a 
-              href="mailto:saferide@isu.edu.ph"
-              className="bg-black/40 backdrop-blur-2xl border border-[#CCFF00]/10 p-4 rounded-xl transition-all duration-500 hover:border-[#CCFF00]/50 hover:shadow-[0_0_40px_rgba(204,255,0,0.15)] group"
-            >
-              <Send className="w-6 h-6 text-[#CCFF00] group-hover:scale-110 transition-transform" />
             </a>
           </div>
         </div>
@@ -148,9 +141,9 @@ const Contact = () => {
             <Shield className="w-8 h-8 text-red-400" />
           </div>
           <h3 className="text-xl font-black uppercase italic text-red-400 mb-2">Emergency Hotline</h3>
-          <p className="text-white/60 text-sm mb-4">Para sa mga emergency at agarang tulong</p>
+          <p className="text-white/60 text-sm mb-4">For emergencies and immediate assistance</p>
           <a href="tel:+639123456789" className="text-2xl font-black text-red-400 hover:text-red-300 transition-colors">
-            +63 912 345 6789
+            911
           </a>
         </div>
       </section>

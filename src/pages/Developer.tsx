@@ -63,7 +63,7 @@ const Developer = () => {
           <div className="bg-[#CCFF00]/10 p-1.5 rounded-lg border border-[#CCFF00]/20 group-hover:bg-[#CCFF00] transition-all">
             <ChevronLeft className="text-[#CCFF00] group-hover:text-[#004225] w-5 h-5" />
           </div>
-          <span className="font-black text-xl italic tracking-tighter uppercase text-white group-hover:text-[#CCFF00] transition-colors">Bumalik</span>
+          <span className="font-black text-xl italic tracking-tighter uppercase text-white group-hover:text-[#CCFF00] transition-colors">Back</span>
         </div>
       </nav>
 
@@ -117,25 +117,31 @@ const Developer = () => {
                   {/* Social Links */}
                   <div className="flex justify-center md:justify-start gap-3">
                     <a 
-                      href="#" 
+                      href="https://www.facebook.com/jenslerdelacruz1" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
                       className="bg-[#CCFF00]/10 border border-[#CCFF00]/20 p-3 rounded-xl hover:bg-[#CCFF00] hover:text-[#004225] transition-all group"
                     >
                       <Facebook className="w-5 h-5 text-[#CCFF00] group-hover:text-[#004225]" />
                     </a>
                     <a 
-                      href="#" 
+                      href="https://github.com/jensdelacruz866-oss" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
                       className="bg-[#CCFF00]/10 border border-[#CCFF00]/20 p-3 rounded-xl hover:bg-[#CCFF00] hover:text-[#004225] transition-all group"
                     >
                       <Github className="w-5 h-5 text-[#CCFF00] group-hover:text-[#004225]" />
                     </a>
                     <a 
-                      href="#" 
+                      href="https://www.linkedin.com/in/your-linkedin-profile" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
                       className="bg-[#CCFF00]/10 border border-[#CCFF00]/20 p-3 rounded-xl hover:bg-[#CCFF00] hover:text-[#004225] transition-all group"
                     >
                       <Linkedin className="w-5 h-5 text-[#CCFF00] group-hover:text-[#004225]" />
                     </a>
                     <a 
-                      href="mailto:jensler.delacruz@isu.edu.ph" 
+                      href="jensdelacruz866@gmail.com" 
                       className="bg-[#CCFF00]/10 border border-[#CCFF00]/20 p-3 rounded-xl hover:bg-[#CCFF00] hover:text-[#004225] transition-all group"
                     >
                       <Mail className="w-5 h-5 text-[#CCFF00] group-hover:text-[#004225]" />

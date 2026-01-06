@@ -101,7 +101,7 @@ const Index = () => {
             <span className="text-[#CCFF00] drop-shadow-[0_0_25px_rgba(204,255,0,0.5)] animate-neon-pulse">SYSTEM</span>
           </h1>
           <p className="text-sm md:text-base mb-8 text-white/60 font-bold max-w-lg mx-auto italic tracking-wide">
-            Sinisiguro ang kaligtasan ng mga estudyante at ligtas na transportasyon para sa Isabela State University.
+           Ensuring student safety and secure transportation for Isabela State University
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button size="lg" variant="secondary" onClick={() => navigate('/login?type=admin')}>
@@ -155,19 +155,13 @@ const Index = () => {
               <img src={isuLogo} alt="ISU Logo" className="w-5 h-5 object-contain" />
             </div>
             <div>
-              <span className="block font-black text-base italic uppercase tracking-tighter text-white">ISU-ES</span>
+              <span className="block font-black text-base italic uppercase tracking-tighter text-white">ISU-SAFERIDE</span>
               <span className="text-[7px] font-black uppercase tracking-[0.4em] text-[#CCFF00]/50">Emergency System</span>
             </div>
           </div>
-          
-          <div className="flex gap-6 text-[9px] font-black uppercase tracking-[0.2em] text-white/30">
-            <button onClick={() => navigate('/about')} className="hover:text-[#CCFF00]">About</button>
-            <button onClick={() => navigate('/contact')} className="hover:text-[#CCFF00]">Contact</button>
-            <button onClick={() => navigate('/developer')} className="hover:text-[#CCFF00]">Developer</button>
-          </div>
 
           <p className="text-white/10 text-[8px] font-bold uppercase tracking-[0.2em]">
-            © 2025 Isabela State University. Sys_Ver: 2.5.3_Neon_Fixed
+            © 2025 Isabela State University.
           </p>
         </div>
       </footer>

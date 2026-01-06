@@ -1,27 +1,65 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Upload, Download, CheckCircle, Car, User } from "lucide-react";
+import { ArrowLeft, Upload, Download, CheckCircle, Car, User, IdCard, FileText, Truck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import QRCode from "react-qr-code";
 import campusBg from "@/assets/campus-bg.jpeg";
+
+const VALID_ID_TYPES = [
+  "Driver's License",
+  "Passport",
+  "UMID",
+  "PhilHealth ID",
+  "SSS ID",
+  "Postal ID",
+  "Voter's ID",
+  "PRC ID",
+  "National ID",
+];
+
+const LICENSE_TYPES = [
+  "Professional",
+  "Non-Professional",
+];
+
+const VEHICLE_TYPES = [
+  "Tricycle",
+  "Motorcycle",
+  "Car",
+  "Van",
+  "Jeepney",
+];
 
 const RegisterDriver = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string>("");
-  const [registeredDriver, setRegisteredDriver] = useState<any>(null);
+  const [registeredDriver, setRegisteredDriver] = useState<unknown>(null);
   
   const [formData, setFormData] = useState({
+    // Personal Information
     fullName: "",
-    age: "",
+    dateOfBirth: "",
     contactNumber: "",
+    email: "",
+    validIdType: "",
+    idNumber: "",
+    // Driver's License
+    licenseNumber: "",
+    licenseType: "",
+    licenseExpiry: "",
+    // Vehicle Information
+    vehicleType: "",
     plateNumber: "",
+    vehicleModel: "",
+    vehicleYear: "",
   });
 
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -66,33 +104,42 @@ const RegisterDriver = () => {
       }
 
       const { data: driver, error: insertError } = await supabase
-        .from('drivers' as any)
+        .from('drivers' as unknown)
         .insert({
           full_name: formData.fullName,
-          age: parseInt(formData.age),
+          date_of_birth: formData.dateOfBirth || null,
           contact_number: formData.contactNumber,
+          email: formData.email || null,
+          valid_id_type: formData.validIdType || null,
+          id_number: formData.idNumber || null,
+          license_number: formData.licenseNumber || null,
+          license_type: formData.licenseType || null,
+          license_expiry: formData.licenseExpiry || null,
+          vehicle_type: formData.vehicleType || null,
           tricycle_plate_number: formData.plateNumber,
+          vehicle_model: formData.vehicleModel || null,
+          vehicle_year: formData.vehicleYear ? parseInt(formData.vehicleYear) : null,
           photo_url: photoUrl,
           qr_code: '',
         })
         .select()
-        .single() as { data: any; error: any };
+        .single() as { data: unknown; error: unknown };
 
       if (insertError) throw insertError;
 
       const qrCode = generateQRCode(driver.id, formData.plateNumber);
       const { data: updatedDriver, error: updateError } = await supabase
-        .from('drivers' as any)
+        .from('drivers' as unknown)
         .update({ qr_code: qrCode })
         .eq('id', driver.id)
         .select()
-        .single() as { data: any; error: any };
+        .single() as { data: unknown; error: unknown };
 
       if (updateError) throw updateError;
 
       toast.success("Driver registered successfully!");
       setRegisteredDriver({ ...updatedDriver, qr_code: qrCode });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Registration error:', error);
       toast.error(error.message || "Failed to register driver");
     } finally {
@@ -139,7 +186,21 @@ const RegisterDriver = () => {
 
   const handleRegisterAnother = () => {
     setRegisteredDriver(null);
-    setFormData({ fullName: "", age: "", contactNumber: "", plateNumber: "" });
+    setFormData({
+      fullName: "",
+      dateOfBirth: "",
+      contactNumber: "",
+      email: "",
+      validIdType: "",
+      idNumber: "",
+      licenseNumber: "",
+      licenseType: "",
+      licenseExpiry: "",
+      vehicleType: "",
+      plateNumber: "",
+      vehicleModel: "",
+      vehicleYear: "",
+    });
     setPhotoFile(null);
     setPhotoPreview("");
   };
@@ -212,10 +273,12 @@ const RegisterDriver = () => {
 
   return (
     <div 
-      className="min-h-screen bg-cover bg-center bg-fixed"
+      className="min-h-screen bg-cover bg-center bg-fixed relative"
       style={{ backgroundImage: `url(${campusBg})` }}
     >
-      <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]" />
+      {/* Fixed background blur overlay */}
+      <div className="fixed inset-0 bg-black/40 backdrop-blur-xl z-0" />
+      
       {/* Header */}
       <header className="relative z-10 bg-white/10 backdrop-blur-xl border-b border-white/20 sticky top-0 shadow-lg">
         <div className="container mx-auto px-4 sm:px-6 py-4">
@@ -236,7 +299,7 @@ const RegisterDriver = () => {
         </div>
       </header>
 
-      <main className="relative z-10 container mx-auto px-4 sm:px-6 py-6 max-w-2xl">
+      <main className="relative z-10 container mx-auto px-4 sm:px-6 py-6 max-w-3xl">
         <Card className="border border-white/20 shadow-2xl bg-white/10 backdrop-blur-xl">
           <CardHeader className="text-center pb-2">
             <div className="flex justify-center mb-4">
@@ -262,61 +325,220 @@ const RegisterDriver = () => {
                 </Label>
               </div>
             </div>
-            <CardTitle className="text-xl">Driver Information</CardTitle>
+            <CardTitle className="text-xl">Driver Registration Form</CardTitle>
             <CardDescription>Fill in all required details below</CardDescription>
           </CardHeader>
           
           <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-5">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="fullName" className="text-sm font-medium">Full Name *</Label>
-                  <Input
-                    id="fullName"
-                    required
-                    value={formData.fullName}
-                    onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                    placeholder="Juan Dela Cruz"
-                    className="h-11 rounded-xl border-border/50 focus:border-blue-500"
-                  />
+            <form onSubmit={handleSubmit} className="space-y-6 max-h-[80vh] overflow-y-auto pr-2">
+              {/* Personal Information Section */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 pb-2 border-b border-border/50">
+                  <IdCard className="h-5 w-5 text-blue-600" />
+                  <h3 className="font-semibold text-foreground">Personal Information</h3>
                 </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="fullName" className="text-sm font-medium">Full Name *</Label>
+                    <Input
+                      id="fullName"
+                      required
+                      value={formData.fullName}
+                      onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                      placeholder="Juan Dela Cruz"
+                      className="h-11 rounded-xl border-border/50 focus:border-blue-500"
+                    />
+                  </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="age" className="text-sm font-medium">Age *</Label>
-                  <Input
-                    id="age"
-                    type="number"
-                    required
-                    value={formData.age}
-                    onChange={(e) => setFormData({ ...formData, age: e.target.value })}
-                    placeholder="35"
-                    className="h-11 rounded-xl border-border/50 focus:border-blue-500"
-                  />
+                  <div className="space-y-2">
+                    <Label htmlFor="dateOfBirth" className="text-sm font-medium">Date of Birth *</Label>
+                    <Input
+                      id="dateOfBirth"
+                      type="date"
+                      required
+                      value={formData.dateOfBirth}
+                      onChange={(e) => setFormData({ ...formData, dateOfBirth: e.target.value })}
+                      className="h-11 rounded-xl border-border/50 focus:border-blue-500"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="contact" className="text-sm font-medium">Contact Number *</Label>
+                    <Input
+                      id="contact"
+                      type="tel"
+                      required
+                      value={formData.contactNumber}
+                      onChange={(e) => setFormData({ ...formData, contactNumber: e.target.value })}
+                      placeholder="09XX XXX XXXX"
+                      className="h-11 rounded-xl border-border/50 focus:border-blue-500"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="email" className="text-sm font-medium">Email Address</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      value={formData.email}
+                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      placeholder="driver@email.com"
+                      className="h-11 rounded-xl border-border/50 focus:border-blue-500"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="validIdType" className="text-sm font-medium">Valid ID Type *</Label>
+                    <Select
+                      value={formData.validIdType}
+                      onValueChange={(value) => setFormData({ ...formData, validIdType: value })}
+                      required
+                    >
+                      <SelectTrigger className="h-11 rounded-xl border-border/50 focus:border-blue-500">
+                        <SelectValue placeholder="Select ID type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {VALID_ID_TYPES.map((type) => (
+                          <SelectItem key={type} value={type}>
+                            {type}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="idNumber" className="text-sm font-medium">ID Number *</Label>
+                    <Input
+                      id="idNumber"
+                      required
+                      value={formData.idNumber}
+                      onChange={(e) => setFormData({ ...formData, idNumber: e.target.value })}
+                      placeholder="Enter ID number"
+                      className="h-11 rounded-xl border-border/50 focus:border-blue-500"
+                    />
+                  </div>
                 </div>
+              </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="contact" className="text-sm font-medium">Contact Number *</Label>
-                  <Input
-                    id="contact"
-                    type="tel"
-                    required
-                    value={formData.contactNumber}
-                    onChange={(e) => setFormData({ ...formData, contactNumber: e.target.value })}
-                    placeholder="09XX XXX XXXX"
-                    className="h-11 rounded-xl border-border/50 focus:border-blue-500"
-                  />
+              {/* Driver's License Section */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 pb-2 border-b border-border/50">
+                  <FileText className="h-5 w-5 text-green-600" />
+                  <h3 className="font-semibold text-foreground">Driver's License</h3>
                 </div>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="licenseNumber" className="text-sm font-medium">License Number *</Label>
+                    <Input
+                      id="licenseNumber"
+                      required
+                      value={formData.licenseNumber}
+                      onChange={(e) => setFormData({ ...formData, licenseNumber: e.target.value })}
+                      placeholder="N01-23-456789"
+                      className="h-11 rounded-xl border-border/50 focus:border-green-500"
+                    />
+                  </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="plate" className="text-sm font-medium">Plate Number *</Label>
-                  <Input
-                    id="plate"
-                    required
-                    value={formData.plateNumber}
-                    onChange={(e) => setFormData({ ...formData, plateNumber: e.target.value })}
-                    placeholder="ABC-123"
-                    className="h-11 rounded-xl border-border/50 focus:border-blue-500"
-                  />
+                  <div className="space-y-2">
+                    <Label htmlFor="licenseType" className="text-sm font-medium">License Type *</Label>
+                    <Select
+                      value={formData.licenseType}
+                      onValueChange={(value) => setFormData({ ...formData, licenseType: value })}
+                      required
+                    >
+                      <SelectTrigger className="h-11 rounded-xl border-border/50 focus:border-green-500">
+                        <SelectValue placeholder="Select type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {LICENSE_TYPES.map((type) => (
+                          <SelectItem key={type} value={type}>
+                            {type}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="licenseExpiry" className="text-sm font-medium">License Expiry *</Label>
+                    <Input
+                      id="licenseExpiry"
+                      type="date"
+                      required
+                      value={formData.licenseExpiry}
+                      onChange={(e) => setFormData({ ...formData, licenseExpiry: e.target.value })}
+                      className="h-11 rounded-xl border-border/50 focus:border-green-500"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Vehicle Information Section */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 pb-2 border-b border-border/50">
+                  <Truck className="h-5 w-5 text-orange-600" />
+                  <h3 className="font-semibold text-foreground">Vehicle Information</h3>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="vehicleType" className="text-sm font-medium">Vehicle Type *</Label>
+                    <Select
+                      value={formData.vehicleType}
+                      onValueChange={(value) => setFormData({ ...formData, vehicleType: value })}
+                      required
+                    >
+                      <SelectTrigger className="h-11 rounded-xl border-border/50 focus:border-orange-500">
+                        <SelectValue placeholder="Select vehicle type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {VEHICLE_TYPES.map((type) => (
+                          <SelectItem key={type} value={type}>
+                            {type}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="plate" className="text-sm font-medium">Plate Number *</Label>
+                    <Input
+                      id="plate"
+                      required
+                      value={formData.plateNumber}
+                      onChange={(e) => setFormData({ ...formData, plateNumber: e.target.value })}
+                      placeholder="ABC-123"
+                      className="h-11 rounded-xl border-border/50 focus:border-orange-500"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="vehicleModel" className="text-sm font-medium">Vehicle Model *</Label>
+                    <Input
+                      id="vehicleModel"
+                      required
+                      value={formData.vehicleModel}
+                      onChange={(e) => setFormData({ ...formData, vehicleModel: e.target.value })}
+                      placeholder="Honda TMX 155"
+                      className="h-11 rounded-xl border-border/50 focus:border-orange-500"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="vehicleYear" className="text-sm font-medium">Vehicle Year *</Label>
+                    <Input
+                      id="vehicleYear"
+                      type="number"
+                      required
+                      min="1990"
+                      max={new Date().getFullYear()}
+                      value={formData.vehicleYear}
+                      onChange={(e) => setFormData({ ...formData, vehicleYear: e.target.value })}
+                      placeholder="2020"
+                      className="h-11 rounded-xl border-border/50 focus:border-orange-500"
+                    />
+                  </div>
                 </div>
               </div>
 

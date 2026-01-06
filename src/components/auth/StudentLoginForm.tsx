@@ -36,7 +36,7 @@ const StudentLoginForm = () => {
 
       toast.success("Successfully logged in!");
       navigate('/student');
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast.error(error.message || "Failed to log in");
     } finally {
       setLoading(false);

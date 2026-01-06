@@ -54,7 +54,7 @@ const LoginForm = ({ userType }: LoginFormProps) => {
 
       if (rolesError) throw rolesError;
 
-      const roles = (rolesData ?? []).map((r: any) => r.role);
+      const roles = (rolesData ?? []).map((r: unknown) => r.role);
       const primaryRole = resolvePrimaryRole(roles);
 
       if (primaryRole !== userType) {
@@ -65,7 +65,7 @@ const LoginForm = ({ userType }: LoginFormProps) => {
 
       toast.success("Successfully logged in!");
       navigate(primaryRole === "admin" ? "/admin" : "/student");
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast.error(error.message || `Failed to ${isSignUp ? 'sign up' : 'log in'}`);
     } finally {
       setLoading(false);
@@ -77,132 +77,134 @@ const LoginForm = ({ userType }: LoginFormProps) => {
     try {
       await signInWithGoogle();
       // Redirect is handled by Supabase
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast.error(error.message || "Failed to sign in with Google");
       setLoading(false);
     }
   };
 
   return (
-    <Card className="w-full border-border bg-card shadow-lg rounded-xl overflow-hidden">
-      <CardHeader className="pt-6 pb-4">
-        <CardTitle className="text-xl font-bold text-foreground text-center">
-          {isSignUp ? 'Create Account' : 'Welcome Back'}
-        </CardTitle>
-        <CardDescription className="text-muted-foreground text-center text-sm">
-          {isSignUp 
-            ? 'Enter your details to create an account' 
-            : 'Enter your credentials to sign in'}
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-4 px-6 pb-6">
-        <form onSubmit={handleEmailLogin} className="space-y-4">
-          {isSignUp && userType === 'student' && (
+    <div className="min-h-screen bg-green-950 flex items-center justify-center p-4">
+      <Card className="w-full max-w-md border-green-800 bg-green-950 shadow-2xl rounded-xl overflow-hidden">
+        <CardHeader className="pt-6 pb-4">
+          <CardTitle className="text-xl font-bold text-white text-center">
+            {isSignUp ? 'Create Account' : 'Welcome Back'}
+          </CardTitle>
+          <CardDescription className="text-green-300 text-center text-sm">
+            {isSignUp 
+              ? 'Enter your details to create an account' 
+              : 'Enter your credentials to sign in'}
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4 px-6 pb-6">
+          <form onSubmit={handleEmailLogin} className="space-y-4">
+            {isSignUp && userType === 'student' && (
+              <div className="space-y-2">
+                <Label htmlFor="fullName" className="text-sm font-medium text-white">Full Name</Label>
+                <div className="relative">
+                  <User className="absolute left-3 top-3 h-4 w-4 text-green-400" />
+                  <Input
+                    id="fullName"
+                    type="text"
+                    placeholder="Juan Dela Cruz"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    required
+                    className="pl-10 bg-green-900 border-green-700 text-white placeholder-green-500 focus:ring-green-600 focus:border-green-600"
+                  />
+                </div>
+              </div>
+            )}
+
             <div className="space-y-2">
-              <Label htmlFor="fullName" className="text-sm font-medium">Full Name</Label>
+              <Label htmlFor="email" className="text-sm font-medium text-white">Email Address</Label>
               <div className="relative">
-                <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Mail className="absolute left-3 top-3 h-4 w-4 text-green-400" />
                 <Input
-                  id="fullName"
-                  type="text"
-                  placeholder="Juan Dela Cruz"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
+                  id="email"
+                  type="email"
+                  placeholder={userType === 'admin' ? 'admin@isu.edu.ph' : 'your.email@isu.edu.ph'}
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="pl-10 bg-green-900 border-green-700 text-white placeholder-green-500 focus:ring-green-600 focus:border-green-600"
                   required
-                  className="pl-10"
                 />
               </div>
             </div>
-          )}
-
-          <div className="space-y-2">
-            <Label htmlFor="email" className="text-sm font-medium">Email Address</Label>
-            <div className="relative">
-              <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-              <Input
-                id="email"
-                type="email"
-                placeholder={userType === 'admin' ? 'admin@isu.edu.ph' : 'your.email@isu.edu.ph'}
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="pl-10"
-                required
-              />
-            </div>
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="password" className="text-sm font-medium">Password</Label>
-            <div className="relative">
-              <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-              <Input
-                id="password"
-                type="password"
-                placeholder="Enter your password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="pl-10"
-                required
-              />
-            </div>
-          </div>
-
-          <Button 
-            type="submit" 
-            className="w-full"
-            disabled={loading}
-          >
-            {loading 
-              ? (
-                  <div className="flex items-center justify-center gap-2">
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                    {isSignUp ? "Creating account..." : "Signing in..."}
-                  </div>
-                ) 
-              : (isSignUp ? "Create Account" : "Sign In")}
-          </Button>
-
-          {userType === 'student' && (
-            <Button
-              type="button"
-              variant="ghost"
-              className="w-full text-sm"
-              onClick={() => {
-                setIsSignUp(!isSignUp);
-                setPassword("");
-                setFullName("");
-              }}
-            >
-              {isSignUp ? "Already have an account? Sign In" : "Don't have an account? Sign Up"}
-            </Button>
-          )}
-        </form>
-
-        {userType === 'student' && (
-          <>
-            <div className="relative my-4">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t border-border"></span>
-              </div>
-              <div className="relative flex justify-center">
-                <span className="bg-card px-3 text-sm text-muted-foreground">Or continue with</span>
+            
+            <div className="space-y-2">
+              <Label htmlFor="password" className="text-sm font-medium text-white">Password</Label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-3 h-4 w-4 text-green-400" />
+                <Input
+                  id="password"
+                  type="password"
+                  placeholder="Enter your password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="pl-10 bg-green-900 border-green-700 text-white placeholder-green-500 focus:ring-green-600 focus:border-green-600"
+                  required
+                />
               </div>
             </div>
 
-            <Button
-              type="button"
-              variant="outline"
-              className="w-full"
-              onClick={handleGoogleLogin}
+            <Button 
+              type="submit" 
+              className="w-full bg-green-500 hover:bg-green-600 text-white font-semibold"
               disabled={loading}
             >
-              <Chrome className="mr-2 h-4 w-4" />
-              Sign in with Google
+              {loading 
+                ? (
+                    <div className="flex items-center justify-center gap-2">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                      {isSignUp ? "Creating account..." : "Signing in..."}
+                    </div>
+                  ) 
+                : (isSignUp ? "Create Account" : "Sign In")}
             </Button>
-          </>
-        )}
-      </CardContent>
-    </Card>
+
+            {userType === 'student' && (
+              <Button
+                type="button"
+                variant="ghost"
+                className="w-full text-sm text-green-300 hover:text-white"
+                onClick={() => {
+                  setIsSignUp(!isSignUp);
+                  setPassword("");
+                  setFullName("");
+                }}
+              >
+                {isSignUp ? "Already have an account? Sign In" : "Don't have an account? Sign Up"}
+              </Button>
+            )}
+          </form>
+
+          {userType === 'student' && (
+            <>
+              <div className="relative my-4">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-green-700"></span>
+                </div>
+                <div className="relative flex justify-center">
+                  <span className="bg-green-950 px-3 text-sm text-green-400">Or continue with</span>
+                </div>
+              </div>
+
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full border-green-500 text-green-300 hover:bg-green-900"
+                onClick={handleGoogleLogin}
+                disabled={loading}
+              >
+                <Chrome className="mr-2 h-4 w-4" />
+                Sign in with Google
+              </Button>
+            </>
+          )}
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 
