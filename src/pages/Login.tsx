@@ -144,7 +144,7 @@ const Login = () => {
             <div className="relative bg-white md:bg-gradient-to-br md:from-white/10 md:via-white/5 md:to-transparent border border-white/15 rounded-3xl overflow-hidden md:backdrop-blur-2xl md:shadow-2xl hover:md:shadow-[0_0_60px_rgba(204,255,0,0.25),0_20px_40px_rgba(204,255,0,0.08)] transition-all duration-500 transform md:group-hover:-translate-y-2">
             <div className="absolute inset-0 bg-gradient-to-br from-[#CCFF00]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-            <div className="relative z-10 md:grid md:grid-cols-5 md:h-[520px]">
+            <div className="relative z-10 md:grid md:grid-cols-5 md:grid-rows-[minmax(0,1fr)] md:h-[520px] md:min-h-0">
               {/* Desktop left panel (landscape) */}
               <div className="hidden md:flex md:col-span-2 flex-col justify-between p-8 border-r border-white/10 bg-gradient-to-br from-slate-950/70 via-slate-900/60 to-slate-900/40">
                 <div>

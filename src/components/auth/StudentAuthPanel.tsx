@@ -204,11 +204,11 @@ const StudentAuthPanel = ({ embedded = false }: StudentAuthPanelProps) => {
   };
 
   const wrapperClass = embedded
-    ? "w-full relative"
+    ? "w-full h-full min-h-0 relative"
     : "min-h-screen w-full bg-slate-50 flex flex-col md:justify-center md:items-center md:p-4 relative overflow-hidden";
 
   const cardClass = embedded
-    ? "w-full bg-transparent border-none shadow-none rounded-none flex flex-col relative z-10"
+    ? "w-full h-full min-h-0 bg-transparent border-none shadow-none rounded-none flex flex-col relative z-10"
     : "w-[92%] max-w-md md:max-w-[480px] mx-auto my-6 md:my-0 rounded-2xl md:rounded-3xl shadow-none md:shadow-2xl border-none bg-white flex flex-col overflow-hidden relative z-10";
 
   return (
@@ -358,7 +358,7 @@ const StudentAuthPanel = ({ embedded = false }: StudentAuthPanelProps) => {
         ) : (
           
           /* --- REGISTER VIEW (Solid Inputs) --- */
-          <div className="flex-1 overflow-y-auto bg-white relative">
+          <div className="flex-1 min-h-0 overflow-y-auto bg-white relative">
             <div className="pt-6 pb-16 px-5 md:pt-8 md:pb-24 md:px-6 space-y-8">
               
               {/* Profile Upload */}
