@@ -8,9 +8,12 @@ export async function registerServiceWorker() {
   }
 
   try {
+    const baseUrl = import.meta.env.BASE_URL || "/";
+    const scope = baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`;
+    const swUrl = new URL("service-worker.js", window.location.origin + scope).toString();
     const registration = await navigator.serviceWorker.register(
-      "/service-worker.js",
-      { scope: "/" }
+      swUrl,
+      { scope }
     );
     console.log("Service Worker registered successfully", registration);
     return registration;
