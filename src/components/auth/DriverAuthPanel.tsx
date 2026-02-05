@@ -21,7 +21,11 @@ const VALID_ID_TYPES = [
 const LICENSE_TYPES = ["Professional", "Non-Professional"];
 const VEHICLE_TYPES = ["Tricycle", "Motorcycle", "Car", "Van", "Jeepney"];
 
-const DriverAuthPanel = () => {
+type DriverAuthPanelProps = {
+  embedded?: boolean;
+};
+
+const DriverAuthPanel = ({ embedded = false }: DriverAuthPanelProps) => {
   const navigate = useNavigate();
   const [mode, setMode] = useState<'login' | 'register'>('login');
   const [loading, setLoading] = useState(false);
@@ -155,9 +159,17 @@ const DriverAuthPanel = () => {
     }
   };
 
+  const wrapperClass = embedded
+    ? "w-full h-full min-h-0 relative"
+    : "w-full max-w-md mx-auto animate-in fade-in zoom-in duration-300";
+
+  const cardClass = embedded
+    ? "w-full h-full min-h-0 bg-transparent border-none shadow-none rounded-none flex flex-col overflow-hidden relative z-10"
+    : "w-full rounded-3xl shadow-2xl border-none bg-white flex flex-col overflow-hidden relative z-10";
+
   return (
-    <div className="w-full max-w-md mx-auto animate-in fade-in zoom-in duration-300">
-      <Card className="w-full rounded-3xl shadow-2xl border-none bg-white flex flex-col overflow-hidden relative z-10">
+    <div className={wrapperClass}>
+      <Card className={cardClass}>
         
         {/* --- Segmented Control for md+ --- */}
         <div className="p-2 pb-0 bg-muted/30 hidden md:block">
@@ -178,8 +190,8 @@ const DriverAuthPanel = () => {
 
         {/* --- LOGIN VIEW --- */}
         {mode === "login" ? (
-          <div className="p-8">
-            <div className="text-center mb-8">
+          <div className="px-5 py-6 md:px-6 md:py-8 flex-1 flex flex-col justify-start md:justify-center">
+            <div className="text-center mb-6 md:mb-8">
               <h2 className="text-2xl font-bold text-slate-800 mb-2">Welcome Back!</h2>
               <p className="text-sm text-slate-700 md:text-slate-500">Enter your email and password to access driver portal.</p>
             </div>
@@ -236,7 +248,7 @@ const DriverAuthPanel = () => {
           </div>
         ) : (
           // REGISTER VIEW
-          <div className="max-h-[85vh] overflow-y-auto custom-scrollbar">
+          <div className="flex-1 min-h-0 overflow-y-auto bg-white md:bg-transparent relative">
             {/* Photo Header */}
             <div className="pt-8 pb-6 px-6 flex flex-col items-center bg-gradient-to-b from-blue-50/50 to-transparent">
               <div className="relative group cursor-pointer">

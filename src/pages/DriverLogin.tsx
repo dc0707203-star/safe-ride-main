@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Mail, Lock, Loader, Car } from "lucide-react";
+import { ArrowLeft, Bell, Lock, Loader2, Mail, MapPin, QrCode, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
@@ -68,124 +67,196 @@ const DriverLogin = () => {
 
   return (
     <div
-      className="min-h-screen bg-cover bg-center bg-fixed"
-      style={{ backgroundImage: `url(${campusBg})` }}
+      className="min-h-screen bg-cover bg-center bg-fixed flex flex-col items-center justify-start md:justify-center px-4 py-8 md:p-4 overflow-y-auto"
+      style={{
+        backgroundImage: `linear-gradient(135deg, rgba(15,23,42,0.9) 0%, rgba(30,41,59,0.9) 50%, rgba(0,0,0,0.9) 100%), url('${campusBg}')`,
+      }}
     >
-      <div className="fixed inset-0 bg-gradient-to-br from-blue-950/70 via-blue-900/80 to-black/80 backdrop-blur-lg" />
-
-      {/* Header */}
-      <div className="relative z-10 flex items-center justify-between px-4 md:px-12 py-6">
-        <div className="flex items-center gap-3">
-          <div className="bg-gradient-to-br from-[#CCFF00] to-[#9acd00] p-2 rounded-xl shadow-[0_0_25px_rgba(204,255,0,0.4)]">
-            <img src={isuLogo} alt="ISU Logo" className="w-5 h-5 object-contain" />
-          </div>
-          <span className="font-black text-[#CCFF00] text-lg uppercase tracking-tight">ISU Safe Ride</span>
+      <div className="relative z-10 w-full max-w-md md:max-w-4xl">
+        {/* Back Button */}
+        <div className="mb-8">
+          <Button
+            onClick={() => navigate("/")}
+            variant="ghost"
+            size="icon"
+            className="text-[#CCFF00] hover:bg-[#CCFF00]/10 hover:text-[#CCFF00]"
+          >
+            <ArrowLeft className="h-6 w-6" />
+          </Button>
         </div>
 
-        <Button
-          variant="ghost"
-          onClick={() => navigate("/")}
-          className="gap-2 text-white hover:bg-white/20"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          <span className="hidden sm:inline">Back to Home</span>
-        </Button>
-      </div>
-
-      {/* Login Card */}
-      <div className="relative z-10 flex items-center justify-center min-h-[calc(100vh-100px)] px-4">
-        <Card className="w-full max-w-md bg-black/60 border-white/20 backdrop-blur-xl">
-          <CardHeader className="space-y-2">
-            <div className="flex items-center justify-center mb-4">
-              <div className="p-3 bg-gradient-to-br from-[#CCFF00]/20 to-blue-500/20 rounded-xl">
-                <Car className="h-8 w-8 text-[#CCFF00]" />
-              </div>
+        {/* Header (mobile). Desktop branding is inside the landscape card below. */}
+        <div className="mb-10 md:hidden animate-fade-in">
+          <div className="flex items-center justify-center gap-4 mb-6">
+            <div className="bg-gradient-to-br from-[#CCFF00] via-lime-300 to-green-400 p-3.5 rounded-2xl shadow-[0_0_30px_rgba(204,255,0,0.6)]">
+              <img src={isuLogo} alt="ISU Logo" className="h-12 w-12" />
             </div>
-            <CardTitle className="text-white text-2xl text-center">Driver Login</CardTitle>
-            <CardDescription className="text-white/60 text-center">
-              Sign in with your registered email and password
-            </CardDescription>
-          </CardHeader>
+          </div>
+          <div className="text-center">
+            <h1 className="text-4xl font-black bg-gradient-to-r from-[#CCFF00] via-lime-300 to-green-400 bg-clip-text text-transparent mb-2">
+              SafeRide
+            </h1>
+            <p className="text-white/70 text-base font-semibold tracking-wide">DRIVER LOGIN</p>
+          </div>
+        </div>
 
-          <CardContent>
-            <form onSubmit={handleLogin} className="space-y-4">
-              {/* Email */}
-              <div className="space-y-2">
-                <Label htmlFor="email" className="text-white">
-                  Email Address
-                </Label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-3 h-4 w-4 text-[#CCFF00]/60" />
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="your@email.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    disabled={loading}
-                    className="pl-10 bg-white/10 border-white/20 text-white placeholder:text-white/40 focus:border-[#CCFF00]/50 focus:bg-white/15"
-                  />
+        {/* Main Content Card */}
+        <div className="relative mb-8 group transition-all duration-500">
+          <div className="absolute inset-0 bg-gradient-to-r from-[#CCFF00]/30 to-green-400/30 rounded-3xl blur-3xl opacity-0 md:group-hover:opacity-100 transition-all duration-500" />
+          <div className="relative bg-white md:bg-gradient-to-br md:from-white/10 md:via-white/5 md:to-transparent border border-white/15 rounded-3xl overflow-hidden md:backdrop-blur-2xl md:shadow-2xl hover:md:shadow-[0_0_60px_rgba(204,255,0,0.25),0_20px_40px_rgba(204,255,0,0.08)] transition-all duration-500 transform md:group-hover:-translate-y-2">
+            <div className="absolute inset-0 bg-gradient-to-br from-[#CCFF00]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+            <div className="relative z-10 md:grid md:grid-cols-5 md:grid-rows-[minmax(0,1fr)] md:min-h-[520px] md:h-[calc(100vh-240px)] md:max-h-[640px] md:min-h-0">
+              {/* Desktop left panel (landscape) */}
+              <div className="hidden md:flex md:col-span-2 flex-col justify-between p-8 border-r border-white/10 bg-gradient-to-br from-slate-950/70 via-slate-900/60 to-slate-900/40">
+                <div>
+                  <div className="flex items-center gap-4">
+                    <div className="bg-gradient-to-br from-[#CCFF00] via-lime-300 to-green-400 p-3 rounded-2xl shadow-[0_0_30px_rgba(204,255,0,0.35)]">
+                      <img src={isuLogo} alt="ISU Logo" className="h-10 w-10" />
+                    </div>
+                    <div>
+                      <h1 className="text-3xl font-black bg-gradient-to-r from-[#CCFF00] via-lime-300 to-green-300 bg-clip-text text-transparent leading-tight">
+                        SafeRide
+                      </h1>
+                      <p className="text-white/70 text-sm font-semibold tracking-wide">DRIVER LOGIN</p>
+                    </div>
+                  </div>
+
+                  <div className="mt-8 space-y-4">
+                    <div className="flex items-start gap-3">
+                      <div className="mt-0.5 h-8 w-8 rounded-xl bg-white/10 flex items-center justify-center border border-white/10">
+                        <ShieldCheck className="h-4 w-4 text-[#CCFF00]" />
+                      </div>
+                      <div>
+                        <p className="text-white font-semibold">Secure access</p>
+                        <p className="text-white/60 text-sm">Use your registered email and password to continue.</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <div className="mt-0.5 h-8 w-8 rounded-xl bg-white/10 flex items-center justify-center border border-white/10">
+                        <QrCode className="h-4 w-4 text-[#CCFF00]" />
+                      </div>
+                      <div>
+                        <p className="text-white font-semibold">QR ready</p>
+                        <p className="text-white/60 text-sm">Access your QR for student trip logging.</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <div className="mt-0.5 h-8 w-8 rounded-xl bg-white/10 flex items-center justify-center border border-white/10">
+                        <MapPin className="h-4 w-4 text-[#CCFF00]" />
+                      </div>
+                      <div>
+                        <p className="text-white font-semibold">Dashboard</p>
+                        <p className="text-white/60 text-sm">Monitor trips, announcements, and settings.</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <div className="mt-0.5 h-8 w-8 rounded-xl bg-white/10 flex items-center justify-center border border-white/10">
+                        <Bell className="h-4 w-4 text-[#CCFF00]" />
+                      </div>
+                      <div>
+                        <p className="text-white font-semibold">Alerts</p>
+                        <p className="text-white/60 text-sm">Stay informed when emergency updates happen.</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <p className="text-white/40 text-xs">© 2025 SafeRide ISU. All rights reserved.</p>
+              </div>
+
+              {/* Right panel */}
+              <div className="md:col-span-3 md:bg-white/95 md:backdrop-blur-xl md:min-h-0 md:flex md:flex-col">
+                <div className="px-5 py-6 md:px-8 md:py-10 flex-1 flex flex-col justify-start md:justify-center">
+                  <div className="mb-6 md:mb-8">
+                    <h2 className="text-2xl font-bold text-slate-800 mb-2">Welcome Back!</h2>
+                    <p className="text-sm text-slate-700 md:text-slate-500">
+                      Sign in with your registered email and password.
+                    </p>
+                  </div>
+
+                  <form onSubmit={handleLogin} className="space-y-5">
+                    <div className="space-y-2">
+                      <Label htmlFor="email" className="text-xs font-bold text-slate-700 uppercase tracking-wide ml-1">
+                        Email
+                      </Label>
+                      <div className="relative group">
+                        <Mail className="absolute left-4 top-3.5 h-5 w-5 text-slate-500 group-focus-within:text-[#004d25] transition-colors z-10" />
+                        <Input
+                          id="email"
+                          type="email"
+                          placeholder="driver@email.com"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          disabled={loading}
+                          className="pl-11 h-12 rounded-xl border-slate-200 bg-white focus-visible:ring-2 focus-visible:ring-[#004d25]/20 focus-visible:border-[#004d25] transition-all"
+                          required
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="password" className="text-xs font-bold text-slate-700 uppercase tracking-wide ml-1">
+                        Password
+                      </Label>
+                      <div className="relative group">
+                        <Lock className="absolute left-4 top-3.5 h-5 w-5 text-slate-500 group-focus-within:text-[#004d25] transition-colors z-10" />
+                        <Input
+                          id="password"
+                          type="password"
+                          placeholder="••••••••"
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          disabled={loading}
+                          className="pl-11 h-12 rounded-xl border-slate-200 bg-white focus-visible:ring-2 focus-visible:ring-[#004d25]/20 focus-visible:border-[#004d25] transition-all"
+                          required
+                        />
+                      </div>
+                    </div>
+
+                    <Button
+                      type="submit"
+                      disabled={loading}
+                      className="w-full h-12 rounded-full text-base font-bold bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white shadow-lg active:scale-[0.98] transition-all"
+                    >
+                      {loading ? (
+                        <span className="flex items-center gap-2">
+                          <Loader2 className="h-5 w-5 animate-spin" />
+                          Signing in...
+                        </span>
+                      ) : (
+                        "Sign In"
+                      )}
+                    </Button>
+
+                    <div className="pt-2 text-center">
+                      <p className="text-sm text-slate-600">
+                        Don't have an account?{" "}
+                        <button
+                          type="button"
+                          onClick={() => navigate("/driver-register")}
+                          className="text-[#004d25] font-bold hover:underline"
+                        >
+                          Register here
+                        </button>
+                      </p>
+                    </div>
+
+                    <div className="mt-2 p-4 bg-slate-50 border border-slate-200 rounded-xl">
+                      <p className="text-slate-600 text-xs leading-relaxed">
+                        Use the email and password you created during driver registration to access your dashboard.
+                      </p>
+                    </div>
+                  </form>
                 </div>
               </div>
-
-              {/* Password */}
-              <div className="space-y-2">
-                <Label htmlFor="password" className="text-white">
-                  Password
-                </Label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-3 h-4 w-4 text-[#CCFF00]/60" />
-                  <Input
-                    id="password"
-                    type="password"
-                    placeholder="••••••••"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    disabled={loading}
-                    className="pl-10 bg-white/10 border-white/20 text-white placeholder:text-white/40 focus:border-[#CCFF00]/50 focus:bg-white/15"
-                  />
-                </div>
-              </div>
-
-              {/* Login Button */}
-              <Button
-                type="submit"
-                disabled={loading}
-                className="w-full bg-gradient-to-r from-[#CCFF00] to-[#a8e600] text-green-950 hover:shadow-lg hover:shadow-[#CCFF00]/50 font-bold uppercase tracking-wide"
-              >
-                {loading ? (
-                  <>
-                    <Loader className="h-4 w-4 animate-spin mr-2" />
-                    Logging in...
-                  </>
-                ) : (
-                  <>Sign In</>
-                )}
-              </Button>
-
-              {/* Register Link */}
-              <div className="text-center pt-2">
-                <p className="text-white/60 text-sm">
-                  Don't have an account?{" "}
-                  <button
-                    type="button"
-                    onClick={() => navigate("/driver-register")}
-                    className="text-[#CCFF00] hover:underline font-semibold"
-                  >
-                    Register here
-                  </button>
-                </p>
-              </div>
-            </form>
-
-            {/* Info Box */}
-            <div className="mt-6 p-4 bg-blue-500/20 border border-blue-400/30 rounded-lg">
-              <p className="text-white/80 text-xs leading-relaxed">
-                Use the email and password you created during driver registration to access your dashboard.
-              </p>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
+
+        <div className="text-center text-white/50 text-xs md:hidden landscape:hidden">
+          <p>© 2025 SafeRide ISU. All rights reserved.</p>
+        </div>
       </div>
     </div>
   );
