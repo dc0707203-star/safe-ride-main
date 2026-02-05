@@ -11,6 +11,15 @@ export async function registerServiceWorker() {
     const baseUrl = import.meta.env.BASE_URL || "/";
     const scope = baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`;
     const swUrl = new URL("service-worker.js", window.location.origin + scope).toString();
+    const swResponse = await fetch(swUrl, { method: "HEAD", cache: "no-store" }).catch(
+      () => null
+    );
+    if (!swResponse || !swResponse.ok) {
+      console.warn(
+        `Service worker script not found (${swResponse?.status ?? "network error"}). Skipping registration.`
+      );
+      return null;
+    }
     const registration = await navigator.serviceWorker.register(
       swUrl,
       { scope }
