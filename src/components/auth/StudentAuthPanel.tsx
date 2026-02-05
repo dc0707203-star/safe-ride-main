@@ -28,7 +28,11 @@ const COURSES = [
 const YEAR_LEVELS = ["1st Year", "2nd Year", "3rd Year", "4th Year"];
 const SECTIONS = ["1-1", "1-2", "2-1", "2-2", "3-1", "3-2", "4-1", "4-2"];
 
-const StudentAuthPanel = () => {
+type StudentAuthPanelProps = {
+  embedded?: boolean;
+};
+
+const StudentAuthPanel = ({ embedded = false }: StudentAuthPanelProps) => {
   const navigate = useNavigate();
   const [mode, setMode] = useState<'login' | 'register'>('login');
   const [loading, setLoading] = useState(false);
@@ -199,70 +203,101 @@ const StudentAuthPanel = () => {
     }
   };
 
+  const wrapperClass = embedded
+    ? "w-full relative"
+    : "min-h-screen w-full bg-slate-50 flex flex-col md:justify-center md:items-center md:p-4 relative overflow-hidden";
+
+  const cardClass = embedded
+    ? "w-full bg-transparent border-none shadow-none rounded-none flex flex-col relative z-10"
+    : "w-[92%] max-w-md md:max-w-[480px] mx-auto my-6 md:my-0 rounded-2xl md:rounded-3xl shadow-none md:shadow-2xl border-none bg-white flex flex-col overflow-hidden relative z-10";
+
   return (
-    <div className="min-h-screen w-full bg-slate-50 flex flex-col md:justify-center md:items-center md:p-4 relative overflow-hidden">
-      
-      {/* --- Decorative Background Blobs (Stays on bg-slate-50, visible outside card) --- */}
-      <div className="absolute top-0 left-0 w-72 h-72 bg-green-500/10 rounded-full mix-blend-multiply filter blur-3xl opacity-30 -translate-x-1/2 -translate-y-1/2"></div>
-      <div className="absolute bottom-0 right-0 w-72 h-72 bg-teal-500/10 rounded-full mix-blend-multiply filter blur-3xl opacity-30 translate-x-1/2 translate-y-1/2"></div>
+    <div className={wrapperClass}>
+      {!embedded && (
+        <>
+          {/* --- Decorative Background Blobs (Stays on bg-slate-50, visible outside card) --- */}
+          <div className="absolute top-0 left-0 w-72 h-72 bg-green-500/10 rounded-full mix-blend-multiply filter blur-3xl opacity-30 -translate-x-1/2 -translate-y-1/2"></div>
+          <div className="absolute bottom-0 right-0 w-72 h-72 bg-teal-500/10 rounded-full mix-blend-multiply filter blur-3xl opacity-30 translate-x-1/2 translate-y-1/2"></div>
+        </>
+      )}
 
       {/* --- Main Card (Solid White) --- */}
-      <Card className="w-[92%] max-w-md md:max-w-[480px] mx-auto my-6 md:my-0 rounded-2xl md:rounded-3xl shadow-none md:shadow-2xl border-none bg-white flex flex-col overflow-hidden relative z-10">
-        
-        {/* --- Sticky Header & Nav (md+ only). Mobile header and tabs below --- */}
-        <div className="pt-8 pb-4 px-6 border-b border-slate-100 bg-white sticky top-0 z-20 hidden md:block">
-          <div className="flex items-center justify-between mb-6">
-             <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-[#004d25] to-emerald-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-green-900/20">
-                  <User className="h-5 w-5" />
-                </div>
-                <div>
-                  <span className="font-black text-[#004d25] text-xl tracking-tight leading-none">SafeRide</span>
-                  <span className="block text-[10px] font-bold text-green-600 uppercase tracking-widest">ISU Access</span>
-                </div>
-             </div>
-          </div>
+      <Card className={cardClass}>
+        {!embedded ? (
+          <>
+            {/* --- Sticky Header & Nav (md+ only). Mobile header and tabs below --- */}
+            <div className="pt-8 pb-4 px-6 border-b border-slate-100 bg-white sticky top-0 z-20 hidden md:block">
+              <div className="flex items-center justify-between mb-6">
+                 <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-gradient-to-br from-[#004d25] to-emerald-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-green-900/20">
+                      <User className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <span className="font-black text-[#004d25] text-xl tracking-tight leading-none">SafeRide</span>
+                      <span className="block text-[10px] font-bold text-green-600 uppercase tracking-widest">ISU Access</span>
+                    </div>
+                 </div>
+              </div>
 
-          {/* Toggle Switch for md+ */}
-          <div className="relative bg-slate-100 p-1 rounded-2xl h-14 hidden md:flex">
-            <div 
-              className={`absolute top-1 left-1 w-[calc(50%-4px)] h-[calc(100%-8px)] bg-white rounded-xl shadow-sm transition-all duration-300 ease-out ${mode === 'register' ? 'translate-x-[100%]' : 'translate-x-0'}`}
-            />
-            <button
-              type="button"
-              onClick={() => setMode('login')}
-              className={`relative z-10 flex-1 flex items-center justify-center gap-2 text-sm font-bold rounded-xl transition-all duration-300 ${
-                mode === 'login' ? 'text-[#004d25]' : 'text-slate-600 md:text-slate-400 hover:text-slate-600'
-              }`}
-            >
-              <User className="h-4 w-4" /> Sign In
-            </button>
-            <button
-              type="button"
-              onClick={() => setMode('register')}
-              className={`relative z-10 flex-1 flex items-center justify-center gap-2 text-sm font-bold rounded-xl transition-all duration-300 ${
-                mode === 'register' ? 'text-[#004d25]' : 'text-slate-600 md:text-slate-400 hover:text-slate-600'
-              }`}
-            >
-              <GraduationCap className="h-4 w-4" /> Register
-            </button>
-          </div>
-        </div>
+              {/* Toggle Switch for md+ */}
+              <div className="relative bg-slate-100 p-1 rounded-2xl h-14 hidden md:flex">
+                <div 
+                  className={`absolute top-1 left-1 w-[calc(50%-4px)] h-[calc(100%-8px)] bg-white rounded-xl shadow-sm transition-all duration-300 ease-out ${mode === 'register' ? 'translate-x-[100%]' : 'translate-x-0'}`}
+                />
+                <button
+                  type="button"
+                  onClick={() => setMode('login')}
+                  className={`relative z-10 flex-1 flex items-center justify-center gap-2 text-sm font-bold rounded-xl transition-all duration-300 ${
+                    mode === 'login' ? 'text-[#004d25]' : 'text-slate-600 md:text-slate-400 hover:text-slate-600'
+                  }`}
+                >
+                  <User className="h-4 w-4" /> Sign In
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setMode('register')}
+                  className={`relative z-10 flex-1 flex items-center justify-center gap-2 text-sm font-bold rounded-xl transition-all duration-300 ${
+                    mode === 'register' ? 'text-[#004d25]' : 'text-slate-600 md:text-slate-400 hover:text-slate-600'
+                  }`}
+                >
+                  <GraduationCap className="h-4 w-4" /> Register
+                </button>
+              </div>
+            </div>
 
-        {/* Mobile Header & Tabs */}
-        <div className="md:hidden px-6 pt-6 text-center">
-          <div className="mx-auto w-12 h-12 bg-gradient-to-br from-[#004d25] to-emerald-600 rounded-xl flex items-center justify-center text-white shadow-lg mb-3">
-            <User className="h-5 w-5" />
+            {/* Mobile Header & Tabs */}
+            <div className="md:hidden px-6 pt-6 text-center">
+              <div className="mx-auto w-12 h-12 bg-gradient-to-br from-[#004d25] to-emerald-600 rounded-xl flex items-center justify-center text-white shadow-lg mb-3">
+                <User className="h-5 w-5" />
+              </div>
+              <div className="flex border-b border-slate-100 -mx-6">
+                <button onClick={() => setMode('login')} className={`flex-1 py-4 text-center font-bold ${mode === 'login' ? 'text-[#004d25] border-b-2 border-[#004d25]' : 'text-slate-600'}`}>Sign In</button>
+                <button onClick={() => setMode('register')} className={`flex-1 py-4 text-center font-bold ${mode === 'register' ? 'text-[#004d25] border-b-2 border-[#004d25]' : 'text-slate-600'}`}>Register</button>
+              </div>
+            </div>
+          </>
+        ) : (
+          <div className="px-4 pt-4">
+            <div className="flex border-b border-slate-100 -mx-4">
+              <button
+                onClick={() => setMode('login')}
+                className={`flex-1 py-3 text-center font-bold ${mode === 'login' ? 'text-[#004d25] border-b-2 border-[#004d25]' : 'text-slate-600'}`}
+              >
+                Sign In
+              </button>
+              <button
+                onClick={() => setMode('register')}
+                className={`flex-1 py-3 text-center font-bold ${mode === 'register' ? 'text-[#004d25] border-b-2 border-[#004d25]' : 'text-slate-600'}`}
+              >
+                Register
+              </button>
+            </div>
           </div>
-          <div className="flex border-b border-slate-100 -mx-6">
-            <button onClick={() => setMode('login')} className={`flex-1 py-4 text-center font-bold ${mode === 'login' ? 'text-[#004d25] border-b-2 border-[#004d25]' : 'text-slate-600'}`}>Sign In</button>
-            <button onClick={() => setMode('register')} className={`flex-1 py-4 text-center font-bold ${mode === 'register' ? 'text-[#004d25] border-b-2 border-[#004d25]' : 'text-slate-600'}`}>Register</button>
-          </div>
-        </div>
+        )}
 
         {/* --- LOGIN VIEW --- */}
         {mode === 'login' ? (
-          <div className="px-6 py-8 flex-1 flex flex-col justify-center">
+          <div className="px-5 py-6 md:px-6 md:py-8 flex-1 flex flex-col justify-center">
             <div className="mb-8">
               <h2 className="text-2xl font-bold text-slate-800 mb-2">Welcome Back!</h2>
               <p className="text-sm text-slate-700 md:text-slate-500">Enter your email and password to access student portal.</p>
@@ -324,7 +359,7 @@ const StudentAuthPanel = () => {
           
           /* --- REGISTER VIEW (Solid Inputs) --- */
           <div className="flex-1 overflow-y-auto bg-white relative">
-            <div className="pt-8 pb-24 px-6 space-y-8">
+            <div className="pt-6 pb-16 px-5 md:pt-8 md:pb-24 md:px-6 space-y-8">
               
               {/* Profile Upload */}
               <div className="flex flex-col items-center pb-6 border-b border-slate-100">
