@@ -9,7 +9,8 @@ import QRCodeComponent from "react-qr-code";
 import campusBg from "@/assets/campus-bg.jpeg";
 import isuLogo from "@/assets/isu-logo.png";
 import { format } from "date-fns";
-import { subscribeToPushNotifications, registerServiceWorker } from "@/lib/notifications";
+import { subscribeToPushNotifications } from "@/lib/notifications";
+import { registerServiceWorker } from "@/lib/serviceWorker";
 import { useCapacitorPush } from "@/hooks/useCapacitorPush";
 import {
   Dialog,

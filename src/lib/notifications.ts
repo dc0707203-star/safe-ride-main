@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { registerServiceWorker } from "@/lib/serviceWorker";
 
 export interface NotificationSubscription {
   id?: string;
@@ -7,28 +8,6 @@ export interface NotificationSubscription {
   subscription: PushSubscriptionJSON;
   created_at?: string;
   last_verified?: string;
-}
-
-/**
- * Register Service Worker
- */
-export async function registerServiceWorker() {
-  if (!("serviceWorker" in navigator)) {
-    console.log("Service Workers not supported");
-    return null;
-  }
-
-  try {
-    const registration = await navigator.serviceWorker.register(
-      "/service-worker.js",
-      { scope: "/" }
-    );
-    console.log("Service Worker registered successfully", registration);
-    return registration;
-  } catch (error) {
-    console.error("Service Worker registration failed:", error);
-    return null;
-  }
 }
 
 /**

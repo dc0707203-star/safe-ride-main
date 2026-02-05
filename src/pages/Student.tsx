@@ -15,7 +15,8 @@ import NotificationBell from "@/components/NotificationBell";
 import isuLogo from "@/assets/isu-logo.png";
 import Agreement from "@/pages/student/Agreement";
 import campusBg from "@/assets/campus-bg.jpeg";
-import { subscribeToPushNotifications, registerServiceWorker } from "@/lib/notifications";
+import { subscribeToPushNotifications } from "@/lib/notifications";
+import { registerServiceWorker } from "@/lib/serviceWorker";
 import { useCapacitorPush } from "@/hooks/useCapacitorPush";
 import {
   Sheet,
