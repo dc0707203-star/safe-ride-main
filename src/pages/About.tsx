@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { 
   Shield, 
   Target, 
@@ -12,7 +12,10 @@ import {
   MapPin,
   Clock
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import isuLogo from '@/assets/isu-logo.png';
+import riseCenter from '@/assets/rise-center.png';
+import campusBg from '@/assets/campus-bg.jpeg';
 
 // Reusable Button Component
 const Button = ({ children, className = "", variant = "secondary", onClick }: { 
@@ -57,9 +60,18 @@ const App = () => {
     document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
     return () => observer.disconnect();
   }, []);
+  
+  const [showIsuLogo, setShowIsuLogo] = useState(true);
+  
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setShowIsuLogo(prev => !prev);
+    }, 2000);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
-    <div className="min-h-screen bg-[#000805] text-white relative overflow-hidden font-sans selection:bg-[#CCFF00] selection:text-[#004225]">
+    <div className="min-h-screen bg-cover bg-center bg-fixed text-white relative overflow-hidden font-sans selection:bg-[#CCFF00] selection:text-[#004225]" style={{ backgroundImage: `linear-gradient(135deg, rgba(5, 65, 35, 0.85) 0%, rgba(20, 70, 40, 0.9) 50%, rgba(5, 65, 35, 0.85) 100%), url('${campusBg}')` }}>
       
       {/* Background Neon Waves */}
       <div className="absolute inset-0 opacity-20 pointer-events-none">
@@ -164,7 +176,21 @@ const App = () => {
           <div className="relative">
             <div className="w-32 h-32 md:w-48 md:h-48 rounded-full bg-gradient-to-tr from-[#CCFF00] to-green-900 p-1">
               <div className="w-full h-full rounded-full bg-[#000805] flex items-center justify-center overflow-hidden">
-                <img src={isuLogo} alt="ISU Logo" className="w-20 h-20 md:w-32 md:h-32 object-contain" />
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={showIsuLogo ? 'isu' : 'rise'}
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.8 }}
+                    transition={{ duration: 0.5 }}
+                  >
+                    {showIsuLogo ? (
+                      <img src={isuLogo} alt="ISU Logo" className="w-20 h-20 md:w-32 md:h-32 object-contain" />
+                    ) : (
+                      <img src={riseCenter} alt="RISE Center Logo" className="w-20 h-20 md:w-32 md:h-32 object-contain" />
+                    )}
+                  </motion.div>
+                </AnimatePresence>
               </div>
             </div>
             <div className="absolute -bottom-2 -right-2 bg-[#CCFF00] text-[#004225] p-2 rounded-lg shadow-xl">
@@ -187,7 +213,7 @@ const App = () => {
       {/* Footer */}
       <footer className="py-12 border-t border-white/5 text-center relative z-10 reveal">
         <p className="text-white/20 text-[10px] font-black uppercase tracking-[0.4em]">
-          ISU Emergency System © 2026 | Safety Is Our Priority
+          ISU Emergency System © 2025 | Safety Is Our Priority
         </p>
       </footer>
 

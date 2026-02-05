@@ -9,7 +9,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import QRCode from "react-qr-code";
+import { useIsMobile } from "@/hooks/use-mobile";
 import campusBg from "@/assets/campus-bg.jpeg";
+import isuLogo from "@/assets/isu-logo.png";
 
 const VALID_ID_TYPES = [
   "Driver's License",
@@ -38,24 +40,22 @@ const VEHICLE_TYPES = [
 
 const RegisterDriver = () => {
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const [loading, setLoading] = useState(false);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string>("");
-  const [registeredDriver, setRegisteredDriver] = useState<unknown>(null);
+  const [registeredDriver, setRegisteredDriver] = useState<any>(null);
   
   const [formData, setFormData] = useState({
-    // Personal Information
     fullName: "",
     dateOfBirth: "",
     contactNumber: "",
     email: "",
     validIdType: "",
     idNumber: "",
-    // Driver's License
     licenseNumber: "",
     licenseType: "",
     licenseExpiry: "",
-    // Vehicle Information
     vehicleType: "",
     plateNumber: "",
     vehicleModel: "",
@@ -104,7 +104,7 @@ const RegisterDriver = () => {
       }
 
       const { data: driver, error: insertError } = await supabase
-        .from('drivers' as unknown)
+        .from('drivers' as any)
         .insert({
           full_name: formData.fullName,
           date_of_birth: formData.dateOfBirth || null,
@@ -123,23 +123,23 @@ const RegisterDriver = () => {
           qr_code: '',
         })
         .select()
-        .single() as { data: unknown; error: unknown };
+        .single() as { data: any; error: any };
 
       if (insertError) throw insertError;
 
       const qrCode = generateQRCode(driver.id, formData.plateNumber);
       const { data: updatedDriver, error: updateError } = await supabase
-        .from('drivers' as unknown)
+        .from('drivers' as any)
         .update({ qr_code: qrCode })
         .eq('id', driver.id)
         .select()
-        .single() as { data: unknown; error: unknown };
+        .single() as { data: any; error: any };
 
       if (updateError) throw updateError;
 
       toast.success("Driver registered successfully!");
       setRegisteredDriver({ ...updatedDriver, qr_code: qrCode });
-    } catch (error: unknown) {
+    } catch (error: any) {
       console.error('Registration error:', error);
       toast.error(error.message || "Failed to register driver");
     } finally {
@@ -272,18 +272,18 @@ const RegisterDriver = () => {
   }
 
   return (
-    <div 
-      className="min-h-screen bg-cover bg-center bg-fixed relative"
-      style={{ backgroundImage: `url(${campusBg})` }}
-    >
-      {/* Fixed background blur overlay */}
-      <div className="fixed inset-0 bg-black/40 backdrop-blur-xl z-0" />
-      
+    <div className="min-h-screen relative">
+      {/* Fixed Background */}
+      <div className="fixed inset-0 z-0">
+        <img src={campusBg} alt="" className="w-full h-full object-cover" />
+        <div className="absolute inset-0 bg-gradient-to-br from-black/70 via-black/60 to-black/70" />
+      </div>
+
       {/* Header */}
-      <header className="relative z-10 bg-white/10 backdrop-blur-xl border-b border-white/20 sticky top-0 shadow-lg">
+      <header className="sticky top-0 z-40 bg-black/40 backdrop-blur-xl border-b border-white/10">
         <div className="container mx-auto px-4 sm:px-6 py-4">
           <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" onClick={() => navigate('/admin')} className="rounded-xl">
+            <Button variant="ghost" size="icon" onClick={() => navigate('/admin')} className="rounded-xl text-white hover:bg-white/20">
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <div className="flex items-center gap-3">
@@ -291,24 +291,25 @@ const RegisterDriver = () => {
                 <Car className="h-6 w-6 text-white" />
               </div>
               <div>
-                <h1 className="text-xl font-bold text-foreground">Register Driver</h1>
-                <p className="text-xs text-muted-foreground">Add new tricycle driver</p>
+                <h1 className="text-lg sm:text-xl font-bold text-white">Register Driver</h1>
+                <p className="text-xs text-white/60">Add new tricycle driver</p>
               </div>
             </div>
           </div>
         </div>
       </header>
 
-      <main className="relative z-10 container mx-auto px-4 sm:px-6 py-6 max-w-3xl">
-        <Card className="border border-white/20 shadow-2xl bg-white/10 backdrop-blur-xl">
+      {/* Scrollable Content */}
+      <main className="relative z-10 container mx-auto px-4 sm:px-6 py-6">
+        <Card className={`border border-white/20 shadow-2xl bg-white/95 backdrop-blur-xl mx-auto ${isMobile ? 'max-w-md' : 'max-w-4xl'}`}>
           <CardHeader className="text-center pb-2">
             <div className="flex justify-center mb-4">
               <div className="relative">
-                <div className="w-28 h-28 rounded-full bg-gradient-to-br from-blue-100 to-indigo-100 flex items-center justify-center overflow-hidden border-4 border-white shadow-lg">
+                <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-gradient-to-br from-blue-100 to-indigo-100 flex items-center justify-center overflow-hidden border-4 border-white shadow-lg">
                   {photoPreview ? (
                     <img src={photoPreview} alt="Preview" className="w-full h-full object-cover" />
                   ) : (
-                    <User className="h-12 w-12 text-blue-600" />
+                    <User className="h-10 w-10 sm:h-12 sm:w-12 text-blue-600" />
                   )}
                 </div>
                 <Label htmlFor="photo" className="absolute -bottom-2 -right-2 cursor-pointer">
@@ -325,45 +326,45 @@ const RegisterDriver = () => {
                 </Label>
               </div>
             </div>
-            <CardTitle className="text-xl">Driver Registration Form</CardTitle>
-            <CardDescription>Fill in all required details below</CardDescription>
+            <CardTitle className="text-lg sm:text-xl">Driver Registration Form</CardTitle>
+            <CardDescription className="text-xs sm:text-sm">Fill in all required details below</CardDescription>
           </CardHeader>
           
           <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-6 max-h-[80vh] overflow-y-auto pr-2">
+            <form onSubmit={handleSubmit} className="space-y-6">
               {/* Personal Information Section */}
               <div className="space-y-4">
                 <div className="flex items-center gap-2 pb-2 border-b border-border/50">
                   <IdCard className="h-5 w-5 text-blue-600" />
-                  <h3 className="font-semibold text-foreground">Personal Information</h3>
+                  <h3 className="font-semibold text-foreground text-sm sm:text-base">Personal Information</h3>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className={`grid gap-4 ${isMobile ? 'grid-cols-1' : 'grid-cols-2'}`}>
                   <div className="space-y-2">
-                    <Label htmlFor="fullName" className="text-sm font-medium">Full Name *</Label>
+                    <Label htmlFor="fullName" className="text-xs sm:text-sm font-medium">Full Name *</Label>
                     <Input
                       id="fullName"
                       required
                       value={formData.fullName}
                       onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
                       placeholder="Juan Dela Cruz"
-                      className="h-11 rounded-xl border-border/50 focus:border-blue-500"
+                      className="h-10 sm:h-11 rounded-xl text-sm"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="dateOfBirth" className="text-sm font-medium">Date of Birth *</Label>
+                    <Label htmlFor="dateOfBirth" className="text-xs sm:text-sm font-medium">Date of Birth *</Label>
                     <Input
                       id="dateOfBirth"
                       type="date"
                       required
                       value={formData.dateOfBirth}
                       onChange={(e) => setFormData({ ...formData, dateOfBirth: e.target.value })}
-                      className="h-11 rounded-xl border-border/50 focus:border-blue-500"
+                      className="h-10 sm:h-11 rounded-xl text-sm"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="contact" className="text-sm font-medium">Contact Number *</Label>
+                    <Label htmlFor="contact" className="text-xs sm:text-sm font-medium">Contact Number *</Label>
                     <Input
                       id="contact"
                       type="tel"
@@ -371,30 +372,30 @@ const RegisterDriver = () => {
                       value={formData.contactNumber}
                       onChange={(e) => setFormData({ ...formData, contactNumber: e.target.value })}
                       placeholder="09XX XXX XXXX"
-                      className="h-11 rounded-xl border-border/50 focus:border-blue-500"
+                      className="h-10 sm:h-11 rounded-xl text-sm"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="email" className="text-sm font-medium">Email Address</Label>
+                    <Label htmlFor="email" className="text-xs sm:text-sm font-medium">Email Address</Label>
                     <Input
                       id="email"
                       type="email"
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                       placeholder="driver@email.com"
-                      className="h-11 rounded-xl border-border/50 focus:border-blue-500"
+                      className="h-10 sm:h-11 rounded-xl text-sm"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="validIdType" className="text-sm font-medium">Valid ID Type *</Label>
+                    <Label htmlFor="validIdType" className="text-xs sm:text-sm font-medium">Valid ID Type *</Label>
                     <Select
                       value={formData.validIdType}
                       onValueChange={(value) => setFormData({ ...formData, validIdType: value })}
                       required
                     >
-                      <SelectTrigger className="h-11 rounded-xl border-border/50 focus:border-blue-500">
+                      <SelectTrigger className="h-10 sm:h-11 rounded-xl text-sm">
                         <SelectValue placeholder="Select ID type" />
                       </SelectTrigger>
                       <SelectContent>
@@ -408,14 +409,14 @@ const RegisterDriver = () => {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="idNumber" className="text-sm font-medium">ID Number *</Label>
+                    <Label htmlFor="idNumber" className="text-xs sm:text-sm font-medium">ID Number *</Label>
                     <Input
                       id="idNumber"
                       required
                       value={formData.idNumber}
                       onChange={(e) => setFormData({ ...formData, idNumber: e.target.value })}
                       placeholder="Enter ID number"
-                      className="h-11 rounded-xl border-border/50 focus:border-blue-500"
+                      className="h-10 sm:h-11 rounded-xl text-sm"
                     />
                   </div>
                 </div>
@@ -425,29 +426,29 @@ const RegisterDriver = () => {
               <div className="space-y-4">
                 <div className="flex items-center gap-2 pb-2 border-b border-border/50">
                   <FileText className="h-5 w-5 text-green-600" />
-                  <h3 className="font-semibold text-foreground">Driver's License</h3>
+                  <h3 className="font-semibold text-foreground text-sm sm:text-base">Driver's License</h3>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className={`grid gap-4 ${isMobile ? 'grid-cols-1' : 'grid-cols-3'}`}>
                   <div className="space-y-2">
-                    <Label htmlFor="licenseNumber" className="text-sm font-medium">License Number *</Label>
+                    <Label htmlFor="licenseNumber" className="text-xs sm:text-sm font-medium">License Number *</Label>
                     <Input
                       id="licenseNumber"
                       required
                       value={formData.licenseNumber}
                       onChange={(e) => setFormData({ ...formData, licenseNumber: e.target.value })}
                       placeholder="N01-23-456789"
-                      className="h-11 rounded-xl border-border/50 focus:border-green-500"
+                      className="h-10 sm:h-11 rounded-xl text-sm"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="licenseType" className="text-sm font-medium">License Type *</Label>
+                    <Label htmlFor="licenseType" className="text-xs sm:text-sm font-medium">License Type *</Label>
                     <Select
                       value={formData.licenseType}
                       onValueChange={(value) => setFormData({ ...formData, licenseType: value })}
                       required
                     >
-                      <SelectTrigger className="h-11 rounded-xl border-border/50 focus:border-green-500">
+                      <SelectTrigger className="h-10 sm:h-11 rounded-xl text-sm">
                         <SelectValue placeholder="Select type" />
                       </SelectTrigger>
                       <SelectContent>
@@ -461,14 +462,14 @@ const RegisterDriver = () => {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="licenseExpiry" className="text-sm font-medium">License Expiry *</Label>
+                    <Label htmlFor="licenseExpiry" className="text-xs sm:text-sm font-medium">Expiry Date *</Label>
                     <Input
                       id="licenseExpiry"
                       type="date"
                       required
                       value={formData.licenseExpiry}
                       onChange={(e) => setFormData({ ...formData, licenseExpiry: e.target.value })}
-                      className="h-11 rounded-xl border-border/50 focus:border-green-500"
+                      className="h-10 sm:h-11 rounded-xl text-sm"
                     />
                   </div>
                 </div>
@@ -478,17 +479,17 @@ const RegisterDriver = () => {
               <div className="space-y-4">
                 <div className="flex items-center gap-2 pb-2 border-b border-border/50">
                   <Truck className="h-5 w-5 text-orange-600" />
-                  <h3 className="font-semibold text-foreground">Vehicle Information</h3>
+                  <h3 className="font-semibold text-foreground text-sm sm:text-base">Vehicle Information</h3>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className={`grid gap-4 ${isMobile ? 'grid-cols-1' : 'grid-cols-2'}`}>
                   <div className="space-y-2">
-                    <Label htmlFor="vehicleType" className="text-sm font-medium">Vehicle Type *</Label>
+                    <Label htmlFor="vehicleType" className="text-xs sm:text-sm font-medium">Vehicle Type *</Label>
                     <Select
                       value={formData.vehicleType}
                       onValueChange={(value) => setFormData({ ...formData, vehicleType: value })}
                       required
                     >
-                      <SelectTrigger className="h-11 rounded-xl border-border/50 focus:border-orange-500">
+                      <SelectTrigger className="h-10 sm:h-11 rounded-xl text-sm">
                         <SelectValue placeholder="Select vehicle type" />
                       </SelectTrigger>
                       <SelectContent>
@@ -502,41 +503,39 @@ const RegisterDriver = () => {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="plate" className="text-sm font-medium">Plate Number *</Label>
+                    <Label htmlFor="plateNumber" className="text-xs sm:text-sm font-medium">Plate Number *</Label>
                     <Input
-                      id="plate"
+                      id="plateNumber"
                       required
                       value={formData.plateNumber}
                       onChange={(e) => setFormData({ ...formData, plateNumber: e.target.value })}
-                      placeholder="ABC-123"
-                      className="h-11 rounded-xl border-border/50 focus:border-orange-500"
+                      placeholder="ABC 1234"
+                      className="h-10 sm:h-11 rounded-xl text-sm"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="vehicleModel" className="text-sm font-medium">Vehicle Model *</Label>
+                    <Label htmlFor="vehicleModel" className="text-xs sm:text-sm font-medium">Vehicle Model</Label>
                     <Input
                       id="vehicleModel"
-                      required
                       value={formData.vehicleModel}
                       onChange={(e) => setFormData({ ...formData, vehicleModel: e.target.value })}
-                      placeholder="Honda TMX 155"
-                      className="h-11 rounded-xl border-border/50 focus:border-orange-500"
+                      placeholder="e.g., Honda TMX"
+                      className="h-10 sm:h-11 rounded-xl text-sm"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="vehicleYear" className="text-sm font-medium">Vehicle Year *</Label>
+                    <Label htmlFor="vehicleYear" className="text-xs sm:text-sm font-medium">Vehicle Year</Label>
                     <Input
                       id="vehicleYear"
                       type="number"
-                      required
                       min="1990"
-                      max={new Date().getFullYear()}
+                      max="2025"
                       value={formData.vehicleYear}
                       onChange={(e) => setFormData({ ...formData, vehicleYear: e.target.value })}
-                      placeholder="2020"
-                      className="h-11 rounded-xl border-border/50 focus:border-orange-500"
+                      placeholder="e.g., 2020"
+                      className="h-10 sm:h-11 rounded-xl text-sm"
                     />
                   </div>
                 </div>
@@ -544,7 +543,7 @@ const RegisterDriver = () => {
 
               <Button 
                 type="submit" 
-                className="w-full h-12 rounded-xl text-base font-semibold bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 shadow-lg hover:shadow-xl transition-all" 
+                className="w-full h-12 sm:h-14 rounded-xl text-sm sm:text-base font-semibold bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 shadow-lg hover:shadow-xl transition-all" 
                 disabled={loading}
               >
                 {loading ? (

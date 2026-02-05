@@ -48,43 +48,43 @@ const Agreement = ({ studentId, onAccepted }: AgreementProps) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-primary/5 flex flex-col safe-area-inset">
+    <div className="min-h-screen bg-gradient-to-br from-[#f7fdf3] via-white to-[#f3fff0] flex flex-col safe-area-inset">
       {/* Header */}
-      <header className="border-b bg-card/80 backdrop-blur-lg sticky top-0 z-10 safe-area-top shadow-sm">
-        <div className="px-4 py-3">
+      <header className="border-b bg-white/60 backdrop-blur-md sticky top-0 z-10 safe-area-top shadow-sm">
+        <div className="px-4 py-3 max-w-4xl mx-auto">
           <div className="flex items-center gap-3">
-            <div className="p-1.5 rounded-xl bg-primary/10 border border-primary/20">
+            <div className="p-1 rounded-full bg-[#E9FF9E] shadow-md flex items-center justify-center">
               <img src={isuLogo} alt="ISU Logo" className="h-8 w-8" />
             </div>
             <div>
-              <h1 className="text-base font-bold text-foreground">SafeRide ISU</h1>
-              <p className="text-[11px] text-muted-foreground leading-tight">Terms & Agreement</p>
+              <h1 className="text-base font-extrabold text-[#07320a]">ISU SafeRide</h1>
+              <p className="text-sm text-[#2f5230] leading-tight">Student Terms & Agreement</p>
             </div>
           </div>
         </div>
       </header>
 
-      <main className="flex-1 px-4 py-6 max-w-2xl mx-auto w-full">
-        <div className="text-center mb-6">
-          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center">
-            <FileText className="h-8 w-8 text-primary" />
+      <main className="flex-1 px-4 py-8 max-w-3xl mx-auto w-full">
+        <div className="text-center mb-8">
+          <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-br from-[#E9FF9E] to-[#CCFF00] flex items-center justify-center shadow-lg">
+            <FileText className="h-10 w-10 text-[#08320a]" />
           </div>
-          <h2 className="text-2xl font-bold text-foreground mb-2">Terms and Conditions</h2>
-          <p className="text-muted-foreground text-sm">
-            Please read and accept the following agreement to continue.
+          <h2 className="text-3xl font-extrabold text-[#072e08] mb-2">Terms and Conditions</h2>
+          <p className="text-[#41684a] text-sm max-w-xl mx-auto">
+            Please read and agree to the terms below to continue using ISU SafeRide services.
           </p>
         </div>
 
-        <Card className="mb-6 border-primary/20">
+        <Card className="mb-6 border-transparent shadow-xl">
           <CardHeader className="pb-3">
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <Shield className="h-5 w-5 text-primary" />
+            <CardTitle className="flex items-center gap-3 text-lg">
+              <Shield className="h-5 w-5 text-[#0b3f12]" />
               ISU SafeRide User Agreement
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <ScrollArea className="h-[300px] pr-4">
-              <div className="space-y-4 text-sm text-muted-foreground">
+            <ScrollArea className="h-[380px] pr-4">
+              <div className="space-y-4 text-sm text-[#23493a]">
                 <section>
                   <h4 className="font-semibold text-foreground mb-2">1. Purpose of the System</h4>
                   <p>
@@ -155,16 +155,16 @@ const Agreement = ({ studentId, onAccepted }: AgreementProps) => {
         </Card>
 
         {/* Warning */}
-        <Card className="mb-6 bg-amber-50 border-amber-200">
+        <Card className="mb-6 bg-[#fff9ec] border border-[#ffefc1] shadow-sm">
           <CardContent className="p-4">
             <div className="flex items-start gap-3">
-              <div className="p-2 rounded-lg bg-amber-100">
-                <AlertTriangle className="h-4 w-4 text-amber-600" />
+              <div className="p-2 rounded-lg bg-[#fff3d6] shadow-inner">
+                <AlertTriangle className="h-5 w-5 text-[#b35d00]" />
               </div>
               <div>
-                <p className="text-sm font-medium text-amber-800">Important Notice</p>
-                <p className="text-xs text-amber-600 mt-1">
-                  By accepting this agreement, you confirm that you have read, understood, and agree to comply 
+                <p className="text-sm font-semibold text-[#8a4f00]">Important Notice</p>
+                <p className="text-xs text-[#8a5a25] mt-1">
+                  By accepting this agreement, you confirm that you have read, understood, and agree to comply
                   with all the terms and conditions stated above.
                 </p>
               </div>
@@ -173,26 +173,26 @@ const Agreement = ({ studentId, onAccepted }: AgreementProps) => {
         </Card>
 
         {/* Agreement Checkbox */}
-        <div className="flex items-start gap-3 mb-6 p-4 bg-card rounded-xl border">
+        <div className="flex items-start gap-3 mb-6 p-4 bg-white rounded-2xl border border-transparent shadow-sm">
           <Checkbox
             id="agreement"
             checked={agreed}
             onCheckedChange={(checked) => setAgreed(checked === true)}
-            className="mt-1"
+            className="mt-1 border-green-400"
           />
-          <label htmlFor="agreement" className="text-sm cursor-pointer">
-            I have read, understood, and agree to the <span className="font-semibold text-primary">Terms and Conditions</span> of 
+          <label htmlFor="agreement" className="text-sm cursor-pointer text-[#133a20]">
+            I have read, understood, and agree to the <span className="font-semibold text-[#0b571b]">Terms and Conditions</span> of
             the ISU SafeRide Emergency System. I will use this system responsibly and only for its intended purpose.
           </label>
         </div>
 
         {/* Accept Button */}
-        <Button 
+        <Button
           onClick={handleAcceptAgreement}
           disabled={!agreed || isSubmitting}
-          className="w-full h-12 rounded-xl gap-2 text-base font-semibold"
+          className="w-full h-12 rounded-xl gap-2 text-base font-semibold bg-gradient-to-r from-[#17a34a] to-[#0b6b2a] shadow-lg hover:from-[#1ec857] hover:to-[#118c39]"
         >
-          <CheckCircle className="h-5 w-5" />
+          <CheckCircle className="h-5 w-5 text-white" />
           {isSubmitting ? "Processing..." : "Accept and Continue"}
         </Button>
       </main>

@@ -13,6 +13,27 @@ export default {
       },
     },
     extend: {
+            // Custom SafeRide ISU palette and UI enhancements
+            colors: {
+              isu: {
+                primary: '#004d25',
+                accent: '#CCFF00',
+                secondary: '#a8e600',
+                bg: '#f6fef7',
+                surface: '#ffffff',
+                text: '#1a2e22',
+                muted: '#b5c9b0',
+              },
+            },
+            borderRadius: {
+              'xl': '1.25rem',
+              '2xl': '1.5rem',
+              '3xl': '2rem',
+            },
+            boxShadow: {
+              'soft': '0 2px 8px rgba(0,77,37,0.08)',
+              'accent': '0 0 24px #CCFF00aa',
+            },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",

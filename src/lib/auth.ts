@@ -53,18 +53,32 @@ export const signUpWithEmail = async (email: string, password: string, metadata:
 
 export const signOut = async () => {
   try {
+    // Delete FCM tokens before signing out
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user?.id) {
+      await supabase
+        .from('push_tokens')
+        .delete()
+        .eq('user_id', user.id);
+    }
+    
     const { error } = await supabase.auth.signOut();
     
     if (error) {
       console.error('Error signing out:', error);
-      // Even if there's an error, clear local storage
+      // Even if there's an error, clear session storage
     }
   } catch (e) {
     console.error('Sign out exception:', e);
   }
   
-  // Always clear local storage to ensure clean logout
-  localStorage.removeItem('sb-taordwpdtmfdfquwjlfo-auth-token');
+  // Always clear session storage to ensure clean logout
+  sessionStorage.clear();
+  
+  // Force a page reload to ensure complete cleanup
+  setTimeout(() => {
+    window.location.href = '/';
+  }, 300);
 };
 
 export const getCurrentUser = async () => {

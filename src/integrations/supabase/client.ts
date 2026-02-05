@@ -5,13 +5,29 @@ import type { Database } from './types';
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
+// Determine storage based on environment
+// Mobile app: use localStorage (persists across app closes)
+// Web browser: use localStorage (persists across page reloads and browser closes)
+const isMobileApp = () => {
+  return navigator.userAgent.includes('Capacitor') || 
+         (window as any).capacitor !== undefined;
+};
+
+const storageType = localStorage;
+
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
 
 export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
   auth: {
-    storage: localStorage,
+    storage: storageType,
     persistSession: true,
     autoRefreshToken: true,
-  }
+    detectSessionInUrl: true,
+  },
+  realtime: {
+    params: {
+      eventsPerSecond: 10,
+    },
+  },
 });

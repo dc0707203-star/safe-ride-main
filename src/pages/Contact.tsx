@@ -70,7 +70,7 @@ const Contact = () => {
 
       {/* Navigation */}
       <nav className="relative z-50 flex justify-between items-center px-6 md:px-10 py-6 max-w-7xl mx-auto">
-        <div className="flex items-center gap-3 cursor-pointer group" onClick={() => navigate('/')}>
+        <div className="flex items-center gap-3 cursor-pointer group" onClick={() => navigate(-1)}>
           <div className="bg-[#CCFF00]/10 p-1.5 rounded-lg border border-[#CCFF00]/20 group-hover:bg-[#CCFF00] transition-all">
             <ChevronLeft className="text-[#CCFF00] group-hover:text-[#004225] w-5 h-5" />
           </div>

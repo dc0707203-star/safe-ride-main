@@ -1,3 +1,21 @@
+:root {
+  --color-primary: #004d25;
+  --color-accent: #CCFF00;
+  --color-secondary: #a8e600;
+  --color-bg: #f6fef7;
+  --color-surface: #ffffff;
+  --color-text: #1a2e22;
+  --color-muted: #b5c9b0;
+}
+
+/* Disable pinch zoom and prevent user scaling */
+body, html {
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -137,5 +155,72 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+/* Scroll Animation Styles */
+@layer components {
+  .scroll-fade-in {
+    opacity: 0;
+    animation: fadeInUp 0.6s ease-out forwards;
+  }
+
+  .scroll-fade-in-delay-1 {
+    animation-delay: 0.1s;
+  }
+
+  .scroll-fade-in-delay-2 {
+    animation-delay: 0.2s;
+  }
+
+  .scroll-fade-in-delay-3 {
+    animation-delay: 0.3s;
+  }
+
+  .scroll-fade-in-delay-4 {
+    animation-delay: 0.4s;
+  }
+
+  .scroll-slide-in-left {
+    opacity: 0;
+    animation: slideInLeft 0.6s ease-out forwards;
+  }
+
+  .scroll-slide-in-right {
+    opacity: 0;
+    animation: slideInRight 0.6s ease-out forwards;
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes slideInLeft {
+    from {
+      opacity: 0;
+      transform: translateX(-40px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes slideInRight {
+    from {
+      opacity: 0;
+      transform: translateX(40px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
   }
 }

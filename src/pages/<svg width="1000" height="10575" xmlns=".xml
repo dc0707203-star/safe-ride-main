@@ -1,0 +1,1239 @@
+<svg width="1000" height="10575" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .title { font-family: 'Arial', sans-serif; font-size: 18px; font-weight: bold; fill: #2c3e50; }
+      .subtitle { font-family: 'Arial', sans-serif; font-size: 12px; fill: #7f8c8d; }
+      .folder-text { font-family: 'Consolas', 'Courier New', monospace; font-size: 14px; fill: #27ae60; font-weight: bold; }
+      .file-text { font-family: 'Consolas', 'Courier New', monospace; font-size: 14px; fill: #3498db; }
+      .icon { font-family: 'Arial', sans-serif; font-size: 16px; }
+      .line { stroke: #bdc3c7; stroke-width: 1.5; }
+      .background { fill: #f8f9fa; }
+      .header-bg { fill: #ecf0f1; }
+    </style>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1000" height="10575" class="background"/>
+
+  <!-- Header -->
+  <rect x="0" y="0" width="1000" height="60" class="header-bg"/>
+  <text x="20" y="25" class="title">📁 File Tree: safe-ride-main</text>
+  <text x="20" y="45" class="subtitle">Generated: 2/1/2026, 8:47:34 PM | FileTree Pro Extension</text>
+
+  <!-- Tree Structure -->
+    <line x1="15" y1="80" x2="25" y2="80" class="line"/>
+    <text x="30" y="85" class="folder-text">android/</text>
+    <line x1="45" y1="100" x2="45" y2="110" class="line"/>
+    <line x1="45" y1="110" x2="55" y2="110" class="line"/>
+    <text x="60" y="115" class="folder-text">.gradle/</text>
+    <line x1="75" y1="130" x2="75" y2="140" class="line"/>
+    <line x1="75" y1="140" x2="85" y2="140" class="line"/>
+    <text x="90" y="145" class="folder-text">8.14.3/</text>
+    <line x1="105" y1="160" x2="105" y2="170" class="line"/>
+    <line x1="105" y1="170" x2="115" y2="170" class="line"/>
+    <text x="120" y="175" class="folder-text">checksums/</text>
+    <line x1="135" y1="190" x2="135" y2="200" class="line"/>
+    <line x1="135" y1="200" x2="145" y2="200" class="line"/>
+    <text x="150" y="205" class="file-text">checksums.lock</text>
+    <line x1="135" y1="225" x2="135" y2="235" class="line"/>
+    <line x1="135" y1="235" x2="145" y2="235" class="line"/>
+    <text x="150" y="240" class="file-text">md5-checksums.bin</text>
+    <line x1="135" y1="260" x2="135" y2="270" class="line"/>
+    <line x1="135" y1="270" x2="145" y2="270" class="line"/>
+    <text x="150" y="275" class="file-text">sha1-checksums.bin</text>
+    <line x1="105" y1="330" x2="105" y2="340" class="line"/>
+    <line x1="105" y1="340" x2="115" y2="340" class="line"/>
+    <text x="120" y="345" class="folder-text">executionHistory/</text>
+    <line x1="135" y1="360" x2="135" y2="370" class="line"/>
+    <line x1="135" y1="370" x2="145" y2="370" class="line"/>
+    <text x="150" y="375" class="file-text">executionHistory.bin</text>
+    <line x1="135" y1="395" x2="135" y2="405" class="line"/>
+    <line x1="135" y1="405" x2="145" y2="405" class="line"/>
+    <text x="150" y="410" class="file-text">executionHistory.lock</text>
+    <line x1="105" y1="465" x2="105" y2="475" class="line"/>
+    <line x1="105" y1="475" x2="115" y2="475" class="line"/>
+    <text x="120" y="480" class="folder-text">expanded/</text>
+    <line x1="105" y1="500" x2="105" y2="510" class="line"/>
+    <line x1="105" y1="510" x2="115" y2="510" class="line"/>
+    <text x="120" y="515" class="folder-text">fileChanges/</text>
+    <line x1="135" y1="530" x2="135" y2="540" class="line"/>
+    <line x1="135" y1="540" x2="145" y2="540" class="line"/>
+    <text x="150" y="545" class="file-text">last-build.bin</text>
+    <line x1="105" y1="600" x2="105" y2="610" class="line"/>
+    <line x1="105" y1="610" x2="115" y2="610" class="line"/>
+    <text x="120" y="615" class="folder-text">fileHashes/</text>
+    <line x1="135" y1="630" x2="135" y2="640" class="line"/>
+    <line x1="135" y1="640" x2="145" y2="640" class="line"/>
+    <text x="150" y="645" class="file-text">fileHashes.bin</text>
+    <line x1="135" y1="665" x2="135" y2="675" class="line"/>
+    <line x1="135" y1="675" x2="145" y2="675" class="line"/>
+    <text x="150" y="680" class="file-text">fileHashes.lock</text>
+    <line x1="135" y1="700" x2="135" y2="710" class="line"/>
+    <line x1="135" y1="710" x2="145" y2="710" class="line"/>
+    <text x="150" y="715" class="file-text">resourceHashesCache.bin</text>
+    <line x1="105" y1="770" x2="105" y2="780" class="line"/>
+    <line x1="105" y1="780" x2="115" y2="780" class="line"/>
+    <text x="120" y="785" class="folder-text">vcsMetadata/</text>
+    <line x1="105" y1="805" x2="105" y2="815" class="line"/>
+    <line x1="105" y1="815" x2="115" y2="815" class="line"/>
+    <text x="120" y="820" class="file-text">gc.properties</text>
+    <line x1="75" y1="875" x2="75" y2="885" class="line"/>
+    <line x1="75" y1="885" x2="85" y2="885" class="line"/>
+    <text x="90" y="890" class="folder-text">buildOutputCleanup/</text>
+    <line x1="105" y1="905" x2="105" y2="915" class="line"/>
+    <line x1="105" y1="915" x2="115" y2="915" class="line"/>
+    <text x="120" y="920" class="file-text">buildOutputCleanup.lock</text>
+    <line x1="105" y1="940" x2="105" y2="950" class="line"/>
+    <line x1="105" y1="950" x2="115" y2="950" class="line"/>
+    <text x="120" y="955" class="file-text">cache.properties</text>
+    <line x1="105" y1="975" x2="105" y2="985" class="line"/>
+    <line x1="105" y1="985" x2="115" y2="985" class="line"/>
+    <text x="120" y="990" class="file-text">outputFiles.bin</text>
+    <line x1="75" y1="1045" x2="75" y2="1055" class="line"/>
+    <line x1="75" y1="1055" x2="85" y2="1055" class="line"/>
+    <text x="90" y="1060" class="folder-text">vcs-1/</text>
+    <line x1="105" y1="1075" x2="105" y2="1085" class="line"/>
+    <line x1="105" y1="1085" x2="115" y2="1085" class="line"/>
+    <text x="120" y="1090" class="file-text">gc.properties</text>
+    <line x1="75" y1="1145" x2="75" y2="1155" class="line"/>
+    <line x1="75" y1="1155" x2="85" y2="1155" class="line"/>
+    <text x="90" y="1160" class="file-text">config.properties</text>
+    <line x1="75" y1="1180" x2="75" y2="1190" class="line"/>
+    <line x1="75" y1="1190" x2="85" y2="1190" class="line"/>
+    <text x="90" y="1195" class="file-text">file-system.probe</text>
+    <line x1="45" y1="1250" x2="45" y2="1260" class="line"/>
+    <line x1="45" y1="1260" x2="55" y2="1260" class="line"/>
+    <text x="60" y="1265" class="folder-text">app/</text>
+    <line x1="75" y1="1280" x2="75" y2="1290" class="line"/>
+    <line x1="75" y1="1290" x2="85" y2="1290" class="line"/>
+    <text x="90" y="1295" class="folder-text">keystore/</text>
+    <line x1="105" y1="1310" x2="105" y2="1320" class="line"/>
+    <line x1="105" y1="1320" x2="115" y2="1320" class="line"/>
+    <text x="120" y="1325" class="file-text">my-release-key.keystore.jks</text>
+    <line x1="75" y1="1380" x2="75" y2="1390" class="line"/>
+    <line x1="75" y1="1390" x2="85" y2="1390" class="line"/>
+    <text x="90" y="1395" class="folder-text">release/</text>
+    <line x1="105" y1="1410" x2="105" y2="1420" class="line"/>
+    <line x1="105" y1="1420" x2="115" y2="1420" class="line"/>
+    <text x="120" y="1425" class="folder-text">baselineProfiles/</text>
+    <line x1="135" y1="1440" x2="135" y2="1450" class="line"/>
+    <line x1="135" y1="1450" x2="145" y2="1450" class="line"/>
+    <text x="150" y="1455" class="folder-text">0/</text>
+    <line x1="165" y1="1470" x2="165" y2="1480" class="line"/>
+    <line x1="165" y1="1480" x2="175" y2="1480" class="line"/>
+    <text x="180" y="1485" class="file-text">app-release.dm</text>
+    <line x1="135" y1="1540" x2="135" y2="1550" class="line"/>
+    <line x1="135" y1="1550" x2="145" y2="1550" class="line"/>
+    <text x="150" y="1555" class="folder-text">1/</text>
+    <line x1="165" y1="1570" x2="165" y2="1580" class="line"/>
+    <line x1="165" y1="1580" x2="175" y2="1580" class="line"/>
+    <text x="180" y="1585" class="file-text">app-release.dm</text>
+    <line x1="105" y1="1675" x2="105" y2="1685" class="line"/>
+    <line x1="105" y1="1685" x2="115" y2="1685" class="line"/>
+    <text x="120" y="1690" class="file-text">app-release.apk</text>
+    <line x1="105" y1="1710" x2="105" y2="1720" class="line"/>
+    <line x1="105" y1="1720" x2="115" y2="1720" class="line"/>
+    <text x="120" y="1725" class="file-text">output-metadata.json</text>
+    <line x1="75" y1="1780" x2="75" y2="1790" class="line"/>
+    <line x1="75" y1="1790" x2="85" y2="1790" class="line"/>
+    <text x="90" y="1795" class="folder-text">src/</text>
+    <line x1="105" y1="1810" x2="105" y2="1820" class="line"/>
+    <line x1="105" y1="1820" x2="115" y2="1820" class="line"/>
+    <text x="120" y="1825" class="folder-text">androidTest/</text>
+    <line x1="135" y1="1840" x2="135" y2="1850" class="line"/>
+    <line x1="135" y1="1850" x2="145" y2="1850" class="line"/>
+    <text x="150" y="1855" class="folder-text">java/</text>
+    <line x1="165" y1="1870" x2="165" y2="1880" class="line"/>
+    <line x1="165" y1="1880" x2="175" y2="1880" class="line"/>
+    <text x="180" y="1885" class="folder-text">com/</text>
+    <line x1="195" y1="1900" x2="195" y2="1910" class="line"/>
+    <line x1="195" y1="1910" x2="205" y2="1910" class="line"/>
+    <text x="210" y="1915" class="folder-text">getcapacitor/</text>
+    <line x1="225" y1="1930" x2="225" y2="1940" class="line"/>
+    <line x1="225" y1="1940" x2="235" y2="1940" class="line"/>
+    <text x="240" y="1945" class="folder-text">myapp/</text>
+    <line x1="255" y1="1960" x2="255" y2="1970" class="line"/>
+    <line x1="255" y1="1970" x2="265" y2="1970" class="line"/>
+    <text x="270" y="1975" class="file-text">ExampleInstrumentedTest.java</text>
+    <line x1="105" y1="2170" x2="105" y2="2180" class="line"/>
+    <line x1="105" y1="2180" x2="115" y2="2180" class="line"/>
+    <text x="120" y="2185" class="folder-text">main/</text>
+    <line x1="135" y1="2200" x2="135" y2="2210" class="line"/>
+    <line x1="135" y1="2210" x2="145" y2="2210" class="line"/>
+    <text x="150" y="2215" class="folder-text">assets/</text>
+    <line x1="165" y1="2230" x2="165" y2="2240" class="line"/>
+    <line x1="165" y1="2240" x2="175" y2="2240" class="line"/>
+    <text x="180" y="2245" class="folder-text">public/</text>
+    <line x1="195" y1="2260" x2="195" y2="2270" class="line"/>
+    <line x1="195" y1="2270" x2="205" y2="2270" class="line"/>
+    <text x="210" y="2275" class="folder-text">assets/</text>
+    <line x1="225" y1="2290" x2="225" y2="2300" class="line"/>
+    <line x1="225" y1="2300" x2="235" y2="2300" class="line"/>
+    <text x="240" y="2305" class="file-text">campus-bg-BmJ8vfry.jpeg</text>
+    <line x1="225" y1="2325" x2="225" y2="2335" class="line"/>
+    <line x1="225" y1="2335" x2="235" y2="2335" class="line"/>
+    <text x="240" y="2340" class="file-text">developer-photo-3sBKceSo.jpg</text>
+    <line x1="225" y1="2360" x2="225" y2="2370" class="line"/>
+    <line x1="225" y1="2370" x2="235" y2="2370" class="line"/>
+    <text x="240" y="2375" class="file-text">index-BUIO3rg5.js</text>
+    <line x1="225" y1="2395" x2="225" y2="2405" class="line"/>
+    <line x1="225" y1="2405" x2="235" y2="2405" class="line"/>
+    <text x="240" y="2410" class="file-text">index-B_9wXpHf.css</text>
+    <line x1="225" y1="2430" x2="225" y2="2440" class="line"/>
+    <line x1="225" y1="2440" x2="235" y2="2440" class="line"/>
+    <text x="240" y="2445" class="file-text">isu-logo-D0qoMsdb.png</text>
+    <line x1="195" y1="2500" x2="195" y2="2510" class="line"/>
+    <line x1="195" y1="2510" x2="205" y2="2510" class="line"/>
+    <text x="210" y="2515" class="file-text">cordova.js</text>
+    <line x1="195" y1="2535" x2="195" y2="2545" class="line"/>
+    <line x1="195" y1="2545" x2="205" y2="2545" class="line"/>
+    <text x="210" y="2550" class="file-text">cordova_plugins.js</text>
+    <line x1="195" y1="2570" x2="195" y2="2580" class="line"/>
+    <line x1="195" y1="2580" x2="205" y2="2580" class="line"/>
+    <text x="210" y="2585" class="file-text">favicon.ico</text>
+    <line x1="195" y1="2605" x2="195" y2="2615" class="line"/>
+    <line x1="195" y1="2615" x2="205" y2="2615" class="line"/>
+    <text x="210" y="2620" class="file-text">favicon.png</text>
+    <line x1="195" y1="2640" x2="195" y2="2650" class="line"/>
+    <line x1="195" y1="2650" x2="205" y2="2650" class="line"/>
+    <text x="210" y="2655" class="file-text">index.html</text>
+    <line x1="195" y1="2675" x2="195" y2="2685" class="line"/>
+    <line x1="195" y1="2685" x2="205" y2="2685" class="line"/>
+    <text x="210" y="2690" class="file-text">placeholder.svg</text>
+    <line x1="195" y1="2710" x2="195" y2="2720" class="line"/>
+    <line x1="195" y1="2720" x2="205" y2="2720" class="line"/>
+    <text x="210" y="2725" class="file-text">robots.txt</text>
+    <line x1="195" y1="2745" x2="195" y2="2755" class="line"/>
+    <line x1="195" y1="2755" x2="205" y2="2755" class="line"/>
+    <text x="210" y="2760" class="file-text">service-worker.js</text>
+    <line x1="165" y1="2815" x2="165" y2="2825" class="line"/>
+    <line x1="165" y1="2825" x2="175" y2="2825" class="line"/>
+    <text x="180" y="2830" class="file-text">capacitor.config.json</text>
+    <line x1="165" y1="2850" x2="165" y2="2860" class="line"/>
+    <line x1="165" y1="2860" x2="175" y2="2860" class="line"/>
+    <text x="180" y="2865" class="file-text">capacitor.plugins.json</text>
+    <line x1="135" y1="2920" x2="135" y2="2930" class="line"/>
+    <line x1="135" y1="2930" x2="145" y2="2930" class="line"/>
+    <text x="150" y="2935" class="folder-text">java/</text>
+    <line x1="165" y1="2950" x2="165" y2="2960" class="line"/>
+    <line x1="165" y1="2960" x2="175" y2="2960" class="line"/>
+    <text x="180" y="2965" class="folder-text">com/</text>
+    <line x1="195" y1="2980" x2="195" y2="2990" class="line"/>
+    <line x1="195" y1="2990" x2="205" y2="2990" class="line"/>
+    <text x="210" y="2995" class="folder-text">example/</text>
+    <line x1="225" y1="3010" x2="225" y2="3020" class="line"/>
+    <line x1="225" y1="3020" x2="235" y2="3020" class="line"/>
+    <text x="240" y="3025" class="folder-text">safetyride/</text>
+    <line x1="255" y1="3040" x2="255" y2="3050" class="line"/>
+    <line x1="255" y1="3050" x2="265" y2="3050" class="line"/>
+    <text x="270" y="3055" class="file-text">MainActivity.java</text>
+    <line x1="255" y1="3075" x2="255" y2="3085" class="line"/>
+    <line x1="255" y1="3085" x2="265" y2="3085" class="line"/>
+    <text x="270" y="3090" class="file-text">VolumeButtonListener.java</text>
+    <line x1="135" y1="3250" x2="135" y2="3260" class="line"/>
+    <line x1="135" y1="3260" x2="145" y2="3260" class="line"/>
+    <text x="150" y="3265" class="folder-text">res/</text>
+    <line x1="165" y1="3280" x2="165" y2="3290" class="line"/>
+    <line x1="165" y1="3290" x2="175" y2="3290" class="line"/>
+    <text x="180" y="3295" class="folder-text">drawable/</text>
+    <line x1="195" y1="3310" x2="195" y2="3320" class="line"/>
+    <line x1="195" y1="3320" x2="205" y2="3320" class="line"/>
+    <text x="210" y="3325" class="file-text">ic_launcher_background.xml</text>
+    <line x1="195" y1="3345" x2="195" y2="3355" class="line"/>
+    <line x1="195" y1="3355" x2="205" y2="3355" class="line"/>
+    <text x="210" y="3360" class="file-text">splash.png</text>
+    <line x1="165" y1="3415" x2="165" y2="3425" class="line"/>
+    <line x1="165" y1="3425" x2="175" y2="3425" class="line"/>
+    <text x="180" y="3430" class="folder-text">drawable-land-hdpi/</text>
+    <line x1="195" y1="3445" x2="195" y2="3455" class="line"/>
+    <line x1="195" y1="3455" x2="205" y2="3455" class="line"/>
+    <text x="210" y="3460" class="file-text">splash.png</text>
+    <line x1="165" y1="3515" x2="165" y2="3525" class="line"/>
+    <line x1="165" y1="3525" x2="175" y2="3525" class="line"/>
+    <text x="180" y="3530" class="folder-text">drawable-land-mdpi/</text>
+    <line x1="195" y1="3545" x2="195" y2="3555" class="line"/>
+    <line x1="195" y1="3555" x2="205" y2="3555" class="line"/>
+    <text x="210" y="3560" class="file-text">splash.png</text>
+    <line x1="165" y1="3615" x2="165" y2="3625" class="line"/>
+    <line x1="165" y1="3625" x2="175" y2="3625" class="line"/>
+    <text x="180" y="3630" class="folder-text">drawable-land-xhdpi/</text>
+    <line x1="195" y1="3645" x2="195" y2="3655" class="line"/>
+    <line x1="195" y1="3655" x2="205" y2="3655" class="line"/>
+    <text x="210" y="3660" class="file-text">splash.png</text>
+    <line x1="165" y1="3715" x2="165" y2="3725" class="line"/>
+    <line x1="165" y1="3725" x2="175" y2="3725" class="line"/>
+    <text x="180" y="3730" class="folder-text">drawable-land-xxhdpi/</text>
+    <line x1="195" y1="3745" x2="195" y2="3755" class="line"/>
+    <line x1="195" y1="3755" x2="205" y2="3755" class="line"/>
+    <text x="210" y="3760" class="file-text">splash.png</text>
+    <line x1="165" y1="3815" x2="165" y2="3825" class="line"/>
+    <line x1="165" y1="3825" x2="175" y2="3825" class="line"/>
+    <text x="180" y="3830" class="folder-text">drawable-land-xxxhdpi/</text>
+    <line x1="195" y1="3845" x2="195" y2="3855" class="line"/>
+    <line x1="195" y1="3855" x2="205" y2="3855" class="line"/>
+    <text x="210" y="3860" class="file-text">splash.png</text>
+    <line x1="165" y1="3915" x2="165" y2="3925" class="line"/>
+    <line x1="165" y1="3925" x2="175" y2="3925" class="line"/>
+    <text x="180" y="3930" class="folder-text">drawable-port-hdpi/</text>
+    <line x1="195" y1="3945" x2="195" y2="3955" class="line"/>
+    <line x1="195" y1="3955" x2="205" y2="3955" class="line"/>
+    <text x="210" y="3960" class="file-text">splash.png</text>
+    <line x1="165" y1="4015" x2="165" y2="4025" class="line"/>
+    <line x1="165" y1="4025" x2="175" y2="4025" class="line"/>
+    <text x="180" y="4030" class="folder-text">drawable-port-mdpi/</text>
+    <line x1="195" y1="4045" x2="195" y2="4055" class="line"/>
+    <line x1="195" y1="4055" x2="205" y2="4055" class="line"/>
+    <text x="210" y="4060" class="file-text">splash.png</text>
+    <line x1="165" y1="4115" x2="165" y2="4125" class="line"/>
+    <line x1="165" y1="4125" x2="175" y2="4125" class="line"/>
+    <text x="180" y="4130" class="folder-text">drawable-port-xhdpi/</text>
+    <line x1="195" y1="4145" x2="195" y2="4155" class="line"/>
+    <line x1="195" y1="4155" x2="205" y2="4155" class="line"/>
+    <text x="210" y="4160" class="file-text">splash.png</text>
+    <line x1="165" y1="4215" x2="165" y2="4225" class="line"/>
+    <line x1="165" y1="4225" x2="175" y2="4225" class="line"/>
+    <text x="180" y="4230" class="folder-text">drawable-port-xxhdpi/</text>
+    <line x1="195" y1="4245" x2="195" y2="4255" class="line"/>
+    <line x1="195" y1="4255" x2="205" y2="4255" class="line"/>
+    <text x="210" y="4260" class="file-text">splash.png</text>
+    <line x1="165" y1="4315" x2="165" y2="4325" class="line"/>
+    <line x1="165" y1="4325" x2="175" y2="4325" class="line"/>
+    <text x="180" y="4330" class="folder-text">drawable-port-xxxhdpi/</text>
+    <line x1="195" y1="4345" x2="195" y2="4355" class="line"/>
+    <line x1="195" y1="4355" x2="205" y2="4355" class="line"/>
+    <text x="210" y="4360" class="file-text">splash.png</text>
+    <line x1="165" y1="4415" x2="165" y2="4425" class="line"/>
+    <line x1="165" y1="4425" x2="175" y2="4425" class="line"/>
+    <text x="180" y="4430" class="folder-text">drawable-v24/</text>
+    <line x1="195" y1="4445" x2="195" y2="4455" class="line"/>
+    <line x1="195" y1="4455" x2="205" y2="4455" class="line"/>
+    <text x="210" y="4460" class="file-text">ic_launcher_foreground.xml</text>
+    <line x1="165" y1="4515" x2="165" y2="4525" class="line"/>
+    <line x1="165" y1="4525" x2="175" y2="4525" class="line"/>
+    <text x="180" y="4530" class="folder-text">layout/</text>
+    <line x1="195" y1="4545" x2="195" y2="4555" class="line"/>
+    <line x1="195" y1="4555" x2="205" y2="4555" class="line"/>
+    <text x="210" y="4560" class="file-text">activity_main.xml</text>
+    <line x1="165" y1="4615" x2="165" y2="4625" class="line"/>
+    <line x1="165" y1="4625" x2="175" y2="4625" class="line"/>
+    <text x="180" y="4630" class="folder-text">mipmap-anydpi-v26/</text>
+    <line x1="195" y1="4645" x2="195" y2="4655" class="line"/>
+    <line x1="195" y1="4655" x2="205" y2="4655" class="line"/>
+    <text x="210" y="4660" class="file-text">ic_launcher.xml</text>
+    <line x1="195" y1="4680" x2="195" y2="4690" class="line"/>
+    <line x1="195" y1="4690" x2="205" y2="4690" class="line"/>
+    <text x="210" y="4695" class="file-text">ic_launcher_round.xml</text>
+    <line x1="165" y1="4750" x2="165" y2="4760" class="line"/>
+    <line x1="165" y1="4760" x2="175" y2="4760" class="line"/>
+    <text x="180" y="4765" class="folder-text">mipmap-hdpi/</text>
+    <line x1="195" y1="4780" x2="195" y2="4790" class="line"/>
+    <line x1="195" y1="4790" x2="205" y2="4790" class="line"/>
+    <text x="210" y="4795" class="file-text">ic_launcher.webp</text>
+    <line x1="195" y1="4815" x2="195" y2="4825" class="line"/>
+    <line x1="195" y1="4825" x2="205" y2="4825" class="line"/>
+    <text x="210" y="4830" class="file-text">ic_launcher_foreground.webp</text>
+    <line x1="195" y1="4850" x2="195" y2="4860" class="line"/>
+    <line x1="195" y1="4860" x2="205" y2="4860" class="line"/>
+    <text x="210" y="4865" class="file-text">ic_launcher_round.webp</text>
+    <line x1="165" y1="4920" x2="165" y2="4930" class="line"/>
+    <line x1="165" y1="4930" x2="175" y2="4930" class="line"/>
+    <text x="180" y="4935" class="folder-text">mipmap-mdpi/</text>
+    <line x1="195" y1="4950" x2="195" y2="4960" class="line"/>
+    <line x1="195" y1="4960" x2="205" y2="4960" class="line"/>
+    <text x="210" y="4965" class="file-text">ic_launcher.webp</text>
+    <line x1="195" y1="4985" x2="195" y2="4995" class="line"/>
+    <line x1="195" y1="4995" x2="205" y2="4995" class="line"/>
+    <text x="210" y="5000" class="file-text">ic_launcher_foreground.webp</text>
+    <line x1="195" y1="5020" x2="195" y2="5030" class="line"/>
+    <line x1="195" y1="5030" x2="205" y2="5030" class="line"/>
+    <text x="210" y="5035" class="file-text">ic_launcher_round.webp</text>
+    <line x1="165" y1="5090" x2="165" y2="5100" class="line"/>
+    <line x1="165" y1="5100" x2="175" y2="5100" class="line"/>
+    <text x="180" y="5105" class="folder-text">mipmap-xhdpi/</text>
+    <line x1="195" y1="5120" x2="195" y2="5130" class="line"/>
+    <line x1="195" y1="5130" x2="205" y2="5130" class="line"/>
+    <text x="210" y="5135" class="file-text">ic_launcher.webp</text>
+    <line x1="195" y1="5155" x2="195" y2="5165" class="line"/>
+    <line x1="195" y1="5165" x2="205" y2="5165" class="line"/>
+    <text x="210" y="5170" class="file-text">ic_launcher_foreground.webp</text>
+    <line x1="195" y1="5190" x2="195" y2="5200" class="line"/>
+    <line x1="195" y1="5200" x2="205" y2="5200" class="line"/>
+    <text x="210" y="5205" class="file-text">ic_launcher_round.webp</text>
+    <line x1="165" y1="5260" x2="165" y2="5270" class="line"/>
+    <line x1="165" y1="5270" x2="175" y2="5270" class="line"/>
+    <text x="180" y="5275" class="folder-text">mipmap-xxhdpi/</text>
+    <line x1="195" y1="5290" x2="195" y2="5300" class="line"/>
+    <line x1="195" y1="5300" x2="205" y2="5300" class="line"/>
+    <text x="210" y="5305" class="file-text">ic_launcher.webp</text>
+    <line x1="195" y1="5325" x2="195" y2="5335" class="line"/>
+    <line x1="195" y1="5335" x2="205" y2="5335" class="line"/>
+    <text x="210" y="5340" class="file-text">ic_launcher_foreground.webp</text>
+    <line x1="195" y1="5360" x2="195" y2="5370" class="line"/>
+    <line x1="195" y1="5370" x2="205" y2="5370" class="line"/>
+    <text x="210" y="5375" class="file-text">ic_launcher_round.webp</text>
+    <line x1="165" y1="5430" x2="165" y2="5440" class="line"/>
+    <line x1="165" y1="5440" x2="175" y2="5440" class="line"/>
+    <text x="180" y="5445" class="folder-text">mipmap-xxxhdpi/</text>
+    <line x1="195" y1="5460" x2="195" y2="5470" class="line"/>
+    <line x1="195" y1="5470" x2="205" y2="5470" class="line"/>
+    <text x="210" y="5475" class="file-text">ic_launcher.webp</text>
+    <line x1="195" y1="5495" x2="195" y2="5505" class="line"/>
+    <line x1="195" y1="5505" x2="205" y2="5505" class="line"/>
+    <text x="210" y="5510" class="file-text">ic_launcher_foreground.webp</text>
+    <line x1="195" y1="5530" x2="195" y2="5540" class="line"/>
+    <line x1="195" y1="5540" x2="205" y2="5540" class="line"/>
+    <text x="210" y="5545" class="file-text">ic_launcher_round.webp</text>
+    <line x1="165" y1="5600" x2="165" y2="5610" class="line"/>
+    <line x1="165" y1="5610" x2="175" y2="5610" class="line"/>
+    <text x="180" y="5615" class="folder-text">values/</text>
+    <line x1="195" y1="5630" x2="195" y2="5640" class="line"/>
+    <line x1="195" y1="5640" x2="205" y2="5640" class="line"/>
+    <text x="210" y="5645" class="file-text">ic_launcher_background.xml</text>
+    <line x1="195" y1="5665" x2="195" y2="5675" class="line"/>
+    <line x1="195" y1="5675" x2="205" y2="5675" class="line"/>
+    <text x="210" y="5680" class="file-text">strings.xml</text>
+    <line x1="195" y1="5700" x2="195" y2="5710" class="line"/>
+    <line x1="195" y1="5710" x2="205" y2="5710" class="line"/>
+    <text x="210" y="5715" class="file-text">styles.xml</text>
+    <line x1="165" y1="5770" x2="165" y2="5780" class="line"/>
+    <line x1="165" y1="5780" x2="175" y2="5780" class="line"/>
+    <text x="180" y="5785" class="folder-text">xml/</text>
+    <line x1="195" y1="5800" x2="195" y2="5810" class="line"/>
+    <line x1="195" y1="5810" x2="205" y2="5810" class="line"/>
+    <text x="210" y="5815" class="file-text">config.xml</text>
+    <line x1="195" y1="5835" x2="195" y2="5845" class="line"/>
+    <line x1="195" y1="5845" x2="205" y2="5845" class="line"/>
+    <text x="210" y="5850" class="file-text">file_paths.xml</text>
+    <line x1="135" y1="5940" x2="135" y2="5950" class="line"/>
+    <line x1="135" y1="5950" x2="145" y2="5950" class="line"/>
+    <text x="150" y="5955" class="file-text">AndroidManifest.xml</text>
+    <line x1="135" y1="5975" x2="135" y2="5985" class="line"/>
+    <line x1="135" y1="5985" x2="145" y2="5985" class="line"/>
+    <text x="150" y="5990" class="file-text">ic_launcher-playstore.png</text>
+    <line x1="105" y1="6045" x2="105" y2="6055" class="line"/>
+    <line x1="105" y1="6055" x2="115" y2="6055" class="line"/>
+    <text x="120" y="6060" class="folder-text">test/</text>
+    <line x1="135" y1="6075" x2="135" y2="6085" class="line"/>
+    <line x1="135" y1="6085" x2="145" y2="6085" class="line"/>
+    <text x="150" y="6090" class="folder-text">java/</text>
+    <line x1="165" y1="6105" x2="165" y2="6115" class="line"/>
+    <line x1="165" y1="6115" x2="175" y2="6115" class="line"/>
+    <text x="180" y="6120" class="folder-text">com/</text>
+    <line x1="195" y1="6135" x2="195" y2="6145" class="line"/>
+    <line x1="195" y1="6145" x2="205" y2="6145" class="line"/>
+    <text x="210" y="6150" class="folder-text">getcapacitor/</text>
+    <line x1="225" y1="6165" x2="225" y2="6175" class="line"/>
+    <line x1="225" y1="6175" x2="235" y2="6175" class="line"/>
+    <text x="240" y="6180" class="folder-text">myapp/</text>
+    <line x1="255" y1="6195" x2="255" y2="6205" class="line"/>
+    <line x1="255" y1="6205" x2="265" y2="6205" class="line"/>
+    <text x="270" y="6210" class="file-text">ExampleUnitTest.java</text>
+    <line x1="75" y1="6440" x2="75" y2="6450" class="line"/>
+    <line x1="75" y1="6450" x2="85" y2="6450" class="line"/>
+    <text x="90" y="6455" class="file-text">.gitignore</text>
+    <line x1="75" y1="6475" x2="75" y2="6485" class="line"/>
+    <line x1="75" y1="6485" x2="85" y2="6485" class="line"/>
+    <text x="90" y="6490" class="file-text">build.gradle</text>
+    <line x1="75" y1="6510" x2="75" y2="6520" class="line"/>
+    <line x1="75" y1="6520" x2="85" y2="6520" class="line"/>
+    <text x="90" y="6525" class="file-text">capacitor.build.gradle</text>
+    <line x1="75" y1="6545" x2="75" y2="6555" class="line"/>
+    <line x1="75" y1="6555" x2="85" y2="6555" class="line"/>
+    <text x="90" y="6560" class="file-text">google-services.json</text>
+    <line x1="75" y1="6580" x2="75" y2="6590" class="line"/>
+    <line x1="75" y1="6590" x2="85" y2="6590" class="line"/>
+    <text x="90" y="6595" class="file-text">proguard-rules.pro</text>
+    <line x1="45" y1="6650" x2="45" y2="6660" class="line"/>
+    <line x1="45" y1="6660" x2="55" y2="6660" class="line"/>
+    <text x="60" y="6665" class="folder-text">capacitor-cordova-android-plugins/</text>
+    <line x1="75" y1="6680" x2="75" y2="6690" class="line"/>
+    <line x1="75" y1="6690" x2="85" y2="6690" class="line"/>
+    <text x="90" y="6695" class="folder-text">src/</text>
+    <line x1="105" y1="6710" x2="105" y2="6720" class="line"/>
+    <line x1="105" y1="6720" x2="115" y2="6720" class="line"/>
+    <text x="120" y="6725" class="folder-text">main/</text>
+    <line x1="135" y1="6740" x2="135" y2="6750" class="line"/>
+    <line x1="135" y1="6750" x2="145" y2="6750" class="line"/>
+    <text x="150" y="6755" class="folder-text">java/</text>
+    <line x1="165" y1="6770" x2="165" y2="6780" class="line"/>
+    <line x1="165" y1="6780" x2="175" y2="6780" class="line"/>
+    <text x="180" y="6785" class="file-text">.gitkeep</text>
+    <line x1="135" y1="6840" x2="135" y2="6850" class="line"/>
+    <line x1="135" y1="6850" x2="145" y2="6850" class="line"/>
+    <text x="150" y="6855" class="folder-text">res/</text>
+    <line x1="165" y1="6870" x2="165" y2="6880" class="line"/>
+    <line x1="165" y1="6880" x2="175" y2="6880" class="line"/>
+    <text x="180" y="6885" class="file-text">.gitkeep</text>
+    <line x1="135" y1="6940" x2="135" y2="6950" class="line"/>
+    <line x1="135" y1="6950" x2="145" y2="6950" class="line"/>
+    <text x="150" y="6955" class="file-text">AndroidManifest.xml</text>
+    <line x1="75" y1="7045" x2="75" y2="7055" class="line"/>
+    <line x1="75" y1="7055" x2="85" y2="7055" class="line"/>
+    <text x="90" y="7060" class="file-text">build.gradle</text>
+    <line x1="75" y1="7080" x2="75" y2="7090" class="line"/>
+    <line x1="75" y1="7090" x2="85" y2="7090" class="line"/>
+    <text x="90" y="7095" class="file-text">cordova.variables.gradle</text>
+    <line x1="45" y1="7150" x2="45" y2="7160" class="line"/>
+    <line x1="45" y1="7160" x2="55" y2="7160" class="line"/>
+    <text x="60" y="7165" class="folder-text">gradle/</text>
+    <line x1="75" y1="7180" x2="75" y2="7190" class="line"/>
+    <line x1="75" y1="7190" x2="85" y2="7190" class="line"/>
+    <text x="90" y="7195" class="folder-text">wrapper/</text>
+    <line x1="105" y1="7210" x2="105" y2="7220" class="line"/>
+    <line x1="105" y1="7220" x2="115" y2="7220" class="line"/>
+    <text x="120" y="7225" class="file-text">gradle-wrapper.jar</text>
+    <line x1="105" y1="7245" x2="105" y2="7255" class="line"/>
+    <line x1="105" y1="7255" x2="115" y2="7255" class="line"/>
+    <text x="120" y="7260" class="file-text">gradle-wrapper.properties</text>
+    <line x1="45" y1="7350" x2="45" y2="7360" class="line"/>
+    <line x1="45" y1="7360" x2="55" y2="7360" class="line"/>
+    <text x="60" y="7365" class="file-text">.gitignore</text>
+    <line x1="45" y1="7385" x2="45" y2="7395" class="line"/>
+    <line x1="45" y1="7395" x2="55" y2="7395" class="line"/>
+    <text x="60" y="7400" class="file-text">build.gradle</text>
+    <line x1="45" y1="7420" x2="45" y2="7430" class="line"/>
+    <line x1="45" y1="7430" x2="55" y2="7430" class="line"/>
+    <text x="60" y="7435" class="file-text">capacitor.settings.gradle</text>
+    <line x1="45" y1="7455" x2="45" y2="7465" class="line"/>
+    <line x1="45" y1="7465" x2="55" y2="7465" class="line"/>
+    <text x="60" y="7470" class="file-text">gradle.properties</text>
+    <line x1="45" y1="7490" x2="45" y2="7500" class="line"/>
+    <line x1="45" y1="7500" x2="55" y2="7500" class="line"/>
+    <text x="60" y="7505" class="file-text">gradlew</text>
+    <line x1="45" y1="7525" x2="45" y2="7535" class="line"/>
+    <line x1="45" y1="7535" x2="55" y2="7535" class="line"/>
+    <text x="60" y="7540" class="file-text">gradlew.bat</text>
+    <line x1="45" y1="7560" x2="45" y2="7570" class="line"/>
+    <line x1="45" y1="7570" x2="55" y2="7570" class="line"/>
+    <text x="60" y="7575" class="file-text">local.properties</text>
+    <line x1="45" y1="7595" x2="45" y2="7605" class="line"/>
+    <line x1="45" y1="7605" x2="55" y2="7605" class="line"/>
+    <text x="60" y="7610" class="file-text">settings.gradle</text>
+    <line x1="45" y1="7630" x2="45" y2="7640" class="line"/>
+    <line x1="45" y1="7640" x2="55" y2="7640" class="line"/>
+    <text x="60" y="7645" class="file-text">variables.gradle</text>
+    <line x1="15" y1="7710" x2="25" y2="7710" class="line"/>
+    <text x="30" y="7715" class="folder-text">public/</text>
+    <line x1="45" y1="7730" x2="45" y2="7740" class="line"/>
+    <line x1="45" y1="7740" x2="55" y2="7740" class="line"/>
+    <text x="60" y="7745" class="file-text">favicon.ico</text>
+    <line x1="45" y1="7765" x2="45" y2="7775" class="line"/>
+    <line x1="45" y1="7775" x2="55" y2="7775" class="line"/>
+    <text x="60" y="7780" class="file-text">favicon.png</text>
+    <line x1="45" y1="7800" x2="45" y2="7810" class="line"/>
+    <line x1="45" y1="7810" x2="55" y2="7810" class="line"/>
+    <text x="60" y="7815" class="file-text">placeholder.svg</text>
+    <line x1="45" y1="7835" x2="45" y2="7845" class="line"/>
+    <line x1="45" y1="7845" x2="55" y2="7845" class="line"/>
+    <text x="60" y="7850" class="file-text">robots.txt</text>
+    <line x1="45" y1="7870" x2="45" y2="7880" class="line"/>
+    <line x1="45" y1="7880" x2="55" y2="7880" class="line"/>
+    <text x="60" y="7885" class="file-text">service-worker.js</text>
+    <line x1="15" y1="7950" x2="25" y2="7950" class="line"/>
+    <text x="30" y="7955" class="folder-text">scripts/</text>
+    <line x1="45" y1="7970" x2="45" y2="7980" class="line"/>
+    <line x1="45" y1="7980" x2="55" y2="7980" class="line"/>
+    <text x="60" y="7985" class="file-text">generate-fcm-token.sh</text>
+    <line x1="45" y1="8005" x2="45" y2="8015" class="line"/>
+    <line x1="45" y1="8015" x2="55" y2="8015" class="line"/>
+    <text x="60" y="8020" class="file-text">setup-firebase.sh</text>
+    <line x1="15" y1="8085" x2="25" y2="8085" class="line"/>
+    <text x="30" y="8090" class="folder-text">src/</text>
+    <line x1="45" y1="8105" x2="45" y2="8115" class="line"/>
+    <line x1="45" y1="8115" x2="55" y2="8115" class="line"/>
+    <text x="60" y="8120" class="folder-text">assets/</text>
+    <line x1="75" y1="8135" x2="75" y2="8145" class="line"/>
+    <line x1="75" y1="8145" x2="85" y2="8145" class="line"/>
+    <text x="90" y="8150" class="file-text">campus-bg.jpeg</text>
+    <line x1="75" y1="8170" x2="75" y2="8180" class="line"/>
+    <line x1="75" y1="8180" x2="85" y2="8180" class="line"/>
+    <text x="90" y="8185" class="file-text">developer-photo.jpg</text>
+    <line x1="75" y1="8205" x2="75" y2="8215" class="line"/>
+    <line x1="75" y1="8215" x2="85" y2="8215" class="line"/>
+    <text x="90" y="8220" class="file-text">isu-logo.png</text>
+    <line x1="75" y1="8240" x2="75" y2="8250" class="line"/>
+    <line x1="75" y1="8250" x2="85" y2="8250" class="line"/>
+    <text x="90" y="8255" class="file-text">rise-center.png</text>
+    <line x1="45" y1="8310" x2="45" y2="8320" class="line"/>
+    <line x1="45" y1="8320" x2="55" y2="8320" class="line"/>
+    <text x="60" y="8325" class="folder-text">components/</text>
+    <line x1="75" y1="8340" x2="75" y2="8350" class="line"/>
+    <line x1="75" y1="8350" x2="85" y2="8350" class="line"/>
+    <text x="90" y="8355" class="folder-text">auth/</text>
+    <line x1="105" y1="8370" x2="105" y2="8380" class="line"/>
+    <line x1="105" y1="8380" x2="115" y2="8380" class="line"/>
+    <text x="120" y="8385" class="file-text">DriverAuthPanel.tsx</text>
+    <line x1="105" y1="8405" x2="105" y2="8415" class="line"/>
+    <line x1="105" y1="8415" x2="115" y2="8415" class="line"/>
+    <text x="120" y="8420" class="file-text">LoginForm.tsx</text>
+    <line x1="105" y1="8440" x2="105" y2="8450" class="line"/>
+    <line x1="105" y1="8450" x2="115" y2="8450" class="line"/>
+    <text x="120" y="8455" class="file-text">PNPLoginForm.tsx</text>
+    <line x1="105" y1="8475" x2="105" y2="8485" class="line"/>
+    <line x1="105" y1="8485" x2="115" y2="8485" class="line"/>
+    <text x="120" y="8490" class="file-text">RescueLoginForm.tsx</text>
+    <line x1="105" y1="8510" x2="105" y2="8520" class="line"/>
+    <line x1="105" y1="8520" x2="115" y2="8520" class="line"/>
+    <text x="120" y="8525" class="file-text">StudentAuthPanel.tsx</text>
+    <line x1="105" y1="8545" x2="105" y2="8555" class="line"/>
+    <line x1="105" y1="8555" x2="115" y2="8555" class="line"/>
+    <text x="120" y="8560" class="file-text">StudentLoginForm.tsx</text>
+    <line x1="75" y1="8615" x2="75" y2="8625" class="line"/>
+    <line x1="75" y1="8625" x2="85" y2="8625" class="line"/>
+    <text x="90" y="8630" class="folder-text">ui/</text>
+    <line x1="105" y1="8645" x2="105" y2="8655" class="line"/>
+    <line x1="105" y1="8655" x2="115" y2="8655" class="line"/>
+    <text x="120" y="8660" class="file-text">accordion.tsx</text>
+    <line x1="105" y1="8680" x2="105" y2="8690" class="line"/>
+    <line x1="105" y1="8690" x2="115" y2="8690" class="line"/>
+    <text x="120" y="8695" class="file-text">alert-dialog.tsx</text>
+    <line x1="105" y1="8715" x2="105" y2="8725" class="line"/>
+    <line x1="105" y1="8725" x2="115" y2="8725" class="line"/>
+    <text x="120" y="8730" class="file-text">alert.tsx</text>
+    <line x1="105" y1="8750" x2="105" y2="8760" class="line"/>
+    <line x1="105" y1="8760" x2="115" y2="8760" class="line"/>
+    <text x="120" y="8765" class="file-text">aspect-ratio.tsx</text>
+    <line x1="105" y1="8785" x2="105" y2="8795" class="line"/>
+    <line x1="105" y1="8795" x2="115" y2="8795" class="line"/>
+    <text x="120" y="8800" class="file-text">avatar.tsx</text>
+    <line x1="105" y1="8820" x2="105" y2="8830" class="line"/>
+    <line x1="105" y1="8830" x2="115" y2="8830" class="line"/>
+    <text x="120" y="8835" class="file-text">badge.tsx</text>
+    <line x1="105" y1="8855" x2="105" y2="8865" class="line"/>
+    <line x1="105" y1="8865" x2="115" y2="8865" class="line"/>
+    <text x="120" y="8870" class="file-text">breadcrumb.tsx</text>
+    <line x1="105" y1="8890" x2="105" y2="8900" class="line"/>
+    <line x1="105" y1="8900" x2="115" y2="8900" class="line"/>
+    <text x="120" y="8905" class="file-text">button-improved.tsx</text>
+    <line x1="105" y1="8925" x2="105" y2="8935" class="line"/>
+    <line x1="105" y1="8935" x2="115" y2="8935" class="line"/>
+    <text x="120" y="8940" class="file-text">button.tsx</text>
+    <line x1="105" y1="8960" x2="105" y2="8970" class="line"/>
+    <line x1="105" y1="8970" x2="115" y2="8970" class="line"/>
+    <text x="120" y="8975" class="file-text">calendar.tsx</text>
+    <line x1="105" y1="8995" x2="105" y2="9005" class="line"/>
+    <line x1="105" y1="9005" x2="115" y2="9005" class="line"/>
+    <text x="120" y="9010" class="file-text">card-improved.tsx</text>
+    <line x1="105" y1="9030" x2="105" y2="9040" class="line"/>
+    <line x1="105" y1="9040" x2="115" y2="9040" class="line"/>
+    <text x="120" y="9045" class="file-text">card.tsx</text>
+    <line x1="105" y1="9065" x2="105" y2="9075" class="line"/>
+    <line x1="105" y1="9075" x2="115" y2="9075" class="line"/>
+    <text x="120" y="9080" class="file-text">carousel.tsx</text>
+    <line x1="105" y1="9100" x2="105" y2="9110" class="line"/>
+    <line x1="105" y1="9110" x2="115" y2="9110" class="line"/>
+    <text x="120" y="9115" class="file-text">chart.tsx</text>
+    <line x1="105" y1="9135" x2="105" y2="9145" class="line"/>
+    <line x1="105" y1="9145" x2="115" y2="9145" class="line"/>
+    <text x="120" y="9150" class="file-text">checkbox.tsx</text>
+    <line x1="105" y1="9170" x2="105" y2="9180" class="line"/>
+    <line x1="105" y1="9180" x2="115" y2="9180" class="line"/>
+    <text x="120" y="9185" class="file-text">collapsible.tsx</text>
+    <line x1="105" y1="9205" x2="105" y2="9215" class="line"/>
+    <line x1="105" y1="9215" x2="115" y2="9215" class="line"/>
+    <text x="120" y="9220" class="file-text">command.tsx</text>
+    <line x1="105" y1="9240" x2="105" y2="9250" class="line"/>
+    <line x1="105" y1="9250" x2="115" y2="9250" class="line"/>
+    <text x="120" y="9255" class="file-text">context-menu.tsx</text>
+    <line x1="105" y1="9275" x2="105" y2="9285" class="line"/>
+    <line x1="105" y1="9285" x2="115" y2="9285" class="line"/>
+    <text x="120" y="9290" class="file-text">dialog.tsx</text>
+    <line x1="105" y1="9310" x2="105" y2="9320" class="line"/>
+    <line x1="105" y1="9320" x2="115" y2="9320" class="line"/>
+    <text x="120" y="9325" class="file-text">drawer.tsx</text>
+    <line x1="105" y1="9345" x2="105" y2="9355" class="line"/>
+    <line x1="105" y1="9355" x2="115" y2="9355" class="line"/>
+    <text x="120" y="9360" class="file-text">dropdown-menu.tsx</text>
+    <line x1="105" y1="9380" x2="105" y2="9390" class="line"/>
+    <line x1="105" y1="9390" x2="115" y2="9390" class="line"/>
+    <text x="120" y="9395" class="file-text">form-improved.tsx</text>
+    <line x1="105" y1="9415" x2="105" y2="9425" class="line"/>
+    <line x1="105" y1="9425" x2="115" y2="9425" class="line"/>
+    <text x="120" y="9430" class="file-text">form.tsx</text>
+    <line x1="105" y1="9450" x2="105" y2="9460" class="line"/>
+    <line x1="105" y1="9460" x2="115" y2="9460" class="line"/>
+    <text x="120" y="9465" class="file-text">hover-card.tsx</text>
+    <line x1="105" y1="9485" x2="105" y2="9495" class="line"/>
+    <line x1="105" y1="9495" x2="115" y2="9495" class="line"/>
+    <text x="120" y="9500" class="file-text">input-otp.tsx</text>
+    <line x1="105" y1="9520" x2="105" y2="9530" class="line"/>
+    <line x1="105" y1="9530" x2="115" y2="9530" class="line"/>
+    <text x="120" y="9535" class="file-text">input.tsx</text>
+    <line x1="105" y1="9555" x2="105" y2="9565" class="line"/>
+    <line x1="105" y1="9565" x2="115" y2="9565" class="line"/>
+    <text x="120" y="9570" class="file-text">label.tsx</text>
+    <line x1="105" y1="9590" x2="105" y2="9600" class="line"/>
+    <line x1="105" y1="9600" x2="115" y2="9600" class="line"/>
+    <text x="120" y="9605" class="file-text">menubar.tsx</text>
+    <line x1="105" y1="9625" x2="105" y2="9635" class="line"/>
+    <line x1="105" y1="9635" x2="115" y2="9635" class="line"/>
+    <text x="120" y="9640" class="file-text">navigation-menu.tsx</text>
+    <line x1="105" y1="9660" x2="105" y2="9670" class="line"/>
+    <line x1="105" y1="9670" x2="115" y2="9670" class="line"/>
+    <text x="120" y="9675" class="file-text">pagination.tsx</text>
+    <line x1="105" y1="9695" x2="105" y2="9705" class="line"/>
+    <line x1="105" y1="9705" x2="115" y2="9705" class="line"/>
+    <text x="120" y="9710" class="file-text">popover.tsx</text>
+    <line x1="105" y1="9730" x2="105" y2="9740" class="line"/>
+    <line x1="105" y1="9740" x2="115" y2="9740" class="line"/>
+    <text x="120" y="9745" class="file-text">progress.tsx</text>
+    <line x1="105" y1="9765" x2="105" y2="9775" class="line"/>
+    <line x1="105" y1="9775" x2="115" y2="9775" class="line"/>
+    <text x="120" y="9780" class="file-text">radio-group.tsx</text>
+    <line x1="105" y1="9800" x2="105" y2="9810" class="line"/>
+    <line x1="105" y1="9810" x2="115" y2="9810" class="line"/>
+    <text x="120" y="9815" class="file-text">resizable.tsx</text>
+    <line x1="105" y1="9835" x2="105" y2="9845" class="line"/>
+    <line x1="105" y1="9845" x2="115" y2="9845" class="line"/>
+    <text x="120" y="9850" class="file-text">scroll-area.tsx</text>
+    <line x1="105" y1="9870" x2="105" y2="9880" class="line"/>
+    <line x1="105" y1="9880" x2="115" y2="9880" class="line"/>
+    <text x="120" y="9885" class="file-text">select.tsx</text>
+    <line x1="105" y1="9905" x2="105" y2="9915" class="line"/>
+    <line x1="105" y1="9915" x2="115" y2="9915" class="line"/>
+    <text x="120" y="9920" class="file-text">separator.tsx</text>
+    <line x1="105" y1="9940" x2="105" y2="9950" class="line"/>
+    <line x1="105" y1="9950" x2="115" y2="9950" class="line"/>
+    <text x="120" y="9955" class="file-text">sheet.tsx</text>
+    <line x1="105" y1="9975" x2="105" y2="9985" class="line"/>
+    <line x1="105" y1="9985" x2="115" y2="9985" class="line"/>
+    <text x="120" y="9990" class="file-text">sidebar.tsx</text>
+    <line x1="105" y1="10010" x2="105" y2="10020" class="line"/>
+    <line x1="105" y1="10020" x2="115" y2="10020" class="line"/>
+    <text x="120" y="10025" class="file-text">skeleton.tsx</text>
+    <line x1="105" y1="10045" x2="105" y2="10055" class="line"/>
+    <line x1="105" y1="10055" x2="115" y2="10055" class="line"/>
+    <text x="120" y="10060" class="file-text">slider.tsx</text>
+    <line x1="105" y1="10080" x2="105" y2="10090" class="line"/>
+    <line x1="105" y1="10090" x2="115" y2="10090" class="line"/>
+    <text x="120" y="10095" class="file-text">sonner.tsx</text>
+    <line x1="105" y1="10115" x2="105" y2="10125" class="line"/>
+    <line x1="105" y1="10125" x2="115" y2="10125" class="line"/>
+    <text x="120" y="10130" class="file-text">switch.tsx</text>
+    <line x1="105" y1="10150" x2="105" y2="10160" class="line"/>
+    <line x1="105" y1="10160" x2="115" y2="10160" class="line"/>
+    <text x="120" y="10165" class="file-text">table.tsx</text>
+    <line x1="105" y1="10185" x2="105" y2="10195" class="line"/>
+    <line x1="105" y1="10195" x2="115" y2="10195" class="line"/>
+    <text x="120" y="10200" class="file-text">tabs.tsx</text>
+    <line x1="105" y1="10220" x2="105" y2="10230" class="line"/>
+    <line x1="105" y1="10230" x2="115" y2="10230" class="line"/>
+    <text x="120" y="10235" class="file-text">textarea.tsx</text>
+    <line x1="105" y1="10255" x2="105" y2="10265" class="line"/>
+    <line x1="105" y1="10265" x2="115" y2="10265" class="line"/>
+    <text x="120" y="10270" class="file-text">toast.tsx</text>
+    <line x1="105" y1="10290" x2="105" y2="10300" class="line"/>
+    <line x1="105" y1="10300" x2="115" y2="10300" class="line"/>
+    <text x="120" y="10305" class="file-text">toaster.tsx</text>
+    <line x1="105" y1="10325" x2="105" y2="10335" class="line"/>
+    <line x1="105" y1="10335" x2="115" y2="10335" class="line"/>
+    <text x="120" y="10340" class="file-text">toggle-group.tsx</text>
+    <line x1="105" y1="10360" x2="105" y2="10370" class="line"/>
+    <line x1="105" y1="10370" x2="115" y2="10370" class="line"/>
+    <text x="120" y="10375" class="file-text">toggle.tsx</text>
+    <line x1="105" y1="10395" x2="105" y2="10405" class="line"/>
+    <line x1="105" y1="10405" x2="115" y2="10405" class="line"/>
+    <text x="120" y="10410" class="file-text">tooltip.tsx</text>
+    <line x1="105" y1="10430" x2="105" y2="10440" class="line"/>
+    <line x1="105" y1="10440" x2="115" y2="10440" class="line"/>
+    <text x="120" y="10445" class="file-text">use-toast.ts</text>
+    <line x1="75" y1="10500" x2="75" y2="10510" class="line"/>
+    <line x1="75" y1="10510" x2="85" y2="10510" class="line"/>
+    <text x="90" y="10515" class="file-text">AdminLoginModal.tsx</text>
+    <line x1="75" y1="10535" x2="75" y2="10545" class="line"/>
+    <line x1="75" y1="10545" x2="85" y2="10545" class="line"/>
+    <text x="90" y="10550" class="file-text">EmergencyAlertDialog.tsx</text>
+    <line x1="75" y1="10570" x2="75" y2="10580" class="line"/>
+    <line x1="75" y1="10580" x2="85" y2="10580" class="line"/>
+    <text x="90" y="10585" class="file-text">MobileBottomNav.tsx</text>
+    <line x1="75" y1="10605" x2="75" y2="10615" class="line"/>
+    <line x1="75" y1="10615" x2="85" y2="10615" class="line"/>
+    <text x="90" y="10620" class="file-text">NavGallery.tsx</text>
+    <line x1="75" y1="10640" x2="75" y2="10650" class="line"/>
+    <line x1="75" y1="10650" x2="85" y2="10650" class="line"/>
+    <text x="90" y="10655" class="file-text">NavLink.tsx</text>
+    <line x1="75" y1="10675" x2="75" y2="10685" class="line"/>
+    <line x1="75" y1="10685" x2="85" y2="10685" class="line"/>
+    <text x="90" y="10690" class="file-text">NotificationBell.tsx</text>
+    <line x1="75" y1="10710" x2="75" y2="10720" class="line"/>
+    <line x1="75" y1="10720" x2="85" y2="10720" class="line"/>
+    <text x="90" y="10725" class="file-text">ProtectedRoute.tsx</text>
+    <line x1="75" y1="10745" x2="75" y2="10755" class="line"/>
+    <line x1="75" y1="10755" x2="85" y2="10755" class="line"/>
+    <text x="90" y="10760" class="file-text">QRScanner.tsx</text>
+    <line x1="75" y1="10780" x2="75" y2="10790" class="line"/>
+    <line x1="75" y1="10790" x2="85" y2="10790" class="line"/>
+    <text x="90" y="10795" class="file-text">SplashScreen.tsx</text>
+    <line x1="75" y1="10815" x2="75" y2="10825" class="line"/>
+    <line x1="75" y1="10825" x2="85" y2="10825" class="line"/>
+    <text x="90" y="10830" class="file-text">StudentLocationDialog.tsx</text>
+    <line x1="75" y1="10850" x2="75" y2="10860" class="line"/>
+    <line x1="75" y1="10860" x2="85" y2="10860" class="line"/>
+    <text x="90" y="10865" class="file-text">StudentLoginForm.tsx</text>
+    <line x1="45" y1="10920" x2="45" y2="10930" class="line"/>
+    <line x1="45" y1="10930" x2="55" y2="10930" class="line"/>
+    <text x="60" y="10935" class="folder-text">hooks/</text>
+    <line x1="75" y1="10950" x2="75" y2="10960" class="line"/>
+    <line x1="75" y1="10960" x2="85" y2="10960" class="line"/>
+    <text x="90" y="10965" class="file-text">use-mobile.tsx</text>
+    <line x1="75" y1="10985" x2="75" y2="10995" class="line"/>
+    <line x1="75" y1="10995" x2="85" y2="10995" class="line"/>
+    <text x="90" y="11000" class="file-text">use-toast.ts</text>
+    <line x1="75" y1="11020" x2="75" y2="11030" class="line"/>
+    <line x1="75" y1="11030" x2="85" y2="11030" class="line"/>
+    <text x="90" y="11035" class="file-text">useAuth.ts</text>
+    <line x1="75" y1="11055" x2="75" y2="11065" class="line"/>
+    <line x1="75" y1="11065" x2="85" y2="11065" class="line"/>
+    <text x="90" y="11070" class="file-text">useCapacitorPush.ts</text>
+    <line x1="75" y1="11090" x2="75" y2="11100" class="line"/>
+    <line x1="75" y1="11100" x2="85" y2="11100" class="line"/>
+    <text x="90" y="11105" class="file-text">useEmergencySiren.ts</text>
+    <line x1="75" y1="11125" x2="75" y2="11135" class="line"/>
+    <line x1="75" y1="11135" x2="85" y2="11135" class="line"/>
+    <text x="90" y="11140" class="file-text">useLocationTracker.ts</text>
+    <line x1="75" y1="11160" x2="75" y2="11170" class="line"/>
+    <line x1="75" y1="11170" x2="85" y2="11170" class="line"/>
+    <text x="90" y="11175" class="file-text">useScrollAnimation.ts</text>
+    <line x1="75" y1="11195" x2="75" y2="11205" class="line"/>
+    <line x1="75" y1="11205" x2="85" y2="11205" class="line"/>
+    <text x="90" y="11210" class="file-text">useVolumeButtonSOS.ts</text>
+    <line x1="45" y1="11265" x2="45" y2="11275" class="line"/>
+    <line x1="45" y1="11275" x2="55" y2="11275" class="line"/>
+    <text x="60" y="11280" class="folder-text">integrations/</text>
+    <line x1="75" y1="11295" x2="75" y2="11305" class="line"/>
+    <line x1="75" y1="11305" x2="85" y2="11305" class="line"/>
+    <text x="90" y="11310" class="folder-text">supabase/</text>
+    <line x1="105" y1="11325" x2="105" y2="11335" class="line"/>
+    <line x1="105" y1="11335" x2="115" y2="11335" class="line"/>
+    <text x="120" y="11340" class="file-text">client.ts</text>
+    <line x1="105" y1="11360" x2="105" y2="11370" class="line"/>
+    <line x1="105" y1="11370" x2="115" y2="11370" class="line"/>
+    <text x="120" y="11375" class="file-text">types.ts</text>
+    <line x1="45" y1="11465" x2="45" y2="11475" class="line"/>
+    <line x1="45" y1="11475" x2="55" y2="11475" class="line"/>
+    <text x="60" y="11480" class="folder-text">lib/</text>
+    <line x1="75" y1="11495" x2="75" y2="11505" class="line"/>
+    <line x1="75" y1="11505" x2="85" y2="11505" class="line"/>
+    <text x="90" y="11510" class="file-text">auth.ts</text>
+    <line x1="75" y1="11530" x2="75" y2="11540" class="line"/>
+    <line x1="75" y1="11540" x2="85" y2="11540" class="line"/>
+    <text x="90" y="11545" class="file-text">notifications.ts</text>
+    <line x1="75" y1="11565" x2="75" y2="11575" class="line"/>
+    <line x1="75" y1="11575" x2="85" y2="11575" class="line"/>
+    <text x="90" y="11580" class="file-text">roles.ts</text>
+    <line x1="75" y1="11600" x2="75" y2="11610" class="line"/>
+    <line x1="75" y1="11610" x2="85" y2="11610" class="line"/>
+    <text x="90" y="11615" class="file-text">utils.ts</text>
+    <line x1="75" y1="11635" x2="75" y2="11645" class="line"/>
+    <line x1="75" y1="11645" x2="85" y2="11645" class="line"/>
+    <text x="90" y="11650" class="file-text">validations.ts</text>
+    <line x1="45" y1="11705" x2="45" y2="11715" class="line"/>
+    <line x1="45" y1="11715" x2="55" y2="11715" class="line"/>
+    <text x="60" y="11720" class="folder-text">pages/</text>
+    <line x1="75" y1="11735" x2="75" y2="11745" class="line"/>
+    <line x1="75" y1="11745" x2="85" y2="11745" class="line"/>
+    <text x="90" y="11750" class="folder-text">admin/</text>
+    <line x1="105" y1="11765" x2="105" y2="11775" class="line"/>
+    <line x1="105" y1="11775" x2="115" y2="11775" class="line"/>
+    <text x="120" y="11780" class="file-text">AnnouncementsHistory.tsx</text>
+    <line x1="105" y1="11800" x2="105" y2="11810" class="line"/>
+    <line x1="105" y1="11810" x2="115" y2="11810" class="line"/>
+    <text x="120" y="11815" class="file-text">DriversList.tsx</text>
+    <line x1="105" y1="11835" x2="105" y2="11845" class="line"/>
+    <line x1="105" y1="11845" x2="115" y2="11845" class="line"/>
+    <text x="120" y="11850" class="file-text">EmergencyAlerts.tsx</text>
+    <line x1="105" y1="11870" x2="105" y2="11880" class="line"/>
+    <line x1="105" y1="11880" x2="115" y2="11880" class="line"/>
+    <text x="120" y="11885" class="file-text">OngoingTrips.tsx</text>
+    <line x1="105" y1="11905" x2="105" y2="11915" class="line"/>
+    <line x1="105" y1="11915" x2="115" y2="11915" class="line"/>
+    <text x="120" y="11920" class="file-text">RegisterDriver.tsx</text>
+    <line x1="105" y1="11940" x2="105" y2="11950" class="line"/>
+    <line x1="105" y1="11950" x2="115" y2="11950" class="line"/>
+    <text x="120" y="11955" class="file-text">RegisterStudent.tsx</text>
+    <line x1="105" y1="11975" x2="105" y2="11985" class="line"/>
+    <line x1="105" y1="11985" x2="115" y2="11985" class="line"/>
+    <text x="120" y="11990" class="file-text">StudentsList.tsx</text>
+    <line x1="75" y1="12045" x2="75" y2="12055" class="line"/>
+    <line x1="75" y1="12055" x2="85" y2="12055" class="line"/>
+    <text x="90" y="12060" class="folder-text">student/</text>
+    <line x1="105" y1="12075" x2="105" y2="12085" class="line"/>
+    <line x1="105" y1="12085" x2="115" y2="12085" class="line"/>
+    <text x="120" y="12090" class="file-text">Agreement.tsx</text>
+    <line x1="105" y1="12110" x2="105" y2="12120" class="line"/>
+    <line x1="105" y1="12120" x2="115" y2="12120" class="line"/>
+    <text x="120" y="12125" class="file-text">TripHistory.tsx</text>
+    <line x1="75" y1="12180" x2="75" y2="12190" class="line"/>
+    <line x1="75" y1="12190" x2="85" y2="12190" class="line"/>
+    <text x="90" y="12195" class="file-text">About.tsx</text>
+    <line x1="75" y1="12215" x2="75" y2="12225" class="line"/>
+    <line x1="75" y1="12225" x2="85" y2="12225" class="line"/>
+    <text x="90" y="12230" class="file-text">Admin.tsx</text>
+    <line x1="75" y1="12250" x2="75" y2="12260" class="line"/>
+    <line x1="75" y1="12260" x2="85" y2="12260" class="line"/>
+    <text x="90" y="12265" class="file-text">AdminPortal.tsx</text>
+    <line x1="75" y1="12285" x2="75" y2="12295" class="line"/>
+    <line x1="75" y1="12295" x2="85" y2="12295" class="line"/>
+    <text x="90" y="12300" class="file-text">Contact.tsx</text>
+    <line x1="75" y1="12320" x2="75" y2="12330" class="line"/>
+    <line x1="75" y1="12330" x2="85" y2="12330" class="line"/>
+    <text x="90" y="12335" class="file-text">CookiePolicy.tsx</text>
+    <line x1="75" y1="12355" x2="75" y2="12365" class="line"/>
+    <line x1="75" y1="12365" x2="85" y2="12365" class="line"/>
+    <text x="90" y="12370" class="file-text">Developer.tsx</text>
+    <line x1="75" y1="12390" x2="75" y2="12400" class="line"/>
+    <line x1="75" y1="12400" x2="85" y2="12400" class="line"/>
+    <text x="90" y="12405" class="file-text">DriverDashboard.tsx</text>
+    <line x1="75" y1="12425" x2="75" y2="12435" class="line"/>
+    <line x1="75" y1="12435" x2="85" y2="12435" class="line"/>
+    <text x="90" y="12440" class="file-text">DriverLogin.tsx</text>
+    <line x1="75" y1="12460" x2="75" y2="12470" class="line"/>
+    <line x1="75" y1="12470" x2="85" y2="12470" class="line"/>
+    <text x="90" y="12475" class="file-text">DriverPortal.tsx</text>
+    <line x1="75" y1="12495" x2="75" y2="12505" class="line"/>
+    <line x1="75" y1="12505" x2="85" y2="12505" class="line"/>
+    <text x="90" y="12510" class="file-text">DriverRegister.tsx</text>
+    <line x1="75" y1="12530" x2="75" y2="12540" class="line"/>
+    <line x1="75" y1="12540" x2="85" y2="12540" class="line"/>
+    <text x="90" y="12545" class="file-text">DriverSettings.tsx</text>
+    <line x1="75" y1="12565" x2="75" y2="12575" class="line"/>
+    <line x1="75" y1="12575" x2="85" y2="12575" class="line"/>
+    <text x="90" y="12580" class="file-text">Gallery.tsx</text>
+    <line x1="75" y1="12600" x2="75" y2="12610" class="line"/>
+    <line x1="75" y1="12610" x2="85" y2="12610" class="line"/>
+    <text x="90" y="12615" class="file-text">Guide.tsx</text>
+    <line x1="75" y1="12635" x2="75" y2="12645" class="line"/>
+    <line x1="75" y1="12645" x2="85" y2="12645" class="line"/>
+    <text x="90" y="12650" class="file-text">Index.tsx</text>
+    <line x1="75" y1="12670" x2="75" y2="12680" class="line"/>
+    <line x1="75" y1="12680" x2="85" y2="12680" class="line"/>
+    <text x="90" y="12685" class="file-text">Login.tsx</text>
+    <line x1="75" y1="12705" x2="75" y2="12715" class="line"/>
+    <line x1="75" y1="12715" x2="85" y2="12715" class="line"/>
+    <text x="90" y="12720" class="file-text">NotFound.tsx</text>
+    <line x1="75" y1="12740" x2="75" y2="12750" class="line"/>
+    <line x1="75" y1="12750" x2="85" y2="12750" class="line"/>
+    <text x="90" y="12755" class="file-text">PNPAdmin.tsx</text>
+    <line x1="75" y1="12775" x2="75" y2="12785" class="line"/>
+    <line x1="75" y1="12785" x2="85" y2="12785" class="line"/>
+    <text x="90" y="12790" class="file-text">PNPDashboard.tsx</text>
+    <line x1="75" y1="12810" x2="75" y2="12820" class="line"/>
+    <line x1="75" y1="12820" x2="85" y2="12820" class="line"/>
+    <text x="90" y="12825" class="file-text">PNPHistory.tsx</text>
+    <line x1="75" y1="12845" x2="75" y2="12855" class="line"/>
+    <line x1="75" y1="12855" x2="85" y2="12855" class="line"/>
+    <text x="90" y="12860" class="file-text">PNPMap.tsx</text>
+    <line x1="75" y1="12880" x2="75" y2="12890" class="line"/>
+    <line x1="75" y1="12890" x2="85" y2="12890" class="line"/>
+    <text x="90" y="12895" class="file-text">PNPPortal.tsx</text>
+    <line x1="75" y1="12915" x2="75" y2="12925" class="line"/>
+    <line x1="75" y1="12925" x2="85" y2="12925" class="line"/>
+    <text x="90" y="12930" class="file-text">PNPReports.tsx</text>
+    <line x1="75" y1="12950" x2="75" y2="12960" class="line"/>
+    <line x1="75" y1="12960" x2="85" y2="12960" class="line"/>
+    <text x="90" y="12965" class="file-text">Privacy.tsx</text>
+    <line x1="75" y1="12985" x2="75" y2="12995" class="line"/>
+    <line x1="75" y1="12995" x2="85" y2="12995" class="line"/>
+    <text x="90" y="13000" class="file-text">ReportIssues.tsx</text>
+    <line x1="75" y1="13020" x2="75" y2="13030" class="line"/>
+    <line x1="75" y1="13030" x2="85" y2="13030" class="line"/>
+    <text x="90" y="13035" class="file-text">RescueAdmin.tsx</text>
+    <line x1="75" y1="13055" x2="75" y2="13065" class="line"/>
+    <line x1="75" y1="13065" x2="85" y2="13065" class="line"/>
+    <text x="90" y="13070" class="file-text">RescueDashboard.tsx</text>
+    <line x1="75" y1="13090" x2="75" y2="13100" class="line"/>
+    <line x1="75" y1="13100" x2="85" y2="13100" class="line"/>
+    <text x="90" y="13105" class="file-text">RescueSettings.tsx</text>
+    <line x1="75" y1="13125" x2="75" y2="13135" class="line"/>
+    <line x1="75" y1="13135" x2="85" y2="13135" class="line"/>
+    <text x="90" y="13140" class="file-text">RoleSelection.tsx</text>
+    <line x1="75" y1="13160" x2="75" y2="13170" class="line"/>
+    <line x1="75" y1="13170" x2="85" y2="13170" class="line"/>
+    <text x="90" y="13175" class="file-text">Security.tsx</text>
+    <line x1="75" y1="13195" x2="75" y2="13205" class="line"/>
+    <line x1="75" y1="13205" x2="85" y2="13205" class="line"/>
+    <text x="90" y="13210" class="file-text">Student.tsx</text>
+    <line x1="75" y1="13230" x2="75" y2="13240" class="line"/>
+    <line x1="75" y1="13240" x2="85" y2="13240" class="line"/>
+    <text x="90" y="13245" class="file-text">StudentSettings.tsx</text>
+    <line x1="75" y1="13265" x2="75" y2="13275" class="line"/>
+    <line x1="75" y1="13275" x2="85" y2="13275" class="line"/>
+    <text x="90" y="13280" class="file-text">Terms.tsx</text>
+    <line x1="75" y1="13300" x2="75" y2="13310" class="line"/>
+    <line x1="75" y1="13310" x2="85" y2="13310" class="line"/>
+    <text x="90" y="13315" class="file-text">fix_bg.js</text>
+    <line x1="45" y1="13370" x2="45" y2="13380" class="line"/>
+    <line x1="45" y1="13380" x2="55" y2="13380" class="line"/>
+    <text x="60" y="13385" class="file-text">App.css</text>
+    <line x1="45" y1="13405" x2="45" y2="13415" class="line"/>
+    <line x1="45" y1="13415" x2="55" y2="13415" class="line"/>
+    <text x="60" y="13420" class="file-text">App.tsx</text>
+    <line x1="45" y1="13440" x2="45" y2="13450" class="line"/>
+    <line x1="45" y1="13450" x2="55" y2="13450" class="line"/>
+    <text x="60" y="13455" class="file-text">footer-link-glow.css</text>
+    <line x1="45" y1="13475" x2="45" y2="13485" class="line"/>
+    <line x1="45" y1="13485" x2="55" y2="13485" class="line"/>
+    <text x="60" y="13490" class="file-text">index.css</text>
+    <line x1="45" y1="13510" x2="45" y2="13520" class="line"/>
+    <line x1="45" y1="13520" x2="55" y2="13520" class="line"/>
+    <text x="60" y="13525" class="file-text">main.tsx</text>
+    <line x1="45" y1="13545" x2="45" y2="13555" class="line"/>
+    <line x1="45" y1="13555" x2="55" y2="13555" class="line"/>
+    <text x="60" y="13560" class="file-text">vite-env.d.ts</text>
+    <line x1="15" y1="13625" x2="25" y2="13625" class="line"/>
+    <text x="30" y="13630" class="folder-text">supabase/</text>
+    <line x1="45" y1="13645" x2="45" y2="13655" class="line"/>
+    <line x1="45" y1="13655" x2="55" y2="13655" class="line"/>
+    <text x="60" y="13660" class="folder-text">.temp/</text>
+    <line x1="75" y1="13675" x2="75" y2="13685" class="line"/>
+    <line x1="75" y1="13685" x2="85" y2="13685" class="line"/>
+    <text x="90" y="13690" class="file-text">cli-latest</text>
+    <line x1="75" y1="13710" x2="75" y2="13720" class="line"/>
+    <line x1="75" y1="13720" x2="85" y2="13720" class="line"/>
+    <text x="90" y="13725" class="file-text">gotrue-version</text>
+    <line x1="75" y1="13745" x2="75" y2="13755" class="line"/>
+    <line x1="75" y1="13755" x2="85" y2="13755" class="line"/>
+    <text x="90" y="13760" class="file-text">pooler-url</text>
+    <line x1="75" y1="13780" x2="75" y2="13790" class="line"/>
+    <line x1="75" y1="13790" x2="85" y2="13790" class="line"/>
+    <text x="90" y="13795" class="file-text">postgres-version</text>
+    <line x1="75" y1="13815" x2="75" y2="13825" class="line"/>
+    <line x1="75" y1="13825" x2="85" y2="13825" class="line"/>
+    <text x="90" y="13830" class="file-text">project-ref</text>
+    <line x1="75" y1="13850" x2="75" y2="13860" class="line"/>
+    <line x1="75" y1="13860" x2="85" y2="13860" class="line"/>
+    <text x="90" y="13865" class="file-text">rest-version</text>
+    <line x1="75" y1="13885" x2="75" y2="13895" class="line"/>
+    <line x1="75" y1="13895" x2="85" y2="13895" class="line"/>
+    <text x="90" y="13900" class="file-text">storage-migration</text>
+    <line x1="75" y1="13920" x2="75" y2="13930" class="line"/>
+    <line x1="75" y1="13930" x2="85" y2="13930" class="line"/>
+    <text x="90" y="13935" class="file-text">storage-version</text>
+    <line x1="45" y1="13990" x2="45" y2="14000" class="line"/>
+    <line x1="45" y1="14000" x2="55" y2="14000" class="line"/>
+    <text x="60" y="14005" class="folder-text">functions/</text>
+    <line x1="75" y1="14020" x2="75" y2="14030" class="line"/>
+    <line x1="75" y1="14030" x2="85" y2="14030" class="line"/>
+    <text x="90" y="14035" class="folder-text">assign-student-role/</text>
+    <line x1="105" y1="14050" x2="105" y2="14060" class="line"/>
+    <line x1="105" y1="14060" x2="115" y2="14060" class="line"/>
+    <text x="120" y="14065" class="file-text">index.ts</text>
+    <line x1="75" y1="14120" x2="75" y2="14130" class="line"/>
+    <line x1="75" y1="14130" x2="85" y2="14130" class="line"/>
+    <text x="90" y="14135" class="folder-text">create-driver-account/</text>
+    <line x1="105" y1="14150" x2="105" y2="14160" class="line"/>
+    <line x1="105" y1="14160" x2="115" y2="14160" class="line"/>
+    <text x="120" y="14165" class="file-text">README.md</text>
+    <line x1="75" y1="14220" x2="75" y2="14230" class="line"/>
+    <line x1="75" y1="14230" x2="85" y2="14230" class="line"/>
+    <text x="90" y="14235" class="folder-text">create-pnp-account/</text>
+    <line x1="105" y1="14250" x2="105" y2="14260" class="line"/>
+    <line x1="105" y1="14260" x2="115" y2="14260" class="line"/>
+    <text x="120" y="14265" class="file-text">index.ts</text>
+    <line x1="75" y1="14320" x2="75" y2="14330" class="line"/>
+    <line x1="75" y1="14330" x2="85" y2="14330" class="line"/>
+    <text x="90" y="14335" class="folder-text">create-student-account/</text>
+    <line x1="105" y1="14350" x2="105" y2="14360" class="line"/>
+    <line x1="105" y1="14360" x2="115" y2="14360" class="line"/>
+    <text x="120" y="14365" class="file-text">index.ts</text>
+    <line x1="75" y1="14420" x2="75" y2="14430" class="line"/>
+    <line x1="75" y1="14430" x2="85" y2="14430" class="line"/>
+    <text x="90" y="14435" class="folder-text">delete-auth-user/</text>
+    <line x1="105" y1="14450" x2="105" y2="14460" class="line"/>
+    <line x1="105" y1="14460" x2="115" y2="14460" class="line"/>
+    <text x="120" y="14465" class="file-text">index.ts</text>
+    <line x1="75" y1="14520" x2="75" y2="14530" class="line"/>
+    <line x1="75" y1="14530" x2="85" y2="14530" class="line"/>
+    <text x="90" y="14535" class="folder-text">delete-student/</text>
+    <line x1="105" y1="14550" x2="105" y2="14560" class="line"/>
+    <line x1="105" y1="14560" x2="115" y2="14560" class="line"/>
+    <text x="120" y="14565" class="file-text">index.ts</text>
+    <line x1="75" y1="14620" x2="75" y2="14630" class="line"/>
+    <line x1="75" y1="14630" x2="85" y2="14630" class="line"/>
+    <text x="90" y="14635" class="folder-text">send-fcm-notifications/</text>
+    <line x1="105" y1="14650" x2="105" y2="14660" class="line"/>
+    <line x1="105" y1="14660" x2="115" y2="14660" class="line"/>
+    <text x="120" y="14665" class="file-text">index.ts</text>
+    <line x1="75" y1="14720" x2="75" y2="14730" class="line"/>
+    <line x1="75" y1="14730" x2="85" y2="14730" class="line"/>
+    <text x="90" y="14735" class="folder-text">send-push-notifications/</text>
+    <line x1="105" y1="14750" x2="105" y2="14760" class="line"/>
+    <line x1="105" y1="14760" x2="115" y2="14760" class="line"/>
+    <text x="120" y="14765" class="file-text">deno.json</text>
+    <line x1="105" y1="14785" x2="105" y2="14795" class="line"/>
+    <line x1="105" y1="14795" x2="115" y2="14795" class="line"/>
+    <text x="120" y="14800" class="file-text">index.ts</text>
+    <line x1="45" y1="14890" x2="45" y2="14900" class="line"/>
+    <line x1="45" y1="14900" x2="55" y2="14900" class="line"/>
+    <text x="60" y="14905" class="folder-text">migrations/</text>
+    <line x1="75" y1="14920" x2="75" y2="14930" class="line"/>
+    <line x1="75" y1="14930" x2="85" y2="14930" class="line"/>
+    <text x="90" y="14935" class="file-text">20251109004213_43f7a49a-49aa-4807-86d2-8263d8d5c200.sql</text>
+    <line x1="75" y1="14955" x2="75" y2="14965" class="line"/>
+    <line x1="75" y1="14965" x2="85" y2="14965" class="line"/>
+    <text x="90" y="14970" class="file-text">20251111075650_2d328382-1967-4808-9ae6-3a6993329648.sql</text>
+    <line x1="75" y1="14990" x2="75" y2="15000" class="line"/>
+    <line x1="75" y1="15000" x2="85" y2="15000" class="line"/>
+    <text x="90" y="15005" class="file-text">20251113112245_750720bc-7d5a-4a85-84e7-9a0337447e5e.sql</text>
+    <line x1="75" y1="15025" x2="75" y2="15035" class="line"/>
+    <line x1="75" y1="15035" x2="85" y2="15035" class="line"/>
+    <text x="90" y="15040" class="file-text">20251217133341_4fe74716-9b1c-4d5a-a649-8d1af0291bbe.sql</text>
+    <line x1="75" y1="15060" x2="75" y2="15070" class="line"/>
+    <line x1="75" y1="15070" x2="85" y2="15070" class="line"/>
+    <text x="90" y="15075" class="file-text">20251217133622_550b1e88-7f39-4969-8a2e-17d8d35e0854.sql</text>
+    <line x1="75" y1="15095" x2="75" y2="15105" class="line"/>
+    <line x1="75" y1="15105" x2="85" y2="15105" class="line"/>
+    <text x="90" y="15110" class="file-text">20251217134112_f2fcc9ba-966c-422d-bfc4-fc5f74248fe0.sql</text>
+    <line x1="75" y1="15130" x2="75" y2="15140" class="line"/>
+    <line x1="75" y1="15140" x2="85" y2="15140" class="line"/>
+    <text x="90" y="15145" class="file-text">20251221005501_dfaaa59c-5e74-4c8b-827c-6bcd8cf55d0f.sql</text>
+    <line x1="75" y1="15165" x2="75" y2="15175" class="line"/>
+    <line x1="75" y1="15175" x2="85" y2="15175" class="line"/>
+    <text x="90" y="15180" class="file-text">20260101144814_97fef8ee-b487-4fb9-8066-bffb5202804b.sql</text>
+    <line x1="75" y1="15200" x2="75" y2="15210" class="line"/>
+    <line x1="75" y1="15210" x2="85" y2="15210" class="line"/>
+    <text x="90" y="15215" class="file-text">20260101145722_314aee6d-e04a-4b0d-90d5-f79c2dfdc1c5.sql</text>
+    <line x1="75" y1="15235" x2="75" y2="15245" class="line"/>
+    <line x1="75" y1="15245" x2="85" y2="15245" class="line"/>
+    <text x="90" y="15250" class="file-text">20260102012302_e35e581c-06d6-49c8-81d2-58cf051d5738.sql</text>
+    <line x1="75" y1="15270" x2="75" y2="15280" class="line"/>
+    <line x1="75" y1="15280" x2="85" y2="15280" class="line"/>
+    <text x="90" y="15285" class="file-text">20260102012708_661c8e37-0052-48ab-98c0-6cca978b6da2.sql</text>
+    <line x1="75" y1="15305" x2="75" y2="15315" class="line"/>
+    <line x1="75" y1="15315" x2="85" y2="15315" class="line"/>
+    <text x="90" y="15320" class="file-text">20260102013018_3a33edad-b894-4482-a7d5-98f2b7ece4e2.sql</text>
+    <line x1="75" y1="15340" x2="75" y2="15350" class="line"/>
+    <line x1="75" y1="15350" x2="85" y2="15350" class="line"/>
+    <text x="90" y="15355" class="file-text">20260102145906_5d3ab820-b3a9-41f1-8cff-d473dfcb8bb6.sql</text>
+    <line x1="75" y1="15375" x2="75" y2="15385" class="line"/>
+    <line x1="75" y1="15385" x2="85" y2="15385" class="line"/>
+    <text x="90" y="15390" class="file-text">20260102145957_d2313571-607b-4417-84fe-34deb69b3a64.sql</text>
+    <line x1="75" y1="15410" x2="75" y2="15420" class="line"/>
+    <line x1="75" y1="15420" x2="85" y2="15420" class="line"/>
+    <text x="90" y="15425" class="file-text">20260102150039_06fbd276-1802-4e77-b802-5c9124c37ff8.sql</text>
+    <line x1="75" y1="15445" x2="75" y2="15455" class="line"/>
+    <line x1="75" y1="15455" x2="85" y2="15455" class="line"/>
+    <text x="90" y="15460" class="file-text">20260102150330_5558f758-20c7-402d-b57e-28aa15886716.sql</text>
+    <line x1="75" y1="15480" x2="75" y2="15490" class="line"/>
+    <line x1="75" y1="15490" x2="85" y2="15490" class="line"/>
+    <text x="90" y="15495" class="file-text">20260102152026_bfca18b4-c14f-42ea-bae2-0437f5de51eb.sql</text>
+    <line x1="75" y1="15515" x2="75" y2="15525" class="line"/>
+    <line x1="75" y1="15525" x2="85" y2="15525" class="line"/>
+    <text x="90" y="15530" class="file-text">20260124150000_add_delete_alerts_policy.sql</text>
+    <line x1="75" y1="15550" x2="75" y2="15560" class="line"/>
+    <line x1="75" y1="15560" x2="85" y2="15560" class="line"/>
+    <text x="90" y="15565" class="file-text">20260124165341_create-pnp-officers-table.sql</text>
+    <line x1="75" y1="15585" x2="75" y2="15595" class="line"/>
+    <line x1="75" y1="15595" x2="85" y2="15595" class="line"/>
+    <text x="90" y="15600" class="file-text">20260124165410_add-pnp-role.sql</text>
+    <line x1="75" y1="15620" x2="75" y2="15630" class="line"/>
+    <line x1="75" y1="15630" x2="85" y2="15630" class="line"/>
+    <text x="90" y="15635" class="file-text">20260125_add_policy_accepted.sql</text>
+    <line x1="75" y1="15655" x2="75" y2="15665" class="line"/>
+    <line x1="75" y1="15665" x2="85" y2="15665" class="line"/>
+    <text x="90" y="15670" class="file-text">20260125_create_announcements.sql</text>
+    <line x1="75" y1="15690" x2="75" y2="15700" class="line"/>
+    <line x1="75" y1="15700" x2="85" y2="15700" class="line"/>
+    <text x="90" y="15705" class="file-text">20260125_push_subscriptions.sql</text>
+    <line x1="75" y1="15725" x2="75" y2="15735" class="line"/>
+    <line x1="75" y1="15735" x2="85" y2="15735" class="line"/>
+    <text x="90" y="15740" class="file-text">20260126052911_create_push_tokens.sql</text>
+    <line x1="75" y1="15760" x2="75" y2="15770" class="line"/>
+    <line x1="75" y1="15770" x2="85" y2="15770" class="line"/>
+    <text x="90" y="15775" class="file-text">20260126_add_rescue_roles.sql</text>
+    <line x1="75" y1="15795" x2="75" y2="15805" class="line"/>
+    <line x1="75" y1="15805" x2="85" y2="15805" class="line"/>
+    <text x="90" y="15810" class="file-text">20260126_add_user_type_announcements.sql</text>
+    <line x1="75" y1="15830" x2="75" y2="15840" class="line"/>
+    <line x1="75" y1="15840" x2="85" y2="15840" class="line"/>
+    <text x="90" y="15845" class="file-text">20260126_assign_rescue_admin_role.sql</text>
+    <line x1="75" y1="15865" x2="75" y2="15875" class="line"/>
+    <line x1="75" y1="15875" x2="85" y2="15875" class="line"/>
+    <text x="90" y="15880" class="file-text">20260127_add_alert_type.sql</text>
+    <line x1="75" y1="15900" x2="75" y2="15910" class="line"/>
+    <line x1="75" y1="15910" x2="85" y2="15910" class="line"/>
+    <text x="90" y="15915" class="file-text">20260127_fix_profiles_rls.sql</text>
+    <line x1="45" y1="15970" x2="45" y2="15980" class="line"/>
+    <line x1="45" y1="15980" x2="55" y2="15980" class="line"/>
+    <text x="60" y="15985" class="file-text">.gitignore</text>
+    <line x1="45" y1="16005" x2="45" y2="16015" class="line"/>
+    <line x1="45" y1="16015" x2="55" y2="16015" class="line"/>
+    <text x="60" y="16020" class="file-text">config.json</text>
+    <line x1="45" y1="16040" x2="45" y2="16050" class="line"/>
+    <line x1="45" y1="16050" x2="55" y2="16050" class="line"/>
+    <text x="60" y="16055" class="file-text">config.toml</text>
+    <line x1="15" y1="16120" x2="25" y2="16120" class="line"/>
+    <text x="30" y="16125" class="file-text">.env.example</text>
+    <line x1="15" y1="16155" x2="25" y2="16155" class="line"/>
+    <text x="30" y="16160" class="file-text">.gitignore</text>
+    <line x1="15" y1="16190" x2="25" y2="16190" class="line"/>
+    <text x="30" y="16195" class="file-text">ADD_SECRETS_SUPABASE_DETAILED.md</text>
+    <line x1="15" y1="16225" x2="25" y2="16225" class="line"/>
+    <text x="30" y="16230" class="file-text">ADMIN_PORTAL_SETUP.md</text>
+    <line x1="15" y1="16260" x2="25" y2="16260" class="line"/>
+    <text x="30" y="16265" class="file-text">ANDROID_FCM_SETUP.md</text>
+    <line x1="15" y1="16295" x2="25" y2="16295" class="line"/>
+    <text x="30" y="16300" class="file-text">COMPLETE_PUSH_NOTIFICATIONS_GUIDE.md</text>
+    <line x1="15" y1="16330" x2="25" y2="16330" class="line"/>
+    <text x="30" y="16335" class="file-text">DESIGN_SYSTEM.md</text>
+    <line x1="15" y1="16365" x2="25" y2="16365" class="line"/>
+    <text x="30" y="16370" class="file-text">FCM_SETUP.md</text>
+    <line x1="15" y1="16400" x2="25" y2="16400" class="line"/>
+    <text x="30" y="16405" class="file-text">FIREBASE_SETUP.md</text>
+    <line x1="15" y1="16435" x2="25" y2="16435" class="line"/>
+    <text x="30" y="16440" class="file-text">IMPLEMENTATION_GUIDE.md</text>
+    <line x1="15" y1="16470" x2="25" y2="16470" class="line"/>
+    <text x="30" y="16475" class="file-text">INDEX.md</text>
+    <line x1="15" y1="16505" x2="25" y2="16505" class="line"/>
+    <text x="30" y="16510" class="file-text">MATERIAL_DESIGN_IMPROVEMENTS.md</text>
+    <line x1="15" y1="16540" x2="25" y2="16540" class="line"/>
+    <text x="30" y="16545" class="file-text">MATERIAL_DESIGN_SUMMARY.md</text>
+    <line x1="15" y1="16575" x2="25" y2="16575" class="line"/>
+    <text x="30" y="16580" class="file-text">PRODUCTION_SUPABASE_SECRETS.md</text>
+    <line x1="15" y1="16610" x2="25" y2="16610" class="line"/>
+    <text x="30" y="16615" class="file-text">PUSH_NOTIFICATIONS_FIX.md</text>
+    <line x1="15" y1="16645" x2="25" y2="16645" class="line"/>
+    <text x="30" y="16650" class="file-text">PUSH_NOTIFICATIONS_QUICKSTART.md</text>
+    <line x1="15" y1="16680" x2="25" y2="16680" class="line"/>
+    <text x="30" y="16685" class="file-text">QUICK_REFERENCE.md</text>
+    <line x1="15" y1="16715" x2="25" y2="16715" class="line"/>
+    <text x="30" y="16720" class="file-text">RESCUE_DASHBOARD_SETUP.md</text>
+    <line x1="15" y1="16750" x2="25" y2="16750" class="line"/>
+    <text x="30" y="16755" class="file-text">SECURITY_AUDIT_REPORT.md</text>
+    <line x1="15" y1="16785" x2="25" y2="16785" class="line"/>
+    <text x="30" y="16790" class="file-text">SECURITY_CHECK_REPORT_2026_01_26.md</text>
+    <line x1="15" y1="16820" x2="25" y2="16820" class="line"/>
+    <text x="30" y="16825" class="file-text">START_HERE_DELIVERY_COMPLETE.md</text>
+    <line x1="15" y1="16855" x2="25" y2="16855" class="line"/>
+    <text x="30" y="16860" class="file-text">TROUBLESHOOTING_NOTIFICATIONS.md</text>
+    <line x1="15" y1="16890" x2="25" y2="16890" class="line"/>
+    <text x="30" y="16895" class="file-text">YOU_ARE_HERE.md</text>
+    <line x1="15" y1="16925" x2="25" y2="16925" class="line"/>
+    <text x="30" y="16930" class="file-text">bun.lockb</text>
+    <line x1="15" y1="16960" x2="25" y2="16960" class="line"/>
+    <text x="30" y="16965" class="file-text">capacitor.config.ts</text>
+    <line x1="15" y1="16995" x2="25" y2="16995" class="line"/>
+    <text x="30" y="17000" class="file-text">components.json</text>
+    <line x1="15" y1="17030" x2="25" y2="17030" class="line"/>
+    <text x="30" y="17035" class="file-text">eslint.config.js</text>
+    <line x1="15" y1="17065" x2="25" y2="17065" class="line"/>
+    <text x="30" y="17070" class="file-text">index.html</text>
+    <line x1="15" y1="17100" x2="25" y2="17100" class="line"/>
+    <text x="30" y="17105" class="file-text">package-lock.json</text>
+    <line x1="15" y1="17135" x2="25" y2="17135" class="line"/>
+    <text x="30" y="17140" class="file-text">package.json</text>
+    <line x1="15" y1="17170" x2="25" y2="17170" class="line"/>
+    <text x="30" y="17175" class="file-text">postcss.config.js</text>
+    <line x1="15" y1="17205" x2="25" y2="17205" class="line"/>
+    <text x="30" y="17210" class="file-text">supabase.json</text>
+    <line x1="15" y1="17240" x2="25" y2="17240" class="line"/>
+    <text x="30" y="17245" class="file-text">tailwind.config.ts</text>
+    <line x1="15" y1="17275" x2="25" y2="17275" class="line"/>
+    <text x="30" y="17280" class="file-text">tsconfig.app.json</text>
+    <line x1="15" y1="17310" x2="25" y2="17310" class="line"/>
+    <text x="30" y="17315" class="file-text">tsconfig.json</text>
+    <line x1="15" y1="17345" x2="25" y2="17345" class="line"/>
+    <text x="30" y="17350" class="file-text">tsconfig.node.json</text>
+    <line x1="15" y1="17380" x2="25" y2="17380" class="line"/>
+    <text x="30" y="17385" class="file-text">vite.config.ts</text>
+</svg>

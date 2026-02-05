@@ -1,51 +1,31 @@
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { signOut } from "@/lib/auth";
 import { resolvePrimaryRole } from "@/lib/roles";
-import { IdCard, Lock, User, Phone, MapPin, GraduationCap, Upload, Calendar, Users } from "lucide-react";
+import { IdCard, Lock, User, Phone, MapPin, Upload, GraduationCap, Mail, ChevronRight, Loader2, Camera } from "lucide-react";
 
+// --- Constants ---
 const COURSES = [
-  "BS Information Technology",
-  "BS Computer Science",
-  "BS Information Systems",
-  "BS Computer Engineering",
-  "BS Electronics Engineering",
-  "BS Electrical Engineering",
-  "BS Civil Engineering",
-  "BS Mechanical Engineering",
-  "BS Agriculture",
-  "BS Forestry",
-  "BS Fisheries",
-  "BS Environmental Science",
-  "BS Biology",
-  "BS Chemistry",
-  "BS Mathematics",
-  "BS Nursing",
-  "BS Midwifery",
-  "BS Pharmacy",
-  "BS Medical Technology",
-  "BS Criminology",
-  "BS Education - Elementary",
-  "BS Education - Secondary",
-  "BS Business Administration",
-  "BS Accountancy",
-  "BS Hospitality Management",
-  "BS Tourism Management",
-  "BS Social Work",
-  "BA Communication",
-  "BA Political Science",
-  "Bachelor of Laws",
+  "BS Information Technology", "BS Computer Science", "BS Information Systems",
+  "BS Computer Engineering", "BS Electronics Engineering", "BS Electrical Engineering",
+  "BS Civil Engineering", "BS Mechanical Engineering", "BS Agriculture",
+  "BS Forestry", "BS Fisheries", "BS Environmental Science", "BS Biology",
+  "BS Chemistry", "BS Mathematics", "BS Nursing", "BS Midwifery",
+  "BS Pharmacy", "BS Medical Technology", "BS Criminology",
+  "BS Education - Elementary", "BS Education - Secondary", "BS Business Administration",
+  "BS Accountancy", "BS Hospitality Management", "BS Tourism Management",
+  "BS Social Work", "BA Communication", "BA Political Science", "Bachelor of Laws",
 ];
 
 const YEAR_LEVELS = ["1st Year", "2nd Year", "3rd Year", "4th Year"];
-
 const SECTIONS = ["1-1", "1-2", "2-1", "2-2", "3-1", "3-2", "4-1", "4-2"];
 
 const StudentAuthPanel = () => {
@@ -55,16 +35,15 @@ const StudentAuthPanel = () => {
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string>("");
   
-  // Login state
   const [loginData, setLoginData] = useState({
     studentId: "",
     password: "",
   });
   
-  // Register state
   const [registerData, setRegisterData] = useState({
     studentId: "",
     fullName: "",
+    email: "",
     course: "",
     yearLevel: "",
     section: "",
@@ -91,24 +70,14 @@ const StudentAuthPanel = () => {
     setLoading(true);
 
     try {
-      const email = `${loginData.studentId.replace(/[^a-zA-Z0-9]/g, '')}@student.isu.edu.ph`;
-
       const { error } = await supabase.auth.signInWithPassword({
-        email,
+        email: loginData.studentId,
         password: loginData.password,
       });
 
-      if (error) {
-        if (error.message.includes('Invalid login credentials')) {
-          throw new Error('Invalid Student ID or Password');
-        }
-        throw error;
-      }
+      if (error) throw error;
 
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-
+      const { data: { session } } = await supabase.auth.getSession();
       const userId = session?.user?.id;
       if (!userId) throw new Error('Missing session');
 
@@ -119,7 +88,7 @@ const StudentAuthPanel = () => {
 
       if (rolesError) throw rolesError;
 
-      const roles = (rolesData ?? []).map((r: unknown) => r.role);
+      const roles = (rolesData ?? []).map((r: any) => r.role);
       const primaryRole = resolvePrimaryRole(roles);
 
       if (primaryRole !== 'student') {
@@ -129,8 +98,13 @@ const StudentAuthPanel = () => {
       }
 
       toast.success('Successfully logged in!');
-      navigate('/student');
-    } catch (error: unknown) {
+      if (primaryRole === 'admin') navigate('/admin');
+      else if (primaryRole === 'rescue_admin') navigate('/rescue-admin');
+      else if (primaryRole === 'pnp') navigate('/pnp');
+      else if (primaryRole === 'rescue') navigate('/rescue');
+      else if (primaryRole === 'driver') navigate('/driver-dashboard');
+      else navigate('/student');
+    } catch (error: any) {
       toast.error(error.message || 'Failed to log in');
     } finally {
       setLoading(false);
@@ -149,21 +123,21 @@ const StudentAuthPanel = () => {
       toast.error("Password must be at least 6 characters");
       return;
     }
+
+    if (!registerData.email) {
+      toast.error("Email is required");
+      return;
+    }
     
     setLoading(true);
 
     try {
-      const email = `${registerData.studentId.replace(/[^a-zA-Z0-9]/g, '')}@student.isu.edu.ph`;
-
-      // Sign up the user
       const { data: authData, error: authError } = await supabase.auth.signUp({
-        email,
+        email: registerData.email,
         password: registerData.password,
         options: {
           emailRedirectTo: `${window.location.origin}/student`,
-          data: {
-            full_name: registerData.fullName,
-          }
+          data: { full_name: registerData.fullName }
         }
       });
 
@@ -173,7 +147,6 @@ const StudentAuthPanel = () => {
       const userId = authData.user.id;
       let photoUrl = "";
 
-      // Upload photo if provided
       if (photoFile) {
         const fileExt = photoFile.name.split('.').pop();
         const filePath = `${userId}/profile.${fileExt}`;
@@ -183,14 +156,11 @@ const StudentAuthPanel = () => {
           .upload(filePath, photoFile, { upsert: true });
 
         if (!uploadError) {
-          const { data } = supabase.storage
-            .from('profile-photos')
-            .getPublicUrl(filePath);
+          const { data } = supabase.storage.from('profile-photos').getPublicUrl(filePath);
           photoUrl = data.publicUrl;
         }
       }
 
-      // Insert student data
       const { error: studentError } = await supabase
         .from('students')
         .insert({
@@ -205,37 +175,21 @@ const StudentAuthPanel = () => {
           photo_url: photoUrl,
           is_registered: true,
           is_active: false,
-        } as unknown);
+          email: registerData.email,
+        } as any);
 
       if (studentError) throw studentError;
 
-      // Add student role
-      const { error: roleError } = await supabase
-        .from('user_roles')
-        .insert({
-          user_id: userId,
-          role: 'student',
-        });
-
-      if (roleError) {
-        console.error('Role assignment error:', roleError);
-        // Continue anyway, role might be assigned by trigger
-      }
+      await supabase.from('user_roles').insert({ user_id: userId, role: 'student' });
 
       toast.success("Account created successfully!");
-      toast.info("You can now login with your Student ID and password");
-      
-      // Switch to login mode
       setMode('login');
-      setLoginData({
-        studentId: registerData.studentId,
-        password: "",
-      });
+      setLoginData({ studentId: registerData.email, password: "" }); 
       
-    } catch (error: unknown) {
+    } catch (error: any) {
       console.error('Registration error:', error);
       if (error.message?.includes('already registered')) {
-        toast.error("This Student ID is already registered. Please login instead.");
+        toast.error("This Email/ID is already registered.");
         setMode('login');
       } else {
         toast.error(error.message || "Failed to create account");
@@ -246,73 +200,109 @@ const StudentAuthPanel = () => {
   };
 
   return (
-    <Card className="w-full border-0 bg-card/80 backdrop-blur shadow-xl rounded-2xl overflow-hidden">
-      {/* Mode Switch */}
-      <div className="flex border-b border-border">
-        <button
-          type="button"
-          onClick={() => setMode('login')}
-          className={`flex-1 py-4 text-sm font-semibold transition-all ${
-            mode === 'login'
-              ? 'text-green-700 bg-green-50 border-b-2 border-green-600'
-              : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-          }`}
-        >
-          Sign In
-        </button>
-        <button
-          type="button"
-          onClick={() => setMode('register')}
-          className={`flex-1 py-4 text-sm font-semibold transition-all ${
-            mode === 'register'
-              ? 'text-green-700 bg-green-50 border-b-2 border-green-600'
-              : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-          }`}
-        >
-          Register
-        </button>
-      </div>
+    <div className="min-h-screen w-full bg-slate-50 flex flex-col md:justify-center md:items-center md:p-4 relative overflow-hidden">
+      
+      {/* --- Decorative Background Blobs (Stays on bg-slate-50, visible outside card) --- */}
+      <div className="absolute top-0 left-0 w-72 h-72 bg-green-500/10 rounded-full mix-blend-multiply filter blur-3xl opacity-30 -translate-x-1/2 -translate-y-1/2"></div>
+      <div className="absolute bottom-0 right-0 w-72 h-72 bg-teal-500/10 rounded-full mix-blend-multiply filter blur-3xl opacity-30 translate-x-1/2 translate-y-1/2"></div>
 
-      {mode === 'login' ? (
-        /* LOGIN FORM */
-        <>
-          <CardHeader className="pt-6 pb-4">
-            <CardTitle className="text-xl font-bold text-foreground text-center">
-              Welcome Back!
-            </CardTitle>
-            <CardDescription className="text-muted-foreground text-center text-sm">
-              Enter your Student ID and password to continue
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="px-6 pb-6">
-            <form onSubmit={handleLogin} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="loginStudentId" className="text-sm font-medium">Student ID</Label>
-                <div className="relative">
-                  <IdCard className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+      {/* --- Main Card (Solid White) --- */}
+      <Card className="w-[92%] max-w-md md:max-w-[480px] mx-auto my-6 md:my-0 rounded-2xl md:rounded-3xl shadow-none md:shadow-2xl border-none bg-white flex flex-col overflow-hidden relative z-10">
+        
+        {/* --- Sticky Header & Nav (md+ only). Mobile header and tabs below --- */}
+        <div className="pt-8 pb-4 px-6 border-b border-slate-100 bg-white sticky top-0 z-20 hidden md:block">
+          <div className="flex items-center justify-between mb-6">
+             <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-gradient-to-br from-[#004d25] to-emerald-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-green-900/20">
+                  <User className="h-5 w-5" />
+                </div>
+                <div>
+                  <span className="font-black text-[#004d25] text-xl tracking-tight leading-none">SafeRide</span>
+                  <span className="block text-[10px] font-bold text-green-600 uppercase tracking-widest">ISU Access</span>
+                </div>
+             </div>
+          </div>
+
+          {/* Toggle Switch for md+ */}
+          <div className="relative bg-slate-100 p-1 rounded-2xl h-14 hidden md:flex">
+            <div 
+              className={`absolute top-1 left-1 w-[calc(50%-4px)] h-[calc(100%-8px)] bg-white rounded-xl shadow-sm transition-all duration-300 ease-out ${mode === 'register' ? 'translate-x-[100%]' : 'translate-x-0'}`}
+            />
+            <button
+              type="button"
+              onClick={() => setMode('login')}
+              className={`relative z-10 flex-1 flex items-center justify-center gap-2 text-sm font-bold rounded-xl transition-all duration-300 ${
+                mode === 'login' ? 'text-[#004d25]' : 'text-slate-600 md:text-slate-400 hover:text-slate-600'
+              }`}
+            >
+              <User className="h-4 w-4" /> Sign In
+            </button>
+            <button
+              type="button"
+              onClick={() => setMode('register')}
+              className={`relative z-10 flex-1 flex items-center justify-center gap-2 text-sm font-bold rounded-xl transition-all duration-300 ${
+                mode === 'register' ? 'text-[#004d25]' : 'text-slate-600 md:text-slate-400 hover:text-slate-600'
+              }`}
+            >
+              <GraduationCap className="h-4 w-4" /> Register
+            </button>
+          </div>
+        </div>
+
+        {/* Mobile Header & Tabs */}
+        <div className="md:hidden px-6 pt-6 text-center">
+          <div className="mx-auto w-12 h-12 bg-gradient-to-br from-[#004d25] to-emerald-600 rounded-xl flex items-center justify-center text-white shadow-lg mb-3">
+            <User className="h-5 w-5" />
+          </div>
+          <div className="flex border-b border-slate-100 -mx-6">
+            <button onClick={() => setMode('login')} className={`flex-1 py-4 text-center font-bold ${mode === 'login' ? 'text-[#004d25] border-b-2 border-[#004d25]' : 'text-slate-600'}`}>Sign In</button>
+            <button onClick={() => setMode('register')} className={`flex-1 py-4 text-center font-bold ${mode === 'register' ? 'text-[#004d25] border-b-2 border-[#004d25]' : 'text-slate-600'}`}>Register</button>
+          </div>
+        </div>
+
+        {/* --- LOGIN VIEW --- */}
+        {mode === 'login' ? (
+          <div className="px-6 py-8 flex-1 flex flex-col justify-center">
+            <div className="mb-8">
+              <h2 className="text-2xl font-bold text-slate-800 mb-2">Welcome Back!</h2>
+              <p className="text-sm text-slate-700 md:text-slate-500">Enter your email and password to access student portal.</p>
+            </div>
+
+            <form onSubmit={handleLogin} className="space-y-5">
+              <div className="space-y-1.5">
+                <Label htmlFor="loginEmail" className="text-xs font-bold text-slate-700 uppercase tracking-wide ml-1">Email</Label>
+                <div className="relative group">
+                  <Mail className="absolute left-4 top-3.5 h-5 w-5 text-slate-500 md:text-slate-400 group-focus-within:text-[#004d25] transition-colors z-10" />
+                  {/* Solid Input Background */}
                   <Input
-                    id="loginStudentId"
-                    type="text"
-                    placeholder="e.g., 2024-12345"
+                    id="loginEmail"
+                    type="email"
+                    placeholder="student@isu.edu.ph"
                     value={loginData.studentId}
                     onChange={(e) => setLoginData({ ...loginData, studentId: e.target.value })}
-                    className="pl-10 h-11 rounded-xl"
+                    className="pl-11 h-12 rounded-xl border-slate-200 bg-white focus-visible:ring-2 focus-visible:ring-[#004d25]/20 focus-visible:border-[#004d25] transition-all text-base"
                     required
                   />
                 </div>
               </div>
               
-              <div className="space-y-2">
-                <Label htmlFor="loginPassword" className="text-sm font-medium">Password</Label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+              <div className="space-y-1.5">
+                <div className="flex justify-between items-center ml-1">
+                  <Label htmlFor="loginPassword" className="text-xs font-bold text-slate-700 uppercase tracking-wide">Password</Label>
+                  <button type="button" className="text-xs font-bold text-green-700 hover:text-green-800 transition-colors">
+                    Forgot?
+                  </button>
+                </div>
+                <div className="relative group">
+                  <Lock className="absolute left-4 top-3.5 h-5 w-5 text-slate-500 md:text-slate-400 group-focus-within:text-[#004d25] transition-colors z-10" />
+                  {/* Solid Input Background */}
                   <Input
                     id="loginPassword"
                     type="password"
-                    placeholder="Enter your password"
+                    placeholder="•••••"
                     value={loginData.password}
                     onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}
-                    className="pl-10 h-11 rounded-xl"
+                    className="pl-11 h-12 rounded-xl border-slate-200 bg-white focus-visible:ring-2 focus-visible:ring-[#004d25]/20 focus-visible:border-[#004d25] transition-all text-base"
                     required
                   />
                 </div>
@@ -320,257 +310,254 @@ const StudentAuthPanel = () => {
 
               <Button 
                 type="submit" 
-                className="w-full h-12 rounded-xl text-base font-semibold bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700" 
+                className="w-full h-12 rounded-full text-base font-bold bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white shadow-lg active:scale-[0.98] transition-all" 
                 disabled={loading}
               >
-                {loading ? (
-                  <div className="flex items-center gap-2">
-                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    Signing in...
-                  </div>
-                ) : "Sign In"}
+                {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : "Sign In"}
               </Button>
-
-              <p className="text-sm text-center text-muted-foreground pt-2">
-                New student?{' '}
-                <button 
-                  type="button" 
-                  onClick={() => setMode('register')}
-                  className="text-green-600 font-semibold hover:underline"
-                >
-                  Create an account
-                </button>
-              </p>
+              <div className="pt-4 text-center">
+                <p className="text-sm text-slate-600">New student?{' '}<button type="button" onClick={() => setMode('register')} className="text-[#004d25] font-bold hover:underline">Create an account</button></p>
+              </div>
             </form>
-          </CardContent>
-        </>
-      ) : (
-        /* REGISTER FORM */
-        <>
-          <CardHeader className="pt-6 pb-2">
-            <div className="flex justify-center mb-3">
-              <div className="relative">
-                <div className="w-20 h-20 rounded-full bg-gradient-to-br from-green-100 to-emerald-100 flex items-center justify-center overflow-hidden border-3 border-white shadow-lg">
-                  {photoPreview ? (
-                    <img src={photoPreview} alt="Preview" className="w-full h-full object-cover" />
-                  ) : (
-                    <User className="h-8 w-8 text-green-600" />
+          </div>
+        ) : (
+          
+          /* --- REGISTER VIEW (Solid Inputs) --- */
+          <div className="flex-1 overflow-y-auto bg-white relative">
+            <div className="pt-8 pb-24 px-6 space-y-8">
+              
+              {/* Profile Upload */}
+              <div className="flex flex-col items-center pb-6 border-b border-slate-100">
+                <div className="relative group mb-4 cursor-pointer">
+                  <div className={`w-28 h-28 rounded-full border-2 border-dashed border-slate-300 bg-slate-50 flex items-center justify-center overflow-hidden transition-all duration-300 group-hover:border-[#004d25] group-hover:bg-green-50 ${photoPreview ? 'border-solid border-[#004d25]' : ''}`}>
+                    {photoPreview ? (
+                      <img src={photoPreview} alt="Preview" className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="flex flex-col items-center gap-2">
+                        <Camera className="h-8 w-8 text-slate-500 md:text-slate-400 group-hover:text-[#004d25] transition-colors" />
+                        <span className="text-[10px] font-bold text-slate-600 md:text-slate-400 uppercase tracking-widest">Photo</span>
+                      </div>
+                    )}
+                  </div>
+                  <Label htmlFor="photoUpload" className="absolute bottom-0 right-0 p-2.5 bg-[#004d25] rounded-xl text-white shadow-lg hover:bg-[#00391c] transition-all hover:scale-110 border-4 border-white cursor-pointer">
+                    <Camera className="h-4 w-4" />
+                    <Input
+                      id="photoUpload"
+                      type="file"
+                      accept="image/*"
+                      onChange={handlePhotoChange}
+                      className="hidden"
+                    />
+                  </Label>
+                </div>
+                <div className="text-center">
+                  <h2 className="text-xl font-bold text-slate-800">Student Profile</h2>
+                  <p className="text-sm text-slate-700 md:text-slate-500 mt-1">Upload a clear photo for your ID</p>
+                </div>
+              </div>
+
+              <form onSubmit={handleRegister} className="space-y-8">
+                
+                {/* Section 1: Personal */}
+                <div className="space-y-5">
+                  <div className="flex items-center gap-2">
+                    <div className="w-1 h-5 bg-[#004d25] rounded-full"></div>
+                    <span className="text-xs font-black text-slate-800 uppercase tracking-widest">Personal Info</span>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-semibold text-slate-700 md:text-slate-500 ml-0.5">Student ID</Label>
+                      <div className="relative group">
+                        <IdCard className="absolute left-3 top-2.5 h-4 w-4 text-slate-500 md:text-slate-400 z-10" />
+                        <Input
+                          type="text"
+                          placeholder="2024-12345"
+                          value={registerData.studentId}
+                          onChange={(e) => setRegisterData({ ...registerData, studentId: e.target.value })}
+                          className="pl-9 h-10 rounded-xl border-slate-200 bg-white focus-visible:ring-2 focus-visible:ring-[#004d25]/20 focus-visible:border-[#004d25] text-sm"
+                          required
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-semibold text-slate-500 ml-0.5">Full Name</Label>
+                      <div className="relative group">
+                        <User className="absolute left-3 top-2.5 h-4 w-4 text-slate-500 md:text-slate-400 z-10" />
+                        <Input
+                          type="text"
+                          placeholder="Juan Dela Cruz"
+                          value={registerData.fullName}
+                          onChange={(e) => setRegisterData({ ...registerData, fullName: e.target.value })}
+                          className="pl-9 h-10 rounded-xl border-slate-200 bg-white focus-visible:ring-2 focus-visible:ring-[#004d25]/20 focus-visible:border-[#004d25] text-sm"
+                          required
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs font-semibold text-slate-500 ml-0.5">Email</Label>
+                    <div className="relative group">
+                        <Mail className="absolute left-3 top-2.5 h-4 w-4 text-slate-500 md:text-slate-400 z-10" />
+                      <Input
+                        type="email"
+                        placeholder="juan.d@gmail.com"
+                        value={registerData.email}
+                        onChange={(e) => setRegisterData({ ...registerData, email: e.target.value })}
+                        className="pl-9 h-10 rounded-xl border-slate-200 bg-white focus-visible:ring-2 focus-visible:ring-[#004d25]/20 focus-visible:border-[#004d25] text-sm"
+                        required
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Section 2: Academic */}
+                <div className="space-y-5">
+                  <div className="flex items-center gap-2">
+                    <div className="w-1 h-5 bg-[#004d25] rounded-full"></div>
+                    <span className="text-xs font-black text-slate-800 uppercase tracking-widest">Academic</span>
+                  </div>
+                  
+                  <div className="space-y-1.5">
+                    <Label className="text-xs font-semibold text-slate-500 ml-0.5">Course</Label>
+                    <Select value={registerData.course} onValueChange={(value) => setRegisterData({ ...registerData, course: value })}>
+                      <SelectTrigger className="h-10 rounded-xl border-slate-200 bg-white focus-visible:ring-2 focus-visible:ring-[#004d25]/20 focus-visible:border-[#004d25] text-sm">
+                        <SelectValue placeholder="Select your program" />
+                      </SelectTrigger>
+                      <SelectContent className="max-h-60">
+                        {COURSES.map((course) => (
+                          <SelectItem key={course} value={course} className="text-sm">{course}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-semibold text-slate-500 ml-0.5">Year</Label>
+                      <Select value={registerData.yearLevel} onValueChange={(value) => setRegisterData({ ...registerData, yearLevel: value })}>
+                        <SelectTrigger className="h-10 rounded-xl border-slate-200 bg-white focus-visible:ring-2 focus-visible:ring-[#004d25]/20 focus-visible:border-[#004d25] text-sm">
+                          <SelectValue placeholder="Year" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {YEAR_LEVELS.map((year) => (
+                            <SelectItem key={year} value={year}>{year}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-semibold text-slate-500 ml-0.5">Section</Label>
+                      <Select value={registerData.section} onValueChange={(value) => setRegisterData({ ...registerData, section: value })}>
+                        <SelectTrigger className="h-10 rounded-xl border-slate-200 bg-white focus-visible:ring-2 focus-visible:ring-[#004d25]/20 focus-visible:border-[#004d25] text-sm">
+                          <SelectValue placeholder="Sec" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {SECTIONS.map((section) => (
+                            <SelectItem key={section} value={section}>{section}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Section 3: Security */}
+                <div className="space-y-5">
+                  <div className="flex items-center gap-2">
+                    <div className="w-1 h-5 bg-[#004d25] rounded-full"></div>
+                    <span className="text-xs font-black text-slate-800 uppercase tracking-widest">Security</span>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-semibold text-slate-500 ml-0.5">Mobile</Label>
+                      <div className="relative group">
+                        <Phone className="absolute left-3 top-2.5 h-4 w-4 text-slate-500 md:text-slate-400 z-10" />
+                        <Input
+                          type="tel"
+                          placeholder="0912..."
+                          value={registerData.contactNumber}
+                          onChange={(e) => setRegisterData({ ...registerData, contactNumber: e.target.value })}
+                          className="pl-9 h-10 rounded-xl border-slate-200 bg-white focus-visible:ring-2 focus-visible:ring-[#004d25]/20 focus-visible:border-[#004d25] text-sm"
+                          required
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-semibold text-slate-500 ml-0.5">Password</Label>
+                      <div className="relative group">
+                        <Lock className="absolute left-3 top-2.5 h-4 w-4 text-slate-500 md:text-slate-400 z-10" />
+                        <Input
+                          type="password"
+                          placeholder="••••"
+                          value={registerData.password}
+                          onChange={(e) => setRegisterData({ ...registerData, password: e.target.value })}
+                          className="pl-9 h-10 rounded-xl border-slate-200 bg-white focus-visible:ring-2 focus-visible:ring-[#004d25]/20 focus-visible:border-[#004d25] text-sm"
+                          required
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs font-semibold text-slate-500 ml-0.5">Address</Label>
+                    <div className="relative group">
+                      <MapPin className="absolute left-3 top-2.5 h-4 w-4 text-slate-500 md:text-slate-400 z-10" />
+                      <Input
+                        type="text"
+                        placeholder="Barangay, City"
+                        value={registerData.address}
+                        onChange={(e) => setRegisterData({ ...registerData, address: e.target.value })}
+                        className="pl-9 h-10 rounded-xl border-slate-200 bg-white focus-visible:ring-2 focus-visible:ring-[#004d25]/20 focus-visible:border-[#004d25] text-sm"
+                        required
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs font-semibold text-slate-500 ml-0.5">Confirm Password</Label>
+                    <div className="relative group">
+                      <Lock className="absolute left-3 top-2.5 h-4 w-4 text-slate-500 md:text-slate-400 z-10" />
+                      <Input
+                        type="password"
+                        placeholder="Confirm password"
+                        value={registerData.confirmPassword}
+                        onChange={(e) => setRegisterData({ ...registerData, confirmPassword: e.target.value })}
+                        className="pl-9 h-10 rounded-xl border-slate-200 bg-white focus-visible:ring-2 focus-visible:ring-[#004d25]/20 focus-visible:border-[#004d25] text-sm"
+                        required
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <Button 
+                  type="submit" 
+                  className="w-full h-11 rounded-full text-base font-bold bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white shadow-lg active:scale-[0.98] transition-all flex items-center justify-center gap-2" 
+                  disabled={loading}
+                >
+                  {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : (
+                    <>
+                      Complete Registration <ChevronRight className="h-4 w-4" />
+                    </>
                   )}
+                </Button>
+
+                <div className="pt-4 text-center border-t border-slate-50">
+                  <p className="text-sm text-slate-700 md:text-slate-500">
+                    Already have an account?{' '}
+                    <button 
+                      type="button" 
+                      onClick={() => setMode('login')}
+                      className="text-[#004d25] font-bold hover:underline"
+                    >
+                      Sign In
+                    </button>
+                  </p>
                 </div>
-                <Label htmlFor="photo" className="absolute -bottom-1 -right-1 cursor-pointer">
-                  <div className="p-2 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full shadow-lg hover:shadow-xl transition-shadow">
-                    <Upload className="h-3.5 w-3.5 text-white" />
-                  </div>
-                  <Input
-                    id="photo"
-                    type="file"
-                    accept="image/*"
-                    onChange={handlePhotoChange}
-                    className="hidden"
-                  />
-                </Label>
-              </div>
+              </form>
             </div>
-            <CardTitle className="text-xl font-bold text-foreground text-center">
-              Create Account
-            </CardTitle>
-            <CardDescription className="text-muted-foreground text-center text-sm">
-              Fill in your details to register
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="px-6 pb-6">
-            <form onSubmit={handleRegister} className="space-y-3">
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1.5">
-                  <Label htmlFor="regStudentId" className="text-xs font-medium">Student ID *</Label>
-                  <div className="relative">
-                    <IdCard className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="regStudentId"
-                      type="text"
-                      placeholder="25-151"
-                      value={registerData.studentId}
-                      onChange={(e) => setRegisterData({ ...registerData, studentId: e.target.value })}
-                      className="pl-9 h-10 rounded-xl text-sm"
-                      required
-                    />
-                  </div>
-                </div>
-                
-                <div className="space-y-1.5">
-                  <Label htmlFor="regFullName" className="text-xs font-medium">Full Name *</Label>
-                  <div className="relative">
-                    <User className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="regFullName"
-                      type="text"
-                      value={registerData.fullName}
-                      onChange={(e) => setRegisterData({ ...registerData, fullName: e.target.value })}
-                      className="pl-9 h-10 rounded-xl text-sm"
-                      required
-                    />
-                  </div>
-                </div>
-              </div>
-              
-              <div className="space-y-1.5">
-                <Label htmlFor="regCourse" className="text-xs font-medium">Course *</Label>
-                <Select
-                  value={registerData.course}
-                  onValueChange={(value) => setRegisterData({ ...registerData, course: value })}
-                >
-                  <SelectTrigger className="h-10 rounded-xl text-sm bg-background">
-                    <SelectValue placeholder="Select course" />
-                  </SelectTrigger>
-                  <SelectContent className="max-h-60 bg-background z-50">
-                    {COURSES.map((course) => (
-                      <SelectItem key={course} value={course}>
-                        {course}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1.5">
-                  <Label htmlFor="regYearLevel" className="text-xs font-medium">Year Level *</Label>
-                  <Select
-                    value={registerData.yearLevel}
-                    onValueChange={(value) => setRegisterData({ ...registerData, yearLevel: value })}
-                  >
-                    <SelectTrigger className="h-10 rounded-xl text-sm bg-background">
-                      <SelectValue placeholder="Select year" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-background z-50">
-                      {YEAR_LEVELS.map((year) => (
-                        <SelectItem key={year} value={year}>
-                          {year}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div className="space-y-1.5">
-                  <Label htmlFor="regSection" className="text-xs font-medium">Section *</Label>
-                  <Select
-                    value={registerData.section}
-                    onValueChange={(value) => setRegisterData({ ...registerData, section: value })}
-                  >
-                    <SelectTrigger className="h-10 rounded-xl text-sm bg-background">
-                      <SelectValue placeholder="Select section" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-background z-50">
-                      {SECTIONS.map((section) => (
-                        <SelectItem key={section} value={section}>
-                          {section}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              <div className="space-y-1.5">
-                <Label htmlFor="regContact" className="text-xs font-medium">Contact *</Label>
-                <div className="relative">
-                  <Phone className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="regContact"
-                    type="tel"
-                    placeholder="09-000-000-000"
-                    value={registerData.contactNumber}
-                    onChange={(e) => setRegisterData({ ...registerData, contactNumber: e.target.value })}
-                    className="pl-9 h-10 rounded-xl text-sm"
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-1.5">
-                <Label htmlFor="regAddress" className="text-xs font-medium">Address *</Label>
-                <div className="relative">
-                  <MapPin className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="regAddress"
-                    type="text"
-                    placeholder="Barangay, Municipality, Province"
-                    value={registerData.address}
-                    onChange={(e) => setRegisterData({ ...registerData, address: e.target.value })}
-                    className="pl-9 h-10 rounded-xl text-sm"
-                    required
-                  />
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1.5">
-                  <Label htmlFor="regPassword" className="text-xs font-medium">Password *</Label>
-                  <div className="relative">
-                    <Lock className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="regPassword"
-                      type="password"
-                      placeholder="use your LRN"
-                      value={registerData.password}
-                      onChange={(e) => setRegisterData({ ...registerData, password: e.target.value })}
-                      className="pl-9 h-10 rounded-xl text-sm"
-                      required
-                    />
-                  </div>
-                </div>
-                
-                <div className="space-y-1.5">
-                  <Label htmlFor="regConfirmPassword" className="text-xs font-medium">Confirm *</Label>
-                  <div className="relative">
-                    <Lock className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="regConfirmPassword"
-                      type="password"
-                      placeholder="Confirm password"
-                      value={registerData.confirmPassword}
-                      onChange={(e) => setRegisterData({ ...registerData, confirmPassword: e.target.value })}
-                      className="pl-9 h-10 rounded-xl text-sm"
-                      required
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <Button 
-                type="submit" 
-                className="w-full h-11 rounded-xl text-base font-semibold bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 mt-2" 
-                disabled={loading}
-              >
-                {loading ? (
-                  <div className="flex items-center gap-2">
-                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    Creating Account...
-                  </div>
-                ) : (
-                  <span className="flex items-center gap-2">
-                    <GraduationCap className="h-5 w-5" />
-                    Create Account
-                  </span>
-                )}
-              </Button>
-
-              <p className="text-sm text-center text-muted-foreground">
-                Already have an account?{' '}
-                <button 
-                  type="button" 
-                  onClick={() => setMode('login')}
-                  className="text-green-600 font-semibold hover:underline"
-                >
-                  Sign in
-                </button>
-              </p>
-            </form>
-          </CardContent>
-        </>
-      )}
-    </Card>
+          </div>
+        )}
+      </Card>
+    </div>
   );
 };
 

@@ -117,7 +117,7 @@ const AnnouncementsHistory = () => {
     >
       <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]" />
       {/* Header */}
-      <header className="relative z-10 bg-white/10 backdrop-blur-xl border-b border-white/20 sticky top-0 shadow-lg">
+      <header className="z-10 bg-white/10 backdrop-blur-xl border-b border-white/20 sticky top-0 shadow-lg">
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center gap-4">
             <Button
@@ -150,64 +150,92 @@ const AnnouncementsHistory = () => {
             </CardContent>
           </Card>
         ) : (
-          <div className="space-y-4">
+          <div className="grid grid-cols-1 gap-4">
             {announcements.map((announcement) => (
-              <Card key={announcement.id} className={`transition-all border-white/20 bg-white/10 backdrop-blur-xl ${!announcement.is_active ? 'opacity-60' : ''}`}>
-                <CardHeader className="pb-2">
+              <Card 
+                key={announcement.id} 
+                className={`
+                  transition-all duration-300 overflow-hidden
+                  border-2 
+                  ${announcement.is_active 
+                    ? 'border-amber-400/50 bg-gradient-to-br from-amber-50/40 via-white/40 to-orange-50/40 backdrop-blur-xl shadow-lg shadow-amber-500/20 hover:shadow-amber-500/40 hover:border-amber-400' 
+                    : 'border-slate-300/30 bg-slate-50/30 backdrop-blur-xl opacity-75 hover:opacity-85'
+                  }
+                `}
+              >
+                <CardHeader className="pb-3 bg-gradient-to-r from-transparent to-transparent">
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <CardTitle className="text-lg">{announcement.title}</CardTitle>
-                        <span className={`text-xs px-2 py-0.5 rounded-full ${
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className={`p-2 rounded-lg ${
                           announcement.is_active 
-                            ? 'bg-green-100 text-green-700' 
-                            : 'bg-slate-100 text-slate-500'
+                            ? 'bg-gradient-to-br from-amber-400 to-orange-500' 
+                            : 'bg-slate-300'
                         }`}>
-                          {announcement.is_active ? 'Active' : 'Inactive'}
-                        </span>
+                          <Megaphone className="h-4 w-4 text-white" />
+                        </div>
+                        <div className="flex-1">
+                          <CardTitle className="text-lg font-bold text-slate-900">{announcement.title}</CardTitle>
+                          <div className="flex items-center gap-2 mt-1">
+                            <span className={`text-xs font-semibold px-3 py-1 rounded-full ${
+                              announcement.is_active 
+                                ? 'bg-gradient-to-r from-green-400 to-green-500 text-white shadow-md' 
+                                : 'bg-slate-300 text-slate-600'
+                            }`}>
+                              {announcement.is_active ? '🟢 Active' : '⚪ Inactive'}
+                            </span>
+                          </div>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-1 text-xs text-slate-500">
+                      <div className="flex items-center gap-1 text-xs text-slate-500 mt-2 pl-10">
                         <Calendar className="h-3 w-3" />
-                        {format(new Date(announcement.created_at), 'MMM d, yyyy h:mm a')}
+                        {format(new Date(announcement.created_at), 'MMM d, yyyy • h:mm a')}
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
                       <Button
-                        variant="outline"
                         size="sm"
                         onClick={() => toggleAnnouncementStatus(announcement.id, announcement.is_active)}
-                        className="gap-1"
+                        className={`gap-2 font-semibold transition-all ${
+                          announcement.is_active
+                            ? 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white shadow-lg'
+                            : 'bg-slate-400 hover:bg-slate-500 text-white'
+                        }`}
                       >
                         {announcement.is_active ? (
                           <>
-                            <ToggleRight className="h-4 w-4 text-green-600" />
+                            <ToggleRight className="h-4 w-4" />
                             Active
                           </>
                         ) : (
                           <>
-                            <ToggleLeft className="h-4 w-4 text-slate-400" />
+                            <ToggleLeft className="h-4 w-4" />
                             Inactive
                           </>
                         )}
                       </Button>
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
-                          <Button variant="outline" size="sm" className="text-red-500 hover:text-red-600 hover:bg-red-50">
+                          <Button 
+                            size="sm" 
+                            className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white shadow-lg gap-2 font-semibold"
+                          >
                             <Trash2 className="h-4 w-4" />
+                            Delete
                           </Button>
                         </AlertDialogTrigger>
-                        <AlertDialogContent>
+                        <AlertDialogContent className="bg-white border-2 border-slate-200 shadow-xl">
                           <AlertDialogHeader>
-                            <AlertDialogTitle>Delete Announcement?</AlertDialogTitle>
-                            <AlertDialogDescription>
+                            <AlertDialogTitle className="text-slate-900">Delete Announcement?</AlertDialogTitle>
+                            <AlertDialogDescription className="text-slate-600">
                               This action cannot be undone. This will permanently delete the announcement.
                             </AlertDialogDescription>
                           </AlertDialogHeader>
                           <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogCancel className="bg-slate-200 hover:bg-slate-300 text-slate-900 font-semibold border-slate-300">Cancel</AlertDialogCancel>
                             <AlertDialogAction
                               onClick={() => deleteAnnouncement(announcement.id)}
-                              className="bg-red-500 hover:bg-red-600"
+                              className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-semibold"
                             >
                               Delete
                             </AlertDialogAction>
@@ -217,8 +245,10 @@ const AnnouncementsHistory = () => {
                     </div>
                   </div>
                 </CardHeader>
-                <CardContent>
-                  <p className="text-slate-600 text-sm">{announcement.message}</p>
+                <CardContent className="pt-2 pb-4">
+                  <p className="text-slate-700 text-sm leading-relaxed pl-10 border-l-4 border-amber-300/50 py-2">
+                    {announcement.message}
+                  </p>
                 </CardContent>
               </Card>
             ))}

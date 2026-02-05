@@ -5,6 +5,7 @@ import {
   User,
   Phone,
   CheckCircle2,
+  Clock,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,32 +18,48 @@ import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useEmergencySiren } from "@/hooks/useEmergencySiren";
+import { useAuth } from "@/hooks/useAuth";
 
 interface EmergencyAlertDialogProps {
   onResolve?: (alertId: string) => void;
+  filterByRole?: boolean; // If true, filter alerts based on user role
 }
 
-export const EmergencyAlertDialog = ({ onResolve }: EmergencyAlertDialogProps) => {
+export const EmergencyAlertDialog = ({ onResolve, filterByRole = true }: EmergencyAlertDialogProps) => {
   const [activeAlert, setActiveAlert] = useState<any>(null);
   const [open, setOpen] = useState(false);
+  const { user } = useAuth();
 
   const { start: startSiren, stop: stopSiren } = useEmergencySiren();
 
   const fetchLatestActiveAlert = useCallback(async () => {
     try {
-      const { data, error } = await supabase
+      let query = supabase
         .from("alerts")
         .select(
           `
           *,
-          students(full_name, student_id_number, photo_url, contact_number),
-          drivers(full_name, tricycle_plate_number, contact_number)
+          students(full_name, student_id_number, photo_url, contact_number)
         `
         )
         .eq("status", "active")
+        .eq("alert_type", "incident")
         .order("created_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
+        .limit(1);
+
+      // Filter based on user role if enabled
+      if (filterByRole && user?.role === "pnp") {
+        // PNP sees only theft/harassment alerts
+        query = query
+          .or("message.ilike.%THEFT%,message.ilike.%HARASSMENT%");
+      } else if (filterByRole) {
+        // Other users see all alerts EXCEPT theft/harassment
+        query = query
+          .not("message", "ilike", "%THEFT%")
+          .not("message", "ilike", "%HARASSMENT%");
+      }
+
+      const { data, error } = await query.maybeSingle();
 
       if (error) throw error;
 
@@ -58,7 +75,7 @@ export const EmergencyAlertDialog = ({ onResolve }: EmergencyAlertDialogProps) =
     } catch (error: any) {
       console.error("Fetch alert error:", error);
     }
-  }, [startSiren, stopSiren]);
+  }, [startSiren, stopSiren, user?.role, filterByRole]);
 
   useEffect(() => {
     fetchLatestActiveAlert();
@@ -75,16 +92,26 @@ export const EmergencyAlertDialog = ({ onResolve }: EmergencyAlertDialogProps) =
         (payload) => {
           console.log("🚨 NEW EMERGENCY ALERT!", payload);
           
-          // Play siren and show dialog
-          startSiren();
-          
-          toast.error("🚨 EMERGENCY SOS ALERT!", {
-            id: payload.new.id,
-            duration: 15000,
-            description: "A student needs immediate help!",
-          });
+          // Check if this alert should be shown based on user role
+          const alertMessage = payload.new.message || "";
+          const isPNPAlert = alertMessage.includes("THEFT") || alertMessage.includes("HARASSMENT");
+          const shouldShow = filterByRole 
+            ? (user?.role === "pnp" ? isPNPAlert : !isPNPAlert)
+            : true;
 
-          fetchLatestActiveAlert();
+          if (shouldShow) {
+            // Play siren and show dialog
+            startSiren();
+            
+            toast.error("🚨 EMERGENCY SOS ALERT!", {
+              id: payload.new.id,
+              duration: 15000,
+              description: "A student needs immediate help!",
+            });
+
+            setActiveAlert(payload.new);
+            setOpen(true);
+          }
         }
       )
       .on(
@@ -106,16 +133,35 @@ export const EmergencyAlertDialog = ({ onResolve }: EmergencyAlertDialogProps) =
       supabase.removeChannel(channel);
       stopSiren();
     };
-  }, [fetchLatestActiveAlert, startSiren, stopSiren]);
+  }, [fetchLatestActiveAlert, startSiren, stopSiren, user?.role, filterByRole]);
 
   const handleResolve = async () => {
     if (!activeAlert) return;
     
-    stopSiren();
-    setOpen(false);
-    
-    if (onResolve) {
-      onResolve(activeAlert.id);
+    try {
+      stopSiren();
+      
+      // Update alert status in database
+      const { error } = await supabase
+        .from('alerts')
+        .update({ 
+          status: 'resolved',
+          resolved_at: new Date().toISOString()
+        })
+        .eq('id', activeAlert.id);
+      
+      if (error) throw error;
+      
+      toast.success('Alert resolved successfully');
+      setOpen(false);
+      setActiveAlert(null);
+      
+      if (onResolve) {
+        onResolve(activeAlert.id);
+      }
+    } catch (error: any) {
+      console.error('Error resolving alert:', error);
+      toast.error('Failed to resolve alert');
     }
   };
 
@@ -130,90 +176,120 @@ export const EmergencyAlertDialog = ({ onResolve }: EmergencyAlertDialogProps) =
     <Dialog open={open} onOpenChange={(isOpen) => {
       if (!isOpen) handleDismiss();
     }}>
-      <DialogContent className="max-w-md border-destructive border-2 bg-gradient-to-br from-background to-destructive/5">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-destructive">
-            <AlertTriangle className="h-6 w-6 animate-pulse" />
-            EMERGENCY ALERT
-          </DialogTitle>
-        </DialogHeader>
+      <DialogContent className="max-w-md p-0 gap-0 overflow-hidden border-0 shadow-2xl bg-white rounded-2xl">
+        {/* Modern Header */}
+        <div className="bg-red-600 px-6 py-4 flex items-center gap-3">
+          <div className="p-2 bg-white/20 rounded-full animate-pulse backdrop-blur-sm">
+            <AlertTriangle className="h-6 w-6 text-white" />
+          </div>
+          <div>
+            <h2 className="text-xl font-black text-white uppercase tracking-tight leading-none">Emergency Alert</h2>
+            <p className="text-red-100 text-xs font-medium mt-1 opacity-90">Immediate Action Required</p>
+          </div>
+        </div>
 
-        <div className="space-y-4 py-4">
-          {/* Student Info */}
-          <div className="flex items-center gap-4">
+        <div className="p-5 space-y-5">
+          {/* Student Info Card */}
+          <div className="flex items-start gap-4">
             {activeAlert.students?.photo_url ? (
               <img
                 src={activeAlert.students.photo_url}
                 alt={activeAlert.students.full_name}
-                className="w-16 h-16 rounded-full object-cover ring-4 ring-destructive/50"
+                className="w-16 h-16 rounded-xl object-cover bg-gray-100 border-2 border-red-100 shadow-sm flex-shrink-0"
               />
             ) : (
-              <div className="w-16 h-16 rounded-full bg-destructive/20 flex items-center justify-center ring-4 ring-destructive/50">
-                <User className="h-8 w-8 text-destructive" />
+              <div className="w-16 h-16 rounded-xl bg-red-50 border-2 border-red-100 flex items-center justify-center flex-shrink-0 text-red-300">
+                <User className="h-8 w-8" />
               </div>
             )}
-            <div>
-              <h3 className="font-bold text-lg">
+            <div className="flex-1 min-w-0">
+              <h3 className="font-bold text-lg text-gray-900 leading-tight">
                 {activeAlert.students?.full_name || "Unknown Student"}
               </h3>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-gray-500 font-medium mt-0.5">
                 ID: {activeAlert.students?.student_id_number || "N/A"}
               </p>
-              <Badge variant="destructive" className="mt-1">
-                {activeAlert.level?.toUpperCase() || "CRITICAL"}
-              </Badge>
+              <div className="flex gap-2 mt-2">
+                <Badge variant="outline" className="text-xs font-bold px-2 py-0.5 bg-red-50 text-red-700 border-red-200">
+                  {activeAlert.level?.toUpperCase() || "CRITICAL"}
+                </Badge>
+                <Badge variant="outline" className="text-xs font-bold px-2 py-0.5 bg-gray-50 text-gray-600 border-gray-200">
+                  {activeAlert.alert_type || "INCIDENT"}
+                </Badge>
+              </div>
             </div>
           </div>
 
-          {/* Contact */}
-          {activeAlert.students?.contact_number && (
-            <div className="flex items-center gap-2 bg-muted/50 rounded-lg p-3">
-              <Phone className="h-4 w-4 text-primary" />
-              <span className="text-sm">{activeAlert.students.contact_number}</span>
-            </div>
-          )}
-
-          {/* Message */}
+          {/* Incident Message */}
           {activeAlert.message && (
-            <div className="bg-destructive/10 rounded-lg p-3">
-              <p className="text-sm font-medium">{activeAlert.message}</p>
+            <div className="bg-red-50 border border-red-100 rounded-xl p-3.5">
+              <div className="flex items-center gap-2 mb-1.5">
+                <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
+                <p className="text-xs font-bold text-red-800 uppercase tracking-wide">Incident Report</p>
+              </div>
+              <p className="text-sm font-medium text-gray-800 leading-relaxed">{activeAlert.message}</p>
             </div>
           )}
 
-          {/* Location */}
-          {activeAlert.location_lat && activeAlert.location_lng ? (
-            <Button asChild className="w-full gap-2" variant="outline">
-              <a
-                href={`https://www.google.com/maps?q=${activeAlert.location_lat},${activeAlert.location_lng}`}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <MapPin className="h-4 w-4" />
-                View Location on Maps
-              </a>
-            </Button>
-          ) : (
-            <Button className="w-full gap-2" variant="outline" disabled>
-              <MapPin className="h-4 w-4" />
-              Location Unavailable
-            </Button>
-          )}
+          {/* Location & Time Grid */}
+          <div className="grid grid-cols-2 gap-3">
+            {activeAlert.location_lat && activeAlert.location_lng && (
+              <div className="bg-gray-50 border border-gray-100 rounded-xl p-3 col-span-2">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <MapPin className="h-3.5 w-3.5 text-gray-500" />
+                    <span className="text-xs font-bold text-gray-500 uppercase">Location</span>
+                  </div>
+                  <span className="text-xs font-mono text-gray-900 bg-white px-1.5 py-0.5 rounded border border-gray-200">
+                    {activeAlert.location_lat.toFixed(4)}, {activeAlert.location_lng.toFixed(4)}
+                  </span>
+                </div>
+                <Button asChild className="w-full bg-white hover:bg-gray-50 text-gray-900 border border-gray-200 shadow-sm h-8 text-xs font-semibold" size="sm">
+                  <a
+                    href={`https://www.google.com/maps?q=${activeAlert.location_lat},${activeAlert.location_lng}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Open in Google Maps
+                  </a>
+                </Button>
+              </div>
+            )}
+            
+            <div className="bg-gray-50 border border-gray-100 rounded-xl p-3">
+              <div className="flex items-center gap-2 mb-1">
+                <Clock className="h-3.5 w-3.5 text-gray-500" />
+                <span className="text-xs font-bold text-gray-500 uppercase">Time</span>
+              </div>
+              <p className="text-sm font-bold text-gray-900">{new Date(activeAlert.created_at).toLocaleTimeString()}</p>
+            </div>
 
-          {/* Actions */}
-          <div className="flex gap-2 pt-2">
+            <div className="bg-blue-50 border border-blue-100 rounded-xl p-3">
+              <div className="flex items-center gap-2 mb-1">
+                <Phone className="h-3.5 w-3.5 text-blue-500" />
+                <span className="text-xs font-bold text-blue-600 uppercase">Contact</span>
+              </div>
+              <p className="text-sm font-bold text-gray-900 truncate">
+                {activeAlert.students?.contact_number || "N/A"}
+              </p>
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex gap-3 pt-2 border-t border-gray-100 mt-2">
             <Button
               variant="outline"
               onClick={handleDismiss}
-              className="flex-1"
+              className="flex-1 h-11 font-semibold text-gray-700 border-gray-300 hover:bg-gray-50"
             >
               Dismiss
             </Button>
             <Button
               onClick={handleResolve}
-              className="flex-1 gap-2 bg-green-600 hover:bg-green-700"
+              className="flex-1 gap-2 bg-red-600 hover:bg-red-700 text-white h-11 font-bold shadow-md shadow-red-200"
             >
-              <CheckCircle2 className="h-4 w-4" />
-              Resolve
+              <CheckCircle2 className="h-5 w-5" />
+              Resolve Alert
             </Button>
           </div>
         </div>

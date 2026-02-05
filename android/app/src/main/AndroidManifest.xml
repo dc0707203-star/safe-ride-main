@@ -13,6 +13,10 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
+    <!-- Storage permissions -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -29,9 +33,10 @@
             android:launchMode="singleTask"
             android:exported="true"
             android:theme="@style/AppTheme.NoActionBarLaunch"
-            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|smallestScreenSize|screenLayout|uiMode|navigation|density">
+            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|smallestScreenSize|screenLayout|uiMode|navigation|density"
+            android:windowSoftInputMode="adjustResize">
 
-            <!-- Fullscreen meta-data -->
+            <!-- Fullscreen configuration -->
             <meta-data
                 android:name="android.window.FULLSCREEN"
                 android:value="true" />
@@ -48,6 +53,16 @@
             <meta-data
                 android:name="android.window.FITS_SYSTEM_WINDOWS"
                 android:value="false" />
+
+            <!-- Immersive mode -->
+            <meta-data
+                android:name="android.window.IMMERSIVE"
+                android:value="sticky" />
+
+            <!-- Window layout -->
+            <meta-data
+                android:name="android.window.LAYOUT_IN_DISPLAY_CUTOUT_MODE"
+                android:value="shortEdges" />
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

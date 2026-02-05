@@ -6,12 +6,17 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
 import { signOut } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
+import { useLocationTracker } from "@/hooks/useLocationTracker";
+import { useVolumeButtonSOS } from "@/hooks/useVolumeButtonSOS";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import QRScanner from "@/components/QRScanner";
+import NotificationBell from "@/components/NotificationBell";
 import isuLogo from "@/assets/isu-logo.png";
 import Agreement from "@/pages/student/Agreement";
 import campusBg from "@/assets/campus-bg.jpeg";
+import { subscribeToPushNotifications, registerServiceWorker } from "@/lib/notifications";
+import { useCapacitorPush } from "@/hooks/useCapacitorPush";
 import {
   Sheet,
   SheetContent,
@@ -41,14 +46,200 @@ import {
 const Student = () => {
   const navigate = useNavigate();
   const { user, loading, userRole } = useAuth();
-  const [currentTrip, setCurrentTrip] = useState<unknown>(null);
-  const [studentData, setStudentData] = useState<unknown>(null);
+  const [currentTrip, setCurrentTrip] = useState<any>(null);
+  const [studentData, setStudentData] = useState<any>(null);
   const [isSending, setIsSending] = useState(false);
-  const [announcements, setAnnouncements] = useState<unknown[]>([]);
-  const [unreadCount, setUnreadCount] = useState<unknown>(0);
+  const [announcements, setAnnouncements] = useState<any[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
   const [isScanning, setIsScanning] = useState(false);
   const [isCreatingTrip, setIsCreatingTrip] = useState(false);
   const [showSOSConfirm, setShowSOSConfirm] = useState(false);
+  const [showAccidentConfirm, setShowAccidentConfirm] = useState(false);
+  const [showEmergencyMenu, setShowEmergencyMenu] = useState(false);
+  const [incidentType, setIncidentType] = useState<string>("accident");
+
+  const INCIDENT_TYPES = [
+    { value: "accident", label: "Vehicle Accident" },
+    { value: "medical", label: "Medical Emergency" },
+    { value: "theft", label: "Theft/Robbery" },
+    { value: "harassment", label: "Harassment/Assault" },
+    { value: "mechanical", label: "Vehicle Breakdown" },
+    { value: "fire", label: "Fire" },
+    { value: "flood", label: "Flood" },
+    { value: "other", label: "Other Emergency" },
+  ];
+
+  // Register Capacitor push notifications
+  useCapacitorPush(user?.id || (null as unknown as string), "student");
+
+  // Send SOS alert function (moved up for volume button trigger)
+  const sendSOSAlert = useCallback(async () => {
+    if (!studentData || isSending) return;
+    
+    setIsSending(true);
+    // No siren on student side - only admin hears the siren
+
+    try {
+      let latitude: number | null = null;
+      let longitude: number | null = null;
+
+      if (navigator.geolocation) {
+        try {
+          const position = await Promise.race([
+            new Promise<GeolocationPosition>((resolve, reject) => {
+              navigator.geolocation.getCurrentPosition(resolve, reject, {
+                enableHighAccuracy: false,
+                timeout: 5000,
+                maximumAge: 30000
+              });
+            }),
+            new Promise<GeolocationPosition>((_, reject) => 
+              setTimeout(() => reject(new Error('Location timeout')), 4000)
+            )
+          ]);
+          latitude = position.coords.latitude;
+          longitude = position.coords.longitude;
+          console.log('GPS Location captured:', latitude, longitude);
+        } catch (geoError: any) {
+          console.warn('Could not get location:', geoError);
+          // Continue without location - don't block the alert
+        }
+      }
+
+      const { error } = await supabase.from('alerts' as any).insert({
+        student_id: studentData.id,
+        trip_id: currentTrip?.id || null,
+        driver_id: currentTrip?.driver_id || null,
+        status: 'active',
+        level: 'critical',
+        alert_type: 'critical',
+        message: 'Emergency SOS triggered by student',
+        location_lat: latitude,
+        location_lng: longitude,
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      toast.success("SOS Alert Sent!", { 
+        description: latitude ? "Your location has been shared with admin." : "Alert sent to admin." 
+      });
+
+      setTimeout(() => {
+        setIsSending(false);
+      }, 3000);
+
+    } catch (error: any) {
+      console.error('Error sending emergency alert:', error);
+      toast.error("Failed to send SOS", { description: error.message });
+      setIsSending(false);
+    }
+  }, [studentData, isSending, currentTrip]);
+
+  // Send Accident Alert function
+  const sendAccidentAlert = useCallback(async () => {
+    if (!studentData || isSending) return;
+    
+    setIsSending(true);
+
+    try {
+      let latitude: number | null = null;
+      let longitude: number | null = null;
+
+      // Try to get location with longer timeout and don't block if it fails
+      if (navigator.geolocation) {
+        try {
+          const position = await Promise.race([
+            new Promise<GeolocationPosition>((resolve, reject) => {
+              navigator.geolocation.getCurrentPosition(resolve, reject, {
+                enableHighAccuracy: false,
+                timeout: 5000,
+                maximumAge: 30000
+              });
+            }),
+            new Promise<GeolocationPosition>((_, reject) => 
+              setTimeout(() => reject(new Error('Location timeout')), 4000)
+            )
+          ]);
+          latitude = position.coords.latitude;
+          longitude = position.coords.longitude;
+        } catch (error) {
+          console.warn('Could not get location:', error);
+          // Continue without location - don't block the alert
+        }
+      }
+
+      // Determine severity and map to valid alert type
+      const getAlertType = (type: string) => {
+        // Map all incident types to valid database alert types
+        if (['theft', 'harassment', 'medical', 'accident', 'fire', 'flood', 'mechanical', 'other'].includes(type)) {
+          return 'incident'; // Valid type in database
+        }
+        return 'incident';
+      };
+
+      const getSeverity = (type: string) => {
+        if (['theft', 'harassment', 'medical', 'accident', 'fire', 'flood'].includes(type)) {
+          return 'high';
+        }
+        return 'medium';
+      };
+
+      const { error } = await supabase
+        .from('alerts')
+        .insert({
+          student_id: studentData.id,
+          status: 'active',
+          level: getSeverity(incidentType) === 'high' ? 'high' : 'medium',
+          alert_type: getAlertType(incidentType),
+          message: `${INCIDENT_TYPES.find(t => t.value === incidentType)?.label || 'Incident'} - ${incidentType.toUpperCase()} reported by student`,
+          location_lat: latitude,
+          location_lng: longitude,
+        });
+
+      if (error) {
+        throw error;
+      }
+
+      toast.success("Alert Sent!", { 
+        description: latitude ? "Your location has been shared with admin." : "Alert sent to admin." 
+      });
+
+      setTimeout(() => {
+        setIsSending(false);
+      }, 3000);
+
+    } catch (error: any) {
+      console.error('Error sending alert:', error);
+      toast.error("Failed to send alert", { description: error.message });
+      setIsSending(false);
+    }
+  }, [studentData, isSending, incidentType]);
+
+  const handleAccidentConfirm = async () => {
+    setShowAccidentConfirm(false);
+    await sendAccidentAlert();
+  };
+
+  // Track student location continuously
+  useLocationTracker({
+    studentId: studentData?.id || null,
+    enabled: !!studentData?.id && !!studentData?.is_approved,
+    intervalMs: 10000,
+  });
+
+  // Volume button SOS trigger (press 4 times quickly = emergency alert)
+  const handleVolumeSOSTrigger = useCallback(() => {
+    if (!studentData || isSending) return;
+    toast.error("🚨 EMERGENCY ALERT SENT!", { description: "SOS activated! Notifying admins..." });
+    sendSOSAlert();
+  }, [studentData, isSending, sendSOSAlert]);
+
+  useVolumeButtonSOS({
+    onTrigger: handleVolumeSOSTrigger,
+    enabled: !!studentData?.is_approved && !isSending,
+  });
 
   useEffect(() => {
     if (!loading) {
@@ -65,12 +256,12 @@ const Student = () => {
       if (!user || loading || userRole !== "student") return;
 
       const { data: student, error } = (await supabase
-        .from("students" as unknown)
+        .from("students" as any)
         .select("id, is_registered, is_approved, agreement_accepted, created_at")
         .eq("user_id", user.id)
         .order("created_at", { ascending: false })
         .limit(1)
-        .maybeSingle()) as { data: unknown; error: unknown };
+        .maybeSingle()) as { data: any; error: any };
 
       if (error) {
         console.error("Error checking registration:", error);
@@ -91,28 +282,37 @@ const Student = () => {
 
       try {
         const { data: student, error: studentError } = (await supabase
-          .from("students" as unknown)
+          .from("students" as any)
           .select("*")
           .eq("user_id", user.id)
           .order("created_at", { ascending: false })
           .limit(1)
-          .maybeSingle()) as { data: unknown; error: unknown };
+          .maybeSingle()) as { data: any; error: any };
 
         if (studentError) throw studentError;
 
         setStudentData(student);
 
         if (student) {
-          await supabase.from("students" as unknown).update({ is_active: true }).eq("id", student.id);
+          await supabase.from("students" as any).update({ is_active: true }).eq("id", student.id);
+
+          // Register Service Worker and subscribe to push notifications
+          try {
+            await registerServiceWorker();
+            await subscribeToPushNotifications(user.id, "student");
+            console.log("Push notifications enabled for student");
+          } catch (error) {
+            console.log("Push notifications setup skipped:", error);
+          }
 
           const { data: trip, error: tripError } = (await supabase
-            .from("trips" as unknown)
+            .from("trips" as any)
             .select("*, drivers(*)")
             .eq("student_id", student.id)
             .eq("status", "active")
             .order("start_time", { ascending: false })
             .limit(1)
-            .maybeSingle()) as { data: unknown; error: unknown };
+            .maybeSingle()) as { data: any; error: any };
 
           if (tripError) throw tripError;
 
@@ -132,15 +332,17 @@ const Student = () => {
   useEffect(() => {
     const fetchAnnouncements = async () => {
       const { data } = await supabase
-        .from('announcements' as unknown)
+        .from('announcements' as any)
         .select('*')
         .eq('is_active', true)
+        .or("user_type.eq.student,user_type.eq.both")
         .order('created_at', { ascending: false })
-        .limit(10) as { data: unknown[] | null };
+        .limit(10) as { data: any[] | null };
       
       if (data) {
         setAnnouncements(data);
         setUnreadCount(data.length);
+        console.log("[StudentDashboard] Loaded student announcements:", data.length);
       }
     };
 
@@ -153,9 +355,9 @@ const Student = () => {
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'announcements' },
         (payload) => {
-          setAnnouncements((prev) => [payload.new as unknown, ...prev].slice(0, 10));
+          setAnnouncements((prev) => [payload.new as any, ...prev].slice(0, 10));
           setUnreadCount((prev) => prev + 1);
-          toast.info("New Announcement!", { description: (payload.new as unknown).title });
+          toast.info("New Announcement!", { description: (payload.new as any).title });
         }
       )
       .subscribe();
@@ -196,10 +398,10 @@ const Student = () => {
 
       // Check if driver exists
       const { data: driver, error: driverError } = await supabase
-        .from('drivers' as unknown)
+        .from('drivers' as any)
         .select('*')
         .eq('id', driverId)
-        .maybeSingle() as { data: unknown; error: unknown };
+        .maybeSingle() as { data: any; error: any };
 
       console.log('Driver lookup result:', driver, driverError);
 
@@ -229,6 +431,24 @@ const Student = () => {
         return;
       }
 
+      // Check driver capacity (max 5 students)
+      const { data: activeTrips, error: countError } = await supabase
+        .from('trips' as any)
+        .select('id')
+        .eq('driver_id', driver.id)
+        .eq('status', 'active');
+
+      if (countError) throw countError;
+
+      const MAX_CAPACITY = 5;
+      if ((activeTrips?.length || 0) >= MAX_CAPACITY) {
+        toast.error("Driver Capacity Full", { 
+          description: `This driver has reached the maximum capacity of ${MAX_CAPACITY} students. Please find another driver.` 
+        });
+        setIsCreatingTrip(false);
+        return;
+      }
+
       // Get current location
       let latitude: number | null = null;
       let longitude: number | null = null;
@@ -249,7 +469,7 @@ const Student = () => {
 
       // Create the trip
       const { data: newTrip, error: tripError } = await supabase
-        .from('trips' as unknown)
+        .from('trips' as any)
         .insert({
           student_id: studentData.id,
           driver_id: driver.id,
@@ -258,7 +478,7 @@ const Student = () => {
           start_location_lng: longitude,
         })
         .select('*, drivers(*)')
-        .single() as { data: unknown; error: unknown };
+        .single() as { data: any; error: any };
 
       if (tripError) throw tripError;
 
@@ -267,7 +487,7 @@ const Student = () => {
         description: `You're now riding with ${driver.full_name} (${driver.tricycle_plate_number})` 
       });
 
-    } catch (error: unknown) {
+    } catch (error: any) {
       console.error('Error creating trip:', error);
       toast.error("Failed to start trip", { description: error.message });
     } finally {
@@ -297,7 +517,7 @@ const Student = () => {
       }
 
       const { error } = await supabase
-        .from('trips' as unknown)
+        .from('trips' as any)
         .update({
           status: 'completed',
           end_time: new Date().toISOString(),
@@ -311,9 +531,21 @@ const Student = () => {
       setCurrentTrip(null);
       toast.success("Trip Ended", { description: "Your trip has been completed safely" });
 
-    } catch (error: unknown) {
+    } catch (error: any) {
       toast.error("Failed to end trip", { description: error.message });
     }
+  };
+
+  // Handle emergency button press - direct SOS without menu
+  const handleEmergencyButtonPress = () => {
+    if (!studentData || isSending) return;
+    setShowSOSConfirm(true);
+  };
+
+  // Handle incident button press - direct incident report without menu
+  const handleIncidentReportPress = () => {
+    if (!studentData || isSending) return;
+    setShowAccidentConfirm(true);
   };
 
   // Show SOS confirmation dialog
@@ -322,82 +554,22 @@ const Student = () => {
     setShowSOSConfirm(true);
   };
 
-  // Confirmed SOS - send alert
-  const handleSOSConfirm = async () => {
+  // Confirmed SOS - send alert (calls the sendSOSAlert function defined earlier)
+  const handleSOSConfirm = () => {
     setShowSOSConfirm(false);
-    if (!studentData || isSending) return;
-    
-    setIsSending(true);
-
-    try {
-      let latitude: number | null = null;
-      let longitude: number | null = null;
-
-      if (navigator.geolocation) {
-        try {
-          const position = await new Promise<GeolocationPosition>((resolve, reject) => {
-            navigator.geolocation.getCurrentPosition(resolve, reject, {
-              enableHighAccuracy: true,
-              timeout: 15000,
-              maximumAge: 0
-            });
-          });
-          latitude = position.coords.latitude;
-          longitude = position.coords.longitude;
-          console.log('GPS Location captured:', latitude, longitude);
-        } catch (geoError: unknown) {
-          console.error('Geolocation error:', geoError);
-          toast.warning("Location Unavailable", { 
-            description: "Could not get your GPS location. Alert sent without location." 
-          });
-        }
-      } else {
-        toast.warning("Geolocation Not Supported", { 
-          description: "Your browser does not support location services." 
-        });
-      }
-
-      const { error } = await supabase.from('alerts' as unknown).insert({
-        student_id: studentData.id,
-        trip_id: currentTrip?.id || null,
-        driver_id: currentTrip?.driver_id || null,
-        status: 'active',
-        level: 'critical',
-        message: 'Emergency SOS triggered by student',
-        location_lat: latitude,
-        location_lng: longitude,
-      });
-
-      if (error) {
-        throw error;
-      }
-
-      toast.success("SOS Alert Sent!", { 
-        description: latitude ? "Your location has been shared with admin." : "Alert sent to admin." 
-      });
-
-      setTimeout(() => {
-        setIsSending(false);
-      }, 3000);
-
-    } catch (error: unknown) {
-      console.error('Error sending emergency alert:', error);
-      toast.error("Failed to send SOS", { description: error.message });
-      setIsSending(false);
-    }
+    sendSOSAlert();
   };
 
   const handleLogout = async () => {
     try {
       if (studentData) {
         await supabase
-          .from('students' as unknown)
+          .from('students' as any)
           .update({ is_active: false })
           .eq('id', studentData.id);
       }
       
       await signOut();
-      navigate('/');
     } catch (error) {
       console.error('Failed to log out');
     }
@@ -484,7 +656,7 @@ const Student = () => {
         studentId={studentData.id} 
         onAccepted={() => {
           // Refresh student data after accepting agreement
-          setStudentData((prev: unknown) => ({ ...prev, agreement_accepted: true }));
+          setStudentData((prev: any) => ({ ...prev, agreement_accepted: true }));
         }} 
       />
     );
@@ -492,39 +664,50 @@ const Student = () => {
 
   return (
     <div 
-      className="min-h-screen flex flex-col bg-cover bg-center bg-fixed relative safe-area-inset"
-      style={{ backgroundImage: `url(${campusBg})` }}
+      className="min-h-screen flex flex-col bg-cover bg-center bg-fixed relative overflow-hidden"
+      style={{ 
+        backgroundImage: `url(${campusBg})`,
+        backgroundColor: '#0f0a1a'
+      }}
     >
-      <div className="fixed inset-0 bg-black/40 pointer-events-none" />
+      {/* Green Gradient Overlay - Matching Admin Design */}
+      <div className="fixed inset-0 bg-gradient-to-b from-green-950/90 via-green-900/85 to-green-950/90 pointer-events-none" />
+      
+      {/* Animated lime-green accent */}
+      <div className="fixed inset-0 bg-gradient-to-br from-[#CCFF00]/5 via-transparent to-emerald-500/5 pointer-events-none" />
+      
       {/* Header */}
-      <header className="relative z-20 border-b border-[#CCFF00]/20 bg-[#001209]/80 backdrop-blur-xl top-0 safe-area-top shadow-lg">
+      <header className="z-20 border-b border-[#CCFF00]/10 bg-green-900/40 backdrop-blur-xl sticky top-0 safe-area-top shadow-[0_8px_32px_rgba(204,255,0,0.1)]">
         <div className="px-4 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="p-1.5 rounded-xl bg-[#CCFF00]/10 border border-[#CCFF00]/30 shadow-[0_0_15px_rgba(204,255,0,0.2)]">
-                <img src={isuLogo} alt="ISU Logo" className="h-8 w-8" />
+              <div className="inline-flex items-center justify-center w-10 h-10 bg-white/80 rounded-full shadow-lg backdrop-blur-sm hover:bg-white/90 transition-all">
+                <img src={isuLogo} alt="ISU Logo" className="h-6 w-6" />
               </div>
               <div>
-                <h1 className="text-base font-bold text-white">SafeRide ISU</h1>
-                <p className="text-[11px] text-[#CCFF00]/70 leading-tight">
+                <h1 className="text-base font-bold bg-gradient-to-r from-[#CCFF00] via-lime-300 to-green-400 bg-clip-text text-transparent">SafeRide ISU</h1>
+                <p className="text-[11px] text-white/60 leading-tight">
                   {studentData?.full_name || 'Student'}
                 </p>
               </div>
             </div>
             <div className="flex items-center gap-1">
+              {/* System Notifications */}
+              {user && <NotificationBell userId={user.id} />}
+              
               {/* Announcements Sheet */}
               <Sheet onOpenChange={handleAnnouncementSheetOpen}>
                 <SheetTrigger asChild>
                   <Button variant="ghost" size="icon" className="relative h-10 w-10 hover:bg-[#CCFF00]/10">
-                    <Bell className="h-5 w-5 text-[#CCFF00]" />
+                    <Megaphone className="h-5 w-5 text-[#CCFF00]" />
                     {unreadCount > 0 && (
-                      <span className="absolute -top-0.5 -right-0.5 h-5 w-5 bg-red-500 rounded-full text-[10px] text-white flex items-center justify-center font-bold shadow-lg">
+                      <span className="absolute -top-0.5 -right-0.5 h-5 w-5 bg-[#CCFF00] rounded-full text-[10px] text-green-950 flex items-center justify-center font-bold shadow-[0_0_12px_rgba(204,255,0,0.6)]">
                         {unreadCount}
                       </span>
                     )}
                   </Button>
                 </SheetTrigger>
-                <SheetContent className="w-[90%] sm:max-w-md bg-[#001209]/95 backdrop-blur-xl border-[#CCFF00]/20">
+                <SheetContent className="w-[90%] sm:max-w-md bg-gradient-to-b from-green-950/98 to-green-900/95 backdrop-blur-xl border-[#CCFF00]/20">
                   <SheetHeader>
                     <SheetTitle className="flex items-center gap-2 text-white">
                       <Megaphone className="h-5 w-5 text-[#CCFF00]" />
@@ -542,16 +725,16 @@ const Student = () => {
                         {announcements.map((announcement) => (
                           <div
                             key={announcement.id}
-                            className="p-4 rounded-xl bg-white/5 border border-[#CCFF00]/20"
+                            className="p-4 rounded-2xl bg-white border border-black/10 shadow-md hover:shadow-lg transition-all"
                           >
                             <div className="flex items-start gap-3">
-                              <div className="p-2 rounded-lg bg-[#CCFF00]/20">
-                                <Megaphone className="h-4 w-4 text-[#CCFF00]" />
+                              <div className="p-2.5 rounded-lg bg-black/5 flex-shrink-0">
+                                <Megaphone className="h-5 w-5 text-black" />
                               </div>
-                              <div className="flex-1">
-                                <p className="font-semibold text-white">{announcement.title}</p>
-                                <p className="text-sm text-white/70 mt-1">{announcement.message}</p>
-                                <p className="text-xs text-[#CCFF00]/60 mt-2">
+                              <div className="flex-1 min-w-0">
+                                <p className="font-bold text-black text-base">{announcement.title}</p>
+                                <p className="text-sm text-black/75 mt-1.5 leading-relaxed break-words">{announcement.message}</p>
+                                <p className="text-xs text-black/60 mt-3 font-semibold">
                                   {format(new Date(announcement.created_at), 'MMM d, yyyy • h:mm a')}
                                 </p>
                               </div>
@@ -564,35 +747,27 @@ const Student = () => {
                 </SheetContent>
               </Sheet>
 
-              {/* Settings Dropdown */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-10 w-10 hover:bg-[#CCFF00]/10">
-                    <Settings className="h-5 w-5 text-[#CCFF00]" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="bg-[#001209]/95 backdrop-blur-xl border-[#CCFF00]/20 z-50">
-                  <DropdownMenuItem 
-                    onClick={handleLogout} 
-                    className="text-red-400 focus:text-red-300 focus:bg-red-500/10 cursor-pointer"
-                  >
-                    <LogOut className="h-4 w-4 mr-2" />
-                    Logout
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              {/* Settings Button */}
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={() => navigate('/student/settings')}
+                className="h-10 w-10 hover:bg-[#CCFF00]/10"
+              >
+                <Settings className="h-5 w-5 text-[#CCFF00]" />
+              </Button>
             </div>
           </div>
         </div>
       </header>
 
-      <main className="relative z-10 flex-1 flex flex-col px-4 py-4 safe-area-bottom">
+      <main className="relative z-10 flex-1 flex flex-col px-4 py-6 safe-area-bottom bg-gradient-to-b from-transparent via-green-900/5 to-green-950/20">
         {/* Active Trip Banner */}
         {currentTrip && (
-          <div className="mb-4 p-4 rounded-2xl bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg">
+          <div className="mb-6 p-4 rounded-2xl bg-gradient-to-r from-blue-600 to-cyan-600 backdrop-blur-sm text-white shadow-[0_8px_32px_rgba(6,182,212,0.35)] border border-cyan-300/40 animate-pulse">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="p-2.5 rounded-full bg-white/20">
+                <div className="p-2.5 rounded-full bg-white/20 backdrop-blur-sm">
                   <MapPin className="h-5 w-5" />
                 </div>
                 <div>
@@ -606,7 +781,7 @@ const Student = () => {
                 size="sm" 
                 variant="secondary" 
                 onClick={handleEndTrip}
-                className="bg-white/20 hover:bg-white/30 text-white border-0"
+                className="bg-white/20 hover:bg-white/30 text-white border-0 backdrop-blur-sm"
               >
                 <CheckCircle className="h-4 w-4 mr-1" />
                 End Trip
@@ -621,95 +796,127 @@ const Student = () => {
             Press the button below if you need <span className="text-red-400 font-bold">immediate help</span>
           </p>
           
-          {/* Giant SOS Button */}
+          {/* Giant EMERGENCY Button - For Critical Emergencies */}
           <button
-            onClick={handleSOSButtonPress}
+            onClick={handleEmergencyButtonPress}
             disabled={isSending}
             className={`
               relative w-48 h-48 sm:w-56 sm:h-56 rounded-full 
               flex flex-col items-center justify-center 
               transition-all duration-150 
-              touch-manipulation select-none
+              touch-manipulation select-none group
               ${isSending 
-                ? 'bg-destructive scale-110 animate-pulse' 
-                : 'bg-gradient-to-br from-red-500 via-red-600 to-red-700 active:scale-95 hover:scale-105'
+                ? 'bg-red-600 scale-110 animate-pulse' 
+                : 'bg-red-600 hover:bg-red-700 active:scale-95 hover:scale-105'
               }
             `}
             style={{
               boxShadow: isSending 
-                ? '0 0 60px 20px rgba(239, 68, 68, 0.6), 0 0 100px 40px rgba(239, 68, 68, 0.3)'
-                : '0 10px 40px rgba(239, 68, 68, 0.5), 0 4px 15px rgba(0,0,0,0.2), inset 0 2px 10px rgba(255,255,255,0.15)'
+                ? '0 0 60px 20px rgba(220, 38, 38, 0.8), 0 0 100px 40px rgba(220, 38, 38, 0.4)'
+                : '0 15px 50px rgba(220, 38, 38, 0.6), 0 8px 20px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.2)'
             }}
           >
-            <AlertCircle className={`h-16 w-16 sm:h-20 sm:w-20 text-white mb-1 ${isSending ? 'animate-bounce' : ''}`} />
-            <span className="text-2xl sm:text-3xl font-black text-white tracking-wider">
-              {isSending ? 'SENDING' : 'SOS'}
+            <AlertCircle className={`h-16 w-16 sm:h-20 sm:w-20 text-white mb-2 transition-all ${isSending ? 'animate-bounce' : 'group-hover:scale-110'}`} />
+            <span className="text-2xl sm:text-3xl font-black text-white tracking-wider leading-tight">
+              {isSending ? 'SENDING' : 'EMERGENCY'}
             </span>
             
             {/* Pulse rings when sending */}
             {isSending && (
               <>
                 <div className="absolute inset-0 rounded-full border-4 border-white/40 animate-ping" />
-                <div className="absolute inset-[-10px] rounded-full border-2 border-red-400/30 animate-ping" style={{ animationDelay: '0.2s' }} />
+                <div className="absolute inset-[-10px] rounded-full border-2 border-white/20 animate-ping" style={{ animationDelay: '0.2s' }} />
               </>
             )}
           </button>
 
-          <p className="text-xs text-white/60 mt-8 text-center max-w-[220px]">
+          <p className="text-xs text-white/50 mt-5 text-center max-w-[220px] font-medium">
             {isSending 
               ? '🚨 Alert sent! Help is on the way!'
-              : 'Your location will be sent automatically'
+              : 'For immediate threats'
             }
+          </p>
+
+          {/* Separate INCIDENT Report Button */}
+          <button
+            onClick={handleIncidentReportPress}
+            disabled={isSending}
+            className="
+              relative w-44 h-16 rounded-2xl 
+              flex flex-col items-center justify-center gap-1
+              transition-all duration-150 
+              touch-manipulation select-none mt-8 group
+              bg-amber-500 hover:bg-amber-600 active:scale-95 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed
+            "
+            style={{
+              boxShadow: '0 12px 40px rgba(217, 119, 6, 0.5), 0 6px 15px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.2)'
+            }}
+          >
+            <AlertCircle className="h-6 w-6 text-white transition-all group-hover:scale-110" />
+            <span className="text-base font-bold text-white tracking-wide">
+              INCIDENT
+            </span>
+          </button>
+
+          <p className="text-xs text-white/50 mt-3 text-center max-w-[220px] font-medium">
+            Report accidents or incidents
           </p>
         </div>
 
         {/* Bottom Actions */}
-        <div className="mt-auto space-y-4">
+        <div className="mt-auto space-y-4 pb-4">
           {/* Quick Actions */}
-          <div className="grid grid-cols-2 gap-3">
-            <div 
-              className={`cursor-pointer transition-all touch-manipulation bg-white/10 backdrop-blur-xl border border-[#CCFF00]/20 hover:border-[#CCFF00]/50 hover:shadow-[0_0_20px_rgba(204,255,0,0.15)] rounded-2xl p-4 ${isCreatingTrip ? 'opacity-50' : ''}`}
+          <div className="grid grid-cols-2 gap-4">
+            <button 
+              className={`relative group overflow-hidden cursor-pointer transition-all duration-300 touch-manipulation bg-gradient-to-br from-blue-600/20 to-blue-900/40 backdrop-blur-xl border border-blue-500/30 hover:border-blue-400/60 rounded-3xl p-5 text-left ${isCreatingTrip ? 'opacity-50' : 'active:scale-95'}`}
               onClick={() => !isCreatingTrip && setIsScanning(true)}
             >
-              <div className="flex items-center gap-3">
-                <div className="p-2.5 rounded-xl bg-[#CCFF00]/20">
-                  <QrCode className="h-6 w-6 text-[#CCFF00]" />
+              <div className="absolute inset-0 bg-blue-500/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+              <div className="relative z-10">
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center mb-3 shadow-lg shadow-blue-500/20 group-hover:scale-110 transition-transform duration-300">
+                  <QrCode className="h-6 w-6 text-white" />
                 </div>
-                <div>
-                  <p className="text-sm font-semibold text-white">Scan QR</p>
-                  <p className="text-[11px] text-white/60">Start ride</p>
-                </div>
+                <p className="text-base font-bold text-white mb-0.5">Scan QR</p>
+                <p className="text-xs text-blue-200/70 font-medium">Start a new ride</p>
               </div>
-            </div>
+            </button>
 
-            <div 
-              className="cursor-pointer transition-all touch-manipulation bg-white/10 backdrop-blur-xl border border-[#CCFF00]/20 hover:border-[#CCFF00]/50 hover:shadow-[0_0_20px_rgba(204,255,0,0.15)] rounded-2xl p-4"
+            <button 
+              className="relative group overflow-hidden cursor-pointer transition-all duration-300 touch-manipulation bg-gradient-to-br from-emerald-600/20 to-emerald-900/40 backdrop-blur-xl border border-emerald-500/30 hover:border-emerald-400/60 rounded-3xl p-5 text-left active:scale-95"
               onClick={() => navigate('/student/history')}
             >
-              <div className="flex items-center gap-3">
-                <div className="p-2.5 rounded-xl bg-[#CCFF00]/20">
-                  <History className="h-6 w-6 text-[#CCFF00]" />
+              <div className="absolute inset-0 bg-emerald-500/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+              <div className="relative z-10">
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center mb-3 shadow-lg shadow-emerald-500/20 group-hover:scale-110 transition-transform duration-300">
+                  <History className="h-6 w-6 text-white" />
                 </div>
-                <div>
-                  <p className="text-sm font-semibold text-white">History</p>
-                  <p className="text-[11px] text-white/60">Past trips</p>
-                </div>
+                <p className="text-base font-bold text-white mb-0.5">History</p>
+                <p className="text-xs text-emerald-200/70 font-medium">View past trips</p>
               </div>
-            </div>
+            </button>
           </div>
 
           {/* Emergency Hotline */}
-          <div className="p-4 rounded-xl bg-white/10 backdrop-blur-xl border border-white/20">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Phone className="h-4 w-4 text-red-400" />
-                <span className="text-sm text-white/70">Emergency Hotline</span>
+          <a 
+            href="tel:911"
+            className="block relative overflow-hidden rounded-3xl bg-gradient-to-r from-rose-900/40 to-red-900/40 backdrop-blur-xl border border-rose-500/30 p-1 group active:scale-98 transition-transform"
+          >
+            <div className="absolute inset-0 bg-rose-500/5 group-hover:bg-rose-500/10 transition-colors" />
+            <div className="flex items-center justify-between px-5 py-4">
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 rounded-full bg-rose-500/20 flex items-center justify-center border border-rose-500/30">
+                  <Phone className="h-5 w-5 text-rose-400 animate-pulse" />
+                </div>
+                <div>
+                  <p className="text-sm font-bold text-rose-100">Emergency Hotline</p>
+                  <p className="text-xs text-rose-300/70">Tap to call authorities</p>
+                </div>
               </div>
-              <a href="tel:09XXXXXXXXX" className="text-sm font-bold text-[#CCFF00] hover:underline">
-                09XX-XXX-XXXX
-              </a>
+              <div className="flex items-center gap-2 bg-rose-500 px-4 py-1.5 rounded-full shadow-lg shadow-rose-900/20">
+                <span className="text-lg font-black text-white">911</span>
+              </div>
             </div>
-          </div>
+          </a>
         </div>
       </main>
 
@@ -722,29 +929,74 @@ const Student = () => {
 
       {/* SOS Confirmation Dialog */}
       <AlertDialog open={showSOSConfirm} onOpenChange={setShowSOSConfirm}>
-        <AlertDialogContent className="bg-[#001209]/95 backdrop-blur-xl border-red-500/30 max-w-sm">
+        <AlertDialogContent className="bg-white border-2 border-red-500 max-w-sm shadow-2xl">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-white text-center text-xl flex items-center justify-center gap-2">
-              <AlertCircle className="h-6 w-6 text-red-500" />
+            <AlertDialogTitle className="text-red-600 text-center text-2xl flex items-center justify-center gap-2">
+              <AlertCircle className="h-7 w-7 text-red-600 animate-pulse" />
               Emergency SOS
             </AlertDialogTitle>
-            <AlertDialogDescription className="text-white/70 text-center">
+            <AlertDialogDescription className="text-gray-800 text-center text-base font-semibold">
               Are you sure you want to send an emergency alert? Your location will be shared with the admin.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="flex-row gap-3 sm:justify-center mt-4">
-            <AlertDialogCancel className="flex-1 m-0 bg-white/10 border-white/20 text-white hover:bg-white/20 hover:text-white">
+            <AlertDialogCancel className="flex-1 m-0 bg-gray-200 border-gray-300 text-gray-800 hover:bg-gray-300 hover:text-gray-900 font-semibold">
               No, Cancel
             </AlertDialogCancel>
             <AlertDialogAction 
               onClick={handleSOSConfirm}
-              className="flex-1 m-0 bg-red-600 hover:bg-red-700 text-white border-0"
+              className="flex-1 m-0 bg-red-600 hover:bg-red-700 text-white border-0 font-semibold"
             >
               Yes, Send SOS
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Accident Confirmation Dialog */}
+      <AlertDialog open={showAccidentConfirm} onOpenChange={setShowAccidentConfirm}>
+        <AlertDialogContent className="bg-white border-2 border-orange-500 max-w-sm shadow-2xl">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-orange-600 text-center text-2xl flex items-center justify-center gap-2">
+              � Report Incident
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-gray-800 text-center text-base font-semibold">
+              What type of incident are you reporting? Your location will be shared with the admin.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          
+          {/* Incident Type Dropdown */}
+          <div className="px-6 py-5 bg-white/20 backdrop-blur-xl rounded-2xl border-2 border-white/40 shadow-xl shadow-orange-500/10 hover:shadow-2xl hover:shadow-orange-500/20 hover:bg-white/30 transition-all duration-300">
+            <label htmlFor="incident-type" className="block text-sm font-bold text-white mb-4 uppercase tracking-widest drop-shadow-lg">Select Incident Type</label>
+            <select
+              id="incident-type"
+              value={incidentType}
+              onChange={(e) => setIncidentType(e.target.value)}
+              className="w-full px-4 py-3 border-2 border-white/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-white/80 focus:border-transparent bg-white/80 backdrop-blur-sm text-gray-900 font-semibold text-base hover:border-white/70 transition-all cursor-pointer shadow-lg"
+            >
+              {INCIDENT_TYPES.map((type) => (
+                <option key={type.value} value={type.value}>
+                  {type.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <AlertDialogFooter className="flex-row gap-3 sm:justify-center mt-4">
+            <AlertDialogCancel className="flex-1 m-0 bg-gray-200 border-gray-300 text-gray-800 hover:bg-gray-300 hover:text-gray-900 font-semibold">
+              No, Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleAccidentConfirm}
+              className="flex-1 m-0 bg-orange-600 hover:bg-orange-700 text-white border-0 font-semibold"
+            >
+              Yes, Report
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+
     </div>
   );
 };

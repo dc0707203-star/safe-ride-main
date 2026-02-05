@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { ArrowLeft, User, Phone, Mail, Circle, Edit, X, Check, GraduationCap, UserPlus, MapPin, Clock, CheckCircle, XCircle, Trash2, Search } from "lucide-react";
+import { ArrowLeft, User, Phone, Mail, Circle, Edit, X, Check, GraduationCap, UserPlus, MapPin, Clock, CheckCircle, XCircle, Trash2, Search, Users, ChevronDown, ChevronUp, Navigation } from "lucide-react";
+import StudentLocationDialog from "@/components/StudentLocationDialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -36,6 +37,8 @@ const StudentsList = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [deleteConfirm, setDeleteConfirm] = useState<any>(null);
   const [deleting, setDeleting] = useState(false);
+  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
+  const [locationStudent, setLocationStudent] = useState<any>(null);
 
   useEffect(() => {
     if (authLoading) return;
@@ -72,8 +75,14 @@ const StudentsList = () => {
     }
   };
 
-  const getStudentEmail = (studentIdNumber: string) => {
-    return `${studentIdNumber.replace(/[^a-zA-Z0-9]/g, '')}@student.isu.edu.ph`;
+  // Get student email - use stored email or fallback to auth email
+  const getStudentEmail = (student: any) => {
+    // If student has email stored, use that
+    if (student.email) {
+      return student.email;
+    }
+    // Fallback: try to get from user auth (via profiles or stored in students table)
+    return student.auth_email || `${student.student_id_number?.replace(/[^a-zA-Z0-9]/g, '')}@student.isu.edu.ph`;
   };
 
   const handleEditClick = (student: any) => {
@@ -133,14 +142,23 @@ const StudentsList = () => {
     }
   };
 
-  const handleReject = async (studentId: string) => {
+  const handleReject = async (student: any) => {
     try {
+      // Delete from students table
       const { error } = await supabase
         .from('students' as any)
         .delete()
-        .eq('id', studentId);
+        .eq('id', student.id);
 
       if (error) throw error;
+
+      // Delete from auth if user_id exists
+      if (student.user_id) {
+        await supabase.functions.invoke('delete-auth-user', {
+          body: { userId: student.user_id }
+        });
+      }
+
       toast.success("Student rejected and removed");
       fetchStudents();
     } catch (error: any) {
@@ -153,12 +171,21 @@ const StudentsList = () => {
     if (!deleteConfirm) return;
     setDeleting(true);
     try {
+      // Delete from students table
       const { error } = await supabase
         .from('students' as any)
         .delete()
         .eq('id', deleteConfirm.id);
 
       if (error) throw error;
+
+      // Delete from auth if user_id exists
+      if (deleteConfirm.user_id) {
+        await supabase.functions.invoke('delete-auth-user', {
+          body: { userId: deleteConfirm.user_id }
+        });
+      }
+
       toast.success("Student deleted successfully");
       setDeleteConfirm(null);
       fetchStudents();
@@ -178,12 +205,56 @@ const StudentsList = () => {
     const matchesSearch = searchQuery.trim() === "" || 
       student.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       student.student_id_number?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      student.course?.toLowerCase().includes(searchQuery.toLowerCase());
+      student.course?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      student.section?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      student.year_level?.toLowerCase().includes(searchQuery.toLowerCase());
     
     return matchesFilter && matchesSearch;
   });
 
   const pendingCount = students.filter(s => !s.is_approved).length;
+
+  // Group students by course, year level, and section
+  const groupedStudents = filteredStudents.reduce((groups, student) => {
+    const course = student.course || 'No Course';
+    const yearLevel = student.year_level || 'No Year';
+    const section = student.section || 'No Section';
+    const groupKey = `${course} - ${yearLevel} - ${section}`;
+    
+    if (!groups[groupKey]) {
+      groups[groupKey] = {
+        course,
+        yearLevel,
+        section,
+        students: []
+      };
+    }
+    groups[groupKey].students.push(student);
+    return groups;
+  }, {} as Record<string, { course: string; yearLevel: string; section: string; students: any[] }>);
+
+  // Sort groups alphabetically
+  const sortedGroupKeys = Object.keys(groupedStudents).sort();
+
+  const toggleGroup = (groupKey: string) => {
+    setExpandedGroups(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(groupKey)) {
+        newSet.delete(groupKey);
+      } else {
+        newSet.add(groupKey);
+      }
+      return newSet;
+    });
+  };
+
+  const expandAllGroups = () => {
+    setExpandedGroups(new Set(sortedGroupKeys));
+  };
+
+  const collapseAllGroups = () => {
+    setExpandedGroups(new Set());
+  };
 
   if (loading) {
     return (
@@ -267,6 +338,34 @@ const StudentsList = () => {
             <CheckCircle className="h-4 w-4 mr-1" />
             Approved ({students.length - pendingCount})
           </Button>
+          <div className="flex-1" />
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={expandAllGroups}
+            className="rounded-full text-xs"
+          >
+            Expand All
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={collapseAllGroups}
+            className="rounded-full text-xs"
+          >
+            Collapse All
+          </Button>
+        </div>
+
+        {/* Group Stats */}
+        <div className="flex flex-wrap gap-2 mb-6">
+          <Badge variant="outline" className="text-sm px-3 py-1">
+            <Users className="h-3.5 w-3.5 mr-1.5" />
+            {sortedGroupKeys.length} Groups
+          </Badge>
+          <Badge variant="secondary" className="text-sm px-3 py-1">
+            {filteredStudents.length} Students
+          </Badge>
         </div>
 
         {filteredStudents.length === 0 ? (
@@ -288,112 +387,178 @@ const StudentsList = () => {
             </CardContent>
           </Card>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredStudents.map((student) => (
-              <Card key={student.id} className={`group hover:shadow-lg transition-all duration-300 border-border/50 overflow-hidden ${!student.is_approved ? 'ring-2 ring-amber-400/50' : ''}`}>
-                <CardContent className="p-0">
-                  {/* Pending Badge */}
-                  {!student.is_approved && (
-                    <div className="bg-amber-500 text-white text-xs font-semibold py-1 px-3 flex items-center justify-center gap-1">
-                      <Clock className="h-3 w-3" />
-                      Pending Approval
+          <div className="space-y-6">
+            {sortedGroupKeys.map((groupKey) => {
+              const group = groupedStudents[groupKey];
+              const isExpanded = expandedGroups.has(groupKey);
+              const pendingInGroup = group.students.filter(s => !s.is_approved).length;
+              
+              return (
+                <div key={groupKey} className="bg-card rounded-2xl border border-border overflow-hidden shadow-sm">
+                  {/* Group Header */}
+                  <button
+                    onClick={() => toggleGroup(groupKey)}
+                    className="w-full flex items-center justify-between p-4 hover:bg-muted/50 transition-colors"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="p-2.5 rounded-xl bg-gradient-to-br from-indigo-500 to-blue-600 shadow-md">
+                        <GraduationCap className="h-5 w-5 text-white" />
+                      </div>
+                      <div className="text-left">
+                        <h3 className="text-lg font-bold text-foreground">{group.course}</h3>
+                        <div className="flex items-center gap-2 mt-0.5">
+                          <Badge variant="secondary" className="text-xs font-medium">
+                            {group.yearLevel}
+                          </Badge>
+                          <Badge variant="outline" className="text-xs font-medium">
+                            Section {group.section}
+                          </Badge>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="text-right">
+                        <span className="text-2xl font-bold text-foreground">{group.students.length}</span>
+                        <span className="text-sm text-muted-foreground ml-1">students</span>
+                      </div>
+                      {pendingInGroup > 0 && (
+                        <Badge className="bg-amber-500 text-white">
+                          {pendingInGroup} pending
+                        </Badge>
+                      )}
+                      {isExpanded ? (
+                        <ChevronUp className="h-5 w-5 text-muted-foreground" />
+                      ) : (
+                        <ChevronDown className="h-5 w-5 text-muted-foreground" />
+                      )}
+                    </div>
+                  </button>
+                  
+                  {/* Expanded Students */}
+                  {isExpanded && (
+                    <div className="border-t border-border bg-muted/20 p-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {group.students.map((student) => (
+                          <Card key={student.id} className={`group hover:shadow-lg transition-all duration-300 border-border/50 overflow-hidden ${!student.is_approved ? 'ring-2 ring-amber-400/50' : ''}`}>
+                            <CardContent className="p-0">
+                              {/* Pending Badge */}
+                              {!student.is_approved && (
+                                <div className="bg-amber-500 text-white text-xs font-semibold py-1.5 px-3 flex items-center justify-center gap-1.5">
+                                  <Clock className="h-3.5 w-3.5" />
+                                  Pending Approval
+                                </div>
+                              )}
+                              {/* Top Section with gradient */}
+                              <div className="bg-gradient-to-br from-indigo-500/10 to-blue-500/10 p-4 border-b border-border/50">
+                                <div className="flex items-start gap-4">
+                                  {student.photo_url ? (
+                                    <img
+                                      src={student.photo_url}
+                                      alt={student.full_name}
+                                      className="w-16 h-16 rounded-xl object-cover border-2 border-white shadow-md"
+                                    />
+                                  ) : (
+                                    <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-indigo-500 to-blue-600 flex items-center justify-center border-2 border-white shadow-md">
+                                      <span className="text-xl font-bold text-white">{student.full_name?.charAt(0) || '?'}</span>
+                                    </div>
+                                  )}
+                                  <div className="flex-1 min-w-0">
+                                    <div className="flex items-center gap-2 mb-1">
+                                      <h3 className="text-base font-bold text-foreground truncate">{student.full_name}</h3>
+                                      {student.is_approved && (
+                                        <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                                      )}
+                                    </div>
+                                    <Badge variant="secondary" className="text-xs font-mono mb-1">
+                                      {student.student_id_number}
+                                    </Badge>
+                                  </div>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="opacity-0 group-hover:opacity-100 transition-opacity rounded-lg h-8 w-8"
+                                    onClick={() => handleEditClick(student)}
+                                  >
+                                    <Edit className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                              </div>
+                              
+                              {/* Details Section */}
+                              <div className="p-4 space-y-2.5">
+                                <div className="flex items-center gap-2.5 text-sm text-foreground/80">
+                                  <Phone className="h-4 w-4 text-muted-foreground" />
+                                  <span className="font-medium">{student.contact_number || 'No contact'}</span>
+                                </div>
+                                <div className="flex items-center gap-2.5 text-sm text-foreground/80">
+                                  <Mail className="h-4 w-4 text-muted-foreground" />
+                                  <span className="font-medium truncate">{getStudentEmail(student)}</span>
+                                </div>
+                                {student.address && (
+                                  <div className="flex items-start gap-2.5 text-sm text-foreground/80">
+                                    <MapPin className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                                    <span className="font-medium line-clamp-2">{student.address}</span>
+                                  </div>
+                                )}
+                                
+                                {/* View Location Button */}
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => setLocationStudent(student)}
+                                  className="w-full mt-2 gap-2 rounded-lg border-blue-200 text-blue-600 hover:bg-blue-50 hover:text-blue-700"
+                                >
+                                  <Navigation className="h-4 w-4" />
+                                  View Live Location
+                                </Button>
+                                
+                                {/* Approval Buttons */}
+                                {!student.is_approved && (
+                                  <div className="flex gap-2 pt-3 mt-3 border-t border-border/50">
+                                    <Button
+                                      size="sm"
+                                      onClick={() => handleApprove(student.id)}
+                                      className="flex-1 rounded-lg gap-1.5 bg-green-500 hover:bg-green-600 font-semibold"
+                                    >
+                                      <CheckCircle className="h-4 w-4" />
+                                      Approve
+                                    </Button>
+                                    <Button
+                                      size="sm"
+                                      variant="destructive"
+                                      onClick={() => handleReject(student)}
+                                      className="flex-1 rounded-lg gap-1.5 font-semibold"
+                                    >
+                                      <XCircle className="h-4 w-4" />
+                                      Reject
+                                    </Button>
+                                  </div>
+                                )}
+
+                                {/* Delete Button for approved students */}
+                                {student.is_approved && (
+                                  <div className="flex gap-2 pt-3 mt-3 border-t border-border/50">
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      onClick={() => setDeleteConfirm(student)}
+                                      className="w-full rounded-lg gap-1.5 text-destructive hover:text-destructive hover:bg-destructive/10 font-semibold"
+                                    >
+                                      <Trash2 className="h-4 w-4" />
+                                      Delete Student
+                                    </Button>
+                                  </div>
+                                )}
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
                     </div>
                   )}
-                  {/* Top Section with gradient */}
-                  <div className="bg-gradient-to-br from-indigo-500/10 to-blue-500/10 p-4 border-b border-border/50">
-                    <div className="flex items-start gap-4">
-                      {student.photo_url ? (
-                        <img
-                          src={student.photo_url}
-                          alt={student.full_name}
-                          className="w-16 h-16 rounded-xl object-cover border-2 border-white shadow-md"
-                        />
-                      ) : (
-                        <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-indigo-500 to-blue-600 flex items-center justify-center border-2 border-white shadow-md">
-                          <span className="text-xl font-bold text-white">{student.full_name.charAt(0)}</span>
-                        </div>
-                      )}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                          <h3 className="font-bold text-foreground truncate">{student.full_name}</h3>
-                          {student.is_approved && (
-                            <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                          )}
-                        </div>
-                        <Badge variant="secondary" className="text-xs font-mono">
-                          {student.student_id_number}
-                        </Badge>
-                        <p className="text-sm text-muted-foreground mt-1">{student.course}</p>
-                      </div>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="opacity-0 group-hover:opacity-100 transition-opacity rounded-lg h-8 w-8"
-                        onClick={() => handleEditClick(student)}
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                  
-                  {/* Details Section */}
-                  <div className="p-4 space-y-2">
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <Phone className="h-3.5 w-3.5" />
-                      <span>{student.contact_number}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <Mail className="h-3.5 w-3.5" />
-                      <span className="truncate">{getStudentEmail(student.student_id_number)}</span>
-                    </div>
-                    {student.address && (
-                      <div className="flex items-start gap-2 text-sm text-muted-foreground">
-                        <MapPin className="h-3.5 w-3.5 mt-0.5 flex-shrink-0" />
-                        <span className="line-clamp-2">{student.address}</span>
-                      </div>
-                    )}
-                    
-                    {/* Approval Buttons */}
-                    {!student.is_approved && (
-                      <div className="flex gap-2 pt-3 mt-3 border-t border-border/50">
-                        <Button
-                          size="sm"
-                          onClick={() => handleApprove(student.id)}
-                          className="flex-1 rounded-lg gap-1 bg-green-500 hover:bg-green-600"
-                        >
-                          <CheckCircle className="h-4 w-4" />
-                          Approve
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="destructive"
-                          onClick={() => handleReject(student.id)}
-                          className="flex-1 rounded-lg gap-1"
-                        >
-                          <XCircle className="h-4 w-4" />
-                          Reject
-                        </Button>
-                      </div>
-                    )}
-
-                    {/* Delete Button for approved students */}
-                    {student.is_approved && (
-                      <div className="flex gap-2 pt-3 mt-3 border-t border-border/50">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => setDeleteConfirm(student)}
-                          className="w-full rounded-lg gap-1 text-destructive hover:text-destructive hover:bg-destructive/10"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                          Delete Student
-                        </Button>
-                      </div>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                </div>
+              );
+            })}
           </div>
         )}
       </main>
@@ -494,6 +659,13 @@ const StudentsList = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Student Location Dialog */}
+      <StudentLocationDialog
+        student={locationStudent}
+        open={!!locationStudent}
+        onOpenChange={(open) => !open && setLocationStudent(null)}
+      />
     </div>
   );
 };

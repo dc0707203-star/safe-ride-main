@@ -2,7 +2,24 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    
+    <!-- Security: Content Security Policy -->
+    <meta http-equiv="Content-Security-Policy" 
+      content="default-src 'self'; 
+               script-src 'self' 'wasm-unsafe-eval'; 
+               style-src 'self' 'unsafe-inline'; 
+               img-src 'self' data: https:; 
+               font-src 'self' data:; 
+               connect-src 'self' https: wss: https://bsvqdfgqjcypzaafocji.supabase.co wss://bsvqdfgqjcypzaafocji.supabase.co https://maps.googleapis.com https://fcm.googleapis.com;
+               base-uri 'self';
+               form-action 'self';
+               upgrade-insecure-requests;">
+    
+    <!-- Security: Additional Headers -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
 
     <title>ISU Emergency System - Student Safety & Transportation Monitoring</title>
     <meta name="description" content="Comprehensive safety and transportation monitoring system for Isabela State University students with real-time tracking and emergency alerts." />

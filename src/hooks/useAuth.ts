@@ -9,40 +9,84 @@ export const useAuth = () => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [userRole, setUserRole] = useState<AppRole | null>(null);
+  const [userRoles, setUserRoles] = useState<AppRole[]>([]);
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Set up auth state listener FIRST
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
+    let isMounted = true;
 
-        // Defer role fetch with setTimeout to avoid deadlock
-        if (session?.user) {
-          setTimeout(() => {
-            fetchUserRole(session.user.id);
-          }, 0);
+    // Restore session from storage immediately
+    const restoreSession = async () => {
+      try {
+        console.log("[useAuth] Attempting to restore session...");
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (!isMounted) return;
+
+        if (error) {
+          console.error("[useAuth] Error getting session:", error);
+          setSession(null);
+          setUser(null);
+          setUserRole(null);
+          setLoading(false);
+          return;
+        }
+
+        if (session && session.user) {
+          console.log("[useAuth] Session restored from storage:", session.user?.email);
+          setSession(session);
+          setUser(session.user ?? null);
+          // Fetch role but don't set loading false yet - let fetchUserRole do it
+          await fetchUserRole(session.user.id);
         } else {
+          console.log("[useAuth] No session found in storage");
+          setUserRole(null);
+          setLoading(false);
+        }
+      } catch (error) {
+        console.error("[useAuth] Unexpected error restoring session:", error);
+        if (isMounted) {
           setUserRole(null);
           setLoading(false);
         }
       }
+    };
+
+    // Restore session first
+    restoreSession();
+
+    // Set up auth state listener to watch for changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        if (!isMounted) return;
+
+        console.log("[useAuth] Auth state change:", event, session?.user?.email);
+        
+        if (event === 'SIGNED_OUT' || session === null) {
+          console.log("[useAuth] User signed out");
+          setSession(null);
+          setUser(null);
+          setUserRole(null);
+          setUserRoles([]);
+          setLoading(false);
+          return;
+        }
+
+        if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+          setSession(session);
+          setUser(session?.user ?? null);
+          
+          if (session?.user) {
+            fetchUserRole(session.user.id);
+          }
+        }
+      }
     );
 
-    // THEN check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-
-      if (session?.user) {
-        fetchUserRole(session.user.id);
-      } else {
-        setLoading(false);
-      }
-    });
-
-    return () => subscription.unsubscribe();
+    return () => {
+      isMounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const fetchUserRole = async (userId: string) => {
@@ -61,7 +105,10 @@ export const useAuth = () => {
       }
 
       const roles = (data ?? []).map((r: any) => r.role as AppRole);
-      setUserRole(resolvePrimaryRole(roles));
+      const primaryRole = resolvePrimaryRole(roles);
+      console.log("[useAuth] User role resolved:", primaryRole);
+      setUserRole(primaryRole);
+      setUserRoles(roles);
     } catch (error) {
       console.error("Error fetching user role:", error);
       setUserRole(null);
@@ -92,6 +139,7 @@ export const useAuth = () => {
     session,
     loading,
     userRole,
+    userRoles,
     hasRole,
     requireRole,
   };

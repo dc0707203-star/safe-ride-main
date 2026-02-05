@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { ArrowLeft, QrCode, Phone, User, Edit, X, Check, Download, Car, UserPlus, Trash2 } from "lucide-react";
+import { ArrowLeft, QrCode, Phone, User, Edit, X, Check, Download, Car, UserPlus, Trash2, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -45,6 +45,7 @@ const DriversList = () => {
   const [showQRDialog, setShowQRDialog] = useState(false);
   const [driverToDelete, setDriverToDelete] = useState<any>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [expandedDriver, setExpandedDriver] = useState<string | null>(null);
 
   useEffect(() => {
     if (authLoading) return;
@@ -73,7 +74,7 @@ const DriversList = () => {
 
       if (error) throw error;
       setDrivers(data || []);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching drivers:', error);
       toast.error("Failed to load drivers: " + (error.message || 'Unknown error'));
     } finally {
@@ -81,7 +82,7 @@ const DriversList = () => {
     }
   };
 
-  const handleEditClick = (driver: any) => {
+  const handleEditClick = (driver: unknown) => {
     setEditingDriver(driver);
     setEditForm({
       full_name: driver.full_name || "",
@@ -97,7 +98,7 @@ const DriversList = () => {
 
     try {
       const { error } = await supabase
-        .from('drivers' as any)
+        .from('drivers' as unknown)
         .update({
           full_name: editForm.full_name,
           age: parseInt(editForm.age),
@@ -112,7 +113,7 @@ const DriversList = () => {
       toast.success("Driver updated successfully!");
       setEditingDriver(null);
       fetchDrivers();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error updating driver:', error);
       toast.error(error.message || "Failed to update driver");
     } finally {
@@ -121,6 +122,7 @@ const DriversList = () => {
   };
 
   const handleShowQR = (driver: any) => {
+    console.log('Showing QR for driver:', driver);
     setSelectedDriver(driver);
     setShowQRDialog(true);
   };
@@ -130,17 +132,25 @@ const DriversList = () => {
     setIsDeleting(true);
 
     try {
+      // Delete from drivers table
       const { error } = await supabase
-        .from('drivers' as any)
+        .from('drivers' as unknown)
         .delete()
         .eq('id', driverToDelete.id);
 
       if (error) throw error;
 
+      // Delete from auth if user_id exists
+      if (driverToDelete.user_id) {
+        await supabase.functions.invoke('delete-auth-user', {
+          body: { userId: driverToDelete.user_id }
+        });
+      }
+
       toast.success("Driver deleted successfully!");
       setDriverToDelete(null);
       fetchDrivers();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error deleting driver:', error);
       toast.error(error.message || "Failed to delete driver");
     } finally {
@@ -199,13 +209,10 @@ const DriversList = () => {
   }
 
   return (
-    <div 
-      className="min-h-screen bg-cover bg-center bg-fixed"
-      style={{ backgroundImage: `url(${campusBg})` }}
-    >
-      <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]" />
+    <div className="min-h-screen relative bg-gradient-to-br from-primary/5 via-background to-primary/10">
+      <div className="absolute inset-0 pointer-events-none" />
       {/* Header */}
-      <header className="relative z-10 bg-white/10 backdrop-blur-xl border-b border-white/20 sticky top-0 shadow-lg">
+      <header className="relative z-10 bg-white/80 backdrop-blur-sm border-b border-gray-200 sticky top-0 shadow">
         <div className="container mx-auto px-4 sm:px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -217,8 +224,8 @@ const DriversList = () => {
                   <Car className="h-6 w-6 text-white" />
                 </div>
                 <div>
-                  <h1 className="text-xl font-bold text-foreground">Drivers</h1>
-                  <p className="text-xs text-muted-foreground">{drivers.length} registered</p>
+                  <h1 className="text-xl font-bold text-gray-900">Drivers</h1>
+                  <p className="text-xs text-gray-600">{drivers.length} registered</p>
                 </div>
               </div>
             </div>
@@ -233,7 +240,7 @@ const DriversList = () => {
         </div>
       </header>
 
-      <main className="relative z-10 container mx-auto px-4 sm:px-6 py-6">
+      <main className="relative z-10 container mx-auto px-4 sm:px-6 py-6 max-w-7xl">
         {drivers.length === 0 ? (
           <Card className="text-center py-12 border-dashed">
             <CardContent>
@@ -247,66 +254,126 @@ const DriversList = () => {
             </CardContent>
           </Card>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
             {drivers.map((driver) => (
-              <Card key={driver.id} className="group hover:shadow-2xl transition-all duration-300 border-white/20 bg-white/10 backdrop-blur-xl overflow-hidden">
-                <CardContent className="p-0">
-                  {/* Top Section */}
-                  <div className="bg-gradient-to-br from-purple-500/10 to-violet-500/10 p-4 border-b border-border/50">
-                    <div className="flex items-start gap-4">
-                      {driver.photo_url ? (
-                        <img
-                          src={driver.photo_url}
-                          alt={driver.full_name}
-                          className="w-16 h-16 rounded-xl object-cover border-2 border-white shadow-md"
-                        />
-                      ) : (
-                        <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-purple-500 to-violet-600 flex items-center justify-center border-2 border-white shadow-md">
-                          <span className="text-xl font-bold text-white">{driver.full_name.charAt(0)}</span>
+              <Card key={driver.id} className="group hover:shadow-2xl transition-all duration-300 border-white/20 bg-white/10 backdrop-blur-xl overflow-hidden h-fit flex flex-col">
+                <CardContent className="p-0 flex flex-col h-full">
+                  {/* Compact Header */}
+                  <div className="bg-gradient-to-br from-purple-500/10 to-violet-500/10 p-3 border-b border-border/50 flex-shrink-0">
+                    <div className="flex items-center gap-3 justify-between">
+                      <div className="flex items-center gap-3 flex-1 min-w-0">
+                        {driver.photo_url ? (
+                          <img
+                            src={driver.photo_url}
+                            alt={driver.full_name}
+                            className="w-12 h-12 rounded-lg object-cover border-2 border-white shadow-md flex-shrink-0"
+                          />
+                        ) : (
+                          <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-purple-500 to-violet-600 flex items-center justify-center border-2 border-white shadow-md flex-shrink-0">
+                            <span className="text-sm font-bold text-white">{driver.full_name.charAt(0)}</span>
+                          </div>
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-bold text-foreground text-sm break-words">{driver.full_name}</h3>
+                          <Badge variant="outline" className="text-xs font-mono mt-0.5 bg-white/50 inline-block">
+                            {driver.tricycle_plate_number}
+                          </Badge>
                         </div>
-                      )}
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-bold text-foreground truncate">{driver.full_name}</h3>
-                        <Badge variant="outline" className="text-xs font-mono mt-1 bg-white/50">
-                          {driver.tricycle_plate_number}
-                        </Badge>
-                        <p className="text-sm text-muted-foreground mt-1">Age: {driver.age}</p>
                       </div>
-                      <div className="flex gap-1">
+                      <div className="flex gap-1 flex-shrink-0">
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="opacity-0 group-hover:opacity-100 transition-opacity rounded-lg h-8 w-8"
+                          className="opacity-0 group-hover:opacity-100 transition-opacity rounded-lg h-7 w-7"
                           onClick={() => handleEditClick(driver)}
+                          title="Edit driver"
                         >
-                          <Edit className="h-4 w-4" />
+                          <Edit className="h-3.5 w-3.5" />
                         </Button>
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="opacity-0 group-hover:opacity-100 transition-opacity rounded-lg h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+                          className="opacity-0 group-hover:opacity-100 transition-opacity rounded-lg h-7 w-7 text-destructive hover:text-destructive hover:bg-destructive/10"
                           onClick={() => setDriverToDelete(driver)}
+                          title="Delete driver"
                         >
-                          <Trash2 className="h-4 w-4" />
+                          <Trash2 className="h-3.5 w-3.5" />
                         </Button>
                       </div>
                     </div>
                   </div>
                   
-                  {/* Details Section */}
-                  <div className="p-4 space-y-3">
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <Phone className="h-3.5 w-3.5" />
-                      <span>{driver.contact_number}</span>
+                  {/* Essential Info - Always Visible */}
+                  <div className="p-3 space-y-2 flex-1 flex flex-col overflow-hidden">
+                    <div className="flex items-center gap-2 text-sm">
+                      <Phone className="h-3.5 w-3.5 flex-shrink-0 text-primary" />
+                      <span className="text-foreground font-medium break-all text-xs">{driver.contact_number}</span>
                     </div>
+                    
+                    {/* Progressive Disclosure */}
+                    <button
+                      onClick={() => setExpandedDriver(expandedDriver === driver.id ? null : driver.id)}
+                      className="w-full flex items-center justify-between text-xs font-semibold text-primary hover:text-primary/80 transition-colors py-1.5 border-t border-border/30 pt-2"
+                    >
+                      <span>{expandedDriver === driver.id ? 'Hide Details' : 'View Details'}</span>
+                      <ChevronDown 
+                        className={`h-3.5 w-3.5 transition-transform duration-200 ${
+                          expandedDriver === driver.id ? 'rotate-180' : ''
+                        }`}
+                      />
+                    </button>
+                    
+                    {/* Expanded Additional Info */}
+                    {expandedDriver === driver.id && (
+                      <div className="mt-2 space-y-2 pt-2 border-t border-border/30 bg-white/5 p-2.5 rounded-lg overflow-y-auto max-h-48">
+                        {driver.email && (
+                          <div className="text-sm">
+                            <span className="text-foreground font-bold">Email:</span>
+                            <div className="text-foreground break-all mt-0.5">{driver.email}</div>
+                          </div>
+                        )}
+                        {driver.age && (
+                          <div className="text-sm">
+                            <span className="text-foreground font-bold">Age:</span>
+                            <div className="text-foreground mt-0.5">{driver.age}</div>
+                          </div>
+                        )}
+                        {driver.valid_id_type && (
+                          <div className="text-sm">
+                            <span className="text-foreground font-bold">ID Type:</span>
+                            <div className="text-foreground mt-0.5">{driver.valid_id_type}</div>
+                            {driver.id_number && <div className="text-foreground">ID Number: {driver.id_number}</div>}
+                          </div>
+                        )}
+                        {driver.license_number && (
+                          <div className="text-sm">
+                            <span className="text-foreground font-bold">License Number:</span>
+                            <div className="text-foreground mt-0.5">{driver.license_number}</div>
+                          </div>
+                        )}
+                        {driver.license_type && (
+                          <div className="text-sm">
+                            <span className="text-foreground font-bold">License Type:</span>
+                            <div className="text-foreground mt-0.5">{driver.license_type}</div>
+                          </div>
+                        )}
+                        {driver.vehicle_type && (
+                          <div className="text-sm">
+                            <span className="text-foreground font-bold">Vehicle:</span>
+                            <div className="text-foreground mt-0.5">{driver.vehicle_type} {driver.vehicle_model && `- ${driver.vehicle_model}`} {driver.vehicle_year && `(${driver.vehicle_year})`}</div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                    
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={() => handleShowQR(driver)}
-                      className="w-full rounded-xl gap-2 h-10"
+                      className="w-full rounded-xl gap-2 h-9 mt-auto pt-2 text-xs flex-shrink-0"
                     >
-                      <QrCode className="h-4 w-4" />
-                      View QR Code
+                      <QrCode className="h-3.5 w-3.5" />
+                      QR Code
                     </Button>
                   </div>
                 </CardContent>
@@ -385,20 +452,28 @@ const DriversList = () => {
           {selectedDriver && (
             <div className="space-y-4 py-4">
               <div className="bg-white p-6 rounded-2xl border-2 border-dashed border-primary/20 inline-block">
-                <QRCode 
-                  id="driver-qr-code-list"
-                  value={selectedDriver.qr_code} 
-                  size={180} 
-                />
+                {selectedDriver.qr_code ? (
+                  <QRCode 
+                    id="driver-qr-code-list"
+                    value={selectedDriver.qr_code} 
+                    size={180} 
+                  />
+                ) : (
+                  <div className="w-[180px] h-[180px] flex items-center justify-center bg-gray-100 rounded">
+                    <p className="text-sm text-muted-foreground">QR Code not available</p>
+                  </div>
+                )}
               </div>
               <div>
                 <p className="font-bold text-lg">{selectedDriver.full_name}</p>
                 <p className="text-muted-foreground">Plate: {selectedDriver.tricycle_plate_number}</p>
               </div>
-              <Button onClick={downloadQRCode} className="gap-2 rounded-xl w-full h-11">
-                <Download className="h-4 w-4" />
-                Download QR Code
-              </Button>
+              {selectedDriver.qr_code && (
+                <Button onClick={downloadQRCode} className="gap-2 rounded-xl w-full h-11">
+                  <Download className="h-4 w-4" />
+                  Download QR Code
+                </Button>
+              )}
             </div>
           )}
         </DialogContent>

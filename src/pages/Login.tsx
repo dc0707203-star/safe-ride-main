@@ -1,215 +1,295 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { Shield, ArrowLeft, Users, Car, MapPin, Bell, Lock, CheckCircle } from "lucide-react";
+import { Shield, ArrowLeft, Users, Car, MapPin, Bell, Lock, CheckCircle, Zap, HelpCircle, User, Building2, Badge, Ambulance } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import LoginForm from "@/components/auth/LoginForm";
 import StudentAuthPanel from "@/components/auth/StudentAuthPanel";
+import PNPLoginForm from "@/components/auth/PNPLoginForm";
+import RescueLoginForm from "@/components/auth/RescueLoginForm";
 import { supabase } from "@/integrations/supabase/client";
+import isuLogo from "@/assets/isu-logo.png";
+import campusBg from "@/assets/campus-bg.jpeg";
 
 const Login = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const userType = (searchParams.get('type') as 'admin' | 'student') || 'student';
+  const [userType, setUserType] = useState<'admin' | 'student' | 'pnp' | 'rescue_admin'>('student');
+  const [adminType, setAdminType] = useState<'isu' | 'pnp' | 'rescue'>('isu');
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const checkUserAndRole = async () => {
       try {
+        // Check for active session
         const { data: { session } } = await supabase.auth.getSession();
-        if (!session?.user) return;
+        
+        if (session?.user) {
+          // User is already logged in - get their role and redirect
+          const { data: rolesData, error: rolesError } = await supabase
+            .from('user_roles')
+            .select('role')
+            .eq('user_id', session.user.id);
 
-        // A user can have multiple roles; resolve deterministically.
-        const { data: rolesData, error: rolesError } = await supabase
-          .from('user_roles')
-          .select('role')
-          .eq('user_id', session.user.id);
+          if (rolesError) throw rolesError;
 
-        if (rolesError) throw rolesError;
+          const roles = (rolesData ?? []).map((r: unknown) => r.role as 'admin' | 'student' | 'driver' | 'pnp' | 'rescue' | 'rescue_admin');
+          const primaryRole = roles.includes('admin')
+            ? 'admin'
+            : roles.includes('rescue_admin')
+              ? 'rescue_admin'
+              : roles.includes('pnp')
+                ? 'pnp'
+                : roles.includes('rescue')
+                  ? 'rescue'
+                  : roles.includes('driver')
+                    ? 'driver'
+                    : roles.includes('student')
+                      ? 'student'
+                      : null;
 
-        const roles = (rolesData ?? []).map((r: unknown) => r.role as 'admin' | 'student' | 'driver');
-        const primaryRole = roles.includes('admin')
-          ? 'admin'
-          : roles.includes('driver')
-            ? 'driver'
-            : roles.includes('student')
-              ? 'student'
-              : null;
-
-        if (primaryRole === 'admin') navigate('/admin');
-        else if (primaryRole === 'student') navigate('/student');
-        else if (primaryRole === 'driver') navigate('/');
-      } catch {
-        // No active session or role
+          // Redirect based on role
+          if (primaryRole === 'admin') navigate('/admin', { replace: true });
+          else if (primaryRole === 'rescue_admin') navigate('/rescue-admin', { replace: true });
+          else if (primaryRole === 'pnp') navigate('/pnp', { replace: true });
+          else if (primaryRole === 'rescue') navigate('/rescue', { replace: true });
+          else if (primaryRole === 'student') navigate('/student', { replace: true });
+          else if (primaryRole === 'driver') navigate('/', { replace: true });
+          return;
+        }
+      } catch (error) {
+        console.error('Error checking session:', error);
       }
+      
+      // No active session - show login form
+      const requestedType = searchParams.get('type') as 'admin' | 'student' | 'pnp' | 'rescue_admin' || 'student';
+      setUserType(requestedType);
+      if (requestedType === 'pnp') setAdminType('pnp');
+      else if (requestedType === 'admin') setAdminType('isu');
+      setIsLoading(false);
     };
 
-    checkUserAndRole();
-  }, [navigate]);
+    // Also set up auth state listener for real-time redirect after login
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_IN' && session?.user) {
+        // User just logged in - redirect immediately
+        checkUserAndRole();
+      }
+    });
 
-  const isAdmin = userType === 'admin';
+    checkUserAndRole();
+
+    return () => subscription?.unsubscribe();
+  }, [navigate, searchParams]);
+
+  const isAdmin = userType === 'admin' || userType === 'rescue_admin';
+  const isPNP = userType === 'pnp';
+
+  // Show loading while checking session
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex flex-col items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-4 border-[#CCFF00]/30 border-t-[#CCFF00] rounded-full animate-spin" />
+          <p className="text-[#CCFF00] font-semibold">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row">
-      {/* Left Panel - Branding (visible on laptop/desktop) */}
-      <div className={`hidden lg:flex lg:w-1/2 xl:w-3/5 relative overflow-hidden ${
-        isAdmin 
-          ? 'bg-gradient-to-br from-primary via-primary/90 to-primary/80' 
-          : 'bg-gradient-to-br from-green-700 via-green-800 to-green-900'
-      }`}>
-        {/* Background Pattern */}
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute inset-0" style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-          }} />
-        </div>
+    <div 
+      className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex flex-col items-center justify-center p-4 overflow-y-auto bg-fixed bg-cover bg-center landscape:flex-row landscape:max-h-screen"
+      style={{ backgroundImage: `linear-gradient(135deg, rgba(15,23,42,0.9) 0%, rgba(30,41,59,0.9) 50%, rgba(0,0,0,0.9) 100%), url('${campusBg}')` }}
+    >
+      {/* Main Content Container */}
+      <div className="relative z-10 w-full max-w-md landscape:max-w-sm landscape:h-screen landscape:flex landscape:flex-col landscape:justify-center">
+        {userType === 'student' ? (
+          <>
+            {/* Back Button */}
+            <div className="mb-8">
+              <Button
+                onClick={() => navigate("/")}
+                variant="ghost"
+                size="icon"
+                className="text-[#CCFF00] hover:bg-[#CCFF00]/10 hover:text-[#CCFF00]"
+              >
+                <ArrowLeft className="h-6 w-6" />
+              </Button>
+            </div>
 
-        {/* Content */}
-        <div className="relative z-10 flex flex-col justify-center px-12 xl:px-20 py-12 text-white">
-          <div className="max-w-lg">
-            {/* Logo */}
-            <div className="flex items-center gap-3 mb-8">
-              <div className="p-3 bg-white/20 rounded-xl backdrop-blur-sm">
-                <Shield className="h-10 w-10" />
+            {/* Header */}
+            <div className="mb-12 md:mb-16 landscape:mb-6 animate-fade-in">
+              <div className="flex items-center justify-center gap-4 mb-6">
+                <div className="bg-gradient-to-br from-[#CCFF00] via-lime-300 to-green-400 p-3.5 rounded-2xl shadow-[0_0_30px_rgba(204,255,0,0.6)]">
+                  <img src={isuLogo} alt="ISU Logo" className="h-12 w-12" />
+                </div>
               </div>
-              <div>
-                <h1 className="text-2xl font-bold">ISU Emergency System</h1>
-                <p className="text-white/80 text-sm">
-                  {isAdmin ? 'Administrative Portal' : 'Student Safety Portal'}
-                </p>
+              <div className="text-center">
+                <h1 className="text-4xl md:text-5xl landscape:text-3xl font-black bg-gradient-to-r from-[#CCFF00] via-lime-300 to-green-400 bg-clip-text text-transparent mb-2">
+                  SafeRide
+                </h1>
+                <p className="text-white/70 text-base font-semibold tracking-wide">STUDENT PORTAL</p>
               </div>
             </div>
 
-            {/* Title */}
-            <h2 className="text-4xl xl:text-5xl font-bold mb-6 leading-tight">
-              {isAdmin 
-                ? 'Manage Campus Safety with Confidence' 
-                : 'Your Safety is Our Priority'}
-            </h2>
-            <p className="text-lg text-white/90 mb-10">
-              {isAdmin 
-                ? 'Monitor students, manage drivers, and respond to emergencies in real-time from a unified dashboard.'
-                : 'Access emergency services, track your rides, and stay connected with campus security.'}
-            </p>
-
-            {/* Features */}
-            <div className="space-y-4">
-              {isAdmin ? (
-                <>
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-white/20 rounded-lg">
-                      <Users className="h-5 w-5" />
-                    </div>
-                    <span>Manage students and drivers</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-white/20 rounded-lg">
-                      <MapPin className="h-5 w-5" />
-                    </div>
-                    <span>Real-time location tracking</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-white/20 rounded-lg">
-                      <Bell className="h-5 w-5" />
-                    </div>
-                    <span>Instant emergency alerts</span>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-white/20 rounded-lg">
-                      <CheckCircle className="h-5 w-5" />
-                    </div>
-                    <span>One-tap SOS emergency button</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-white/20 rounded-lg">
-                      <Car className="h-5 w-5" />
-                    </div>
-                    <span>Scan driver QR codes before boarding</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-white/20 rounded-lg">
-                      <Lock className="h-5 w-5" />
-                    </div>
-                    <span>Secure and encrypted communication</span>
-                  </div>
-                </>
-              )}
+            {/* Main Content Card */}
+            <div className="relative mb-8 landscape:mb-4 group cursor-pointer transition-all duration-500">
+          <div className="absolute inset-0 bg-gradient-to-r from-[#CCFF00]/30 to-green-400/30 rounded-3xl blur-3xl opacity-0 md:group-hover:opacity-100 transition-all duration-500" />
+          <div className="relative bg-white md:bg-gradient-to-br md:from-white/10 md:via-white/5 md:to-transparent border border-white/15 rounded-3xl p-6 md:p-10 landscape:p-6 md:backdrop-blur-2xl md:shadow-2xl hover:md:shadow-[0_0_60px_rgba(204,255,0,0.3),0_20px_40px_rgba(204,255,0,0.1)] transition-all duration-500 transform md:group-hover:-translate-y-2 landscape:md:group-hover:-translate-y-1">
+                <div className="absolute inset-0 bg-gradient-to-br from-[#CCFF00]/10 to-transparent rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <div className="relative z-10">
+                  <StudentAuthPanel />
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
 
-        {/* Decorative circles */}
-        <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-white/10 rounded-full" />
-        <div className="absolute -top-20 -right-20 w-64 h-64 bg-white/5 rounded-full" />
-      </div>
-
-      {/* Right Panel - Login Form */}
-      <div className={`flex-1 flex flex-col min-h-screen ${
-        isAdmin 
-          ? 'bg-gradient-to-br from-primary/5 via-background to-primary/10' 
-          : 'bg-gradient-to-br from-green-50 via-white to-emerald-50'
-      }`}>
-        {/* Mobile Header */}
-        <div className={`lg:hidden p-4 ${
-          isAdmin ? 'bg-primary' : 'bg-green-800'
-        } text-white`}>
-          <div className="flex items-center justify-between">
-            <Button
-              variant="ghost"
-              className="text-white hover:bg-white/10 p-2"
-              onClick={() => navigate('/')}
-            >
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-            <div className="flex items-center gap-2">
-              <Shield className="h-6 w-6" />
-              <span className="font-semibold">ISU Emergency</span>
+            {/* Footer */}
+            <div className="text-center text-white/50 text-xs landscape:hidden">
+              <p>© 2025 SafeRide ISU. All rights reserved.</p>
             </div>
-            <div className="w-10" /> {/* Spacer */}
-          </div>
-        </div>
-
-        {/* Desktop Back Button */}
-        <div className="hidden lg:block p-6">
-          <Button
-            variant="ghost"
-            className="gap-2 text-muted-foreground hover:text-foreground"
-            onClick={() => navigate('/')}
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back to Home
-          </Button>
-        </div>
-
-        {/* Form Container */}
-        <div className="flex-1 flex items-center justify-center p-6">
-          <div className="w-full max-w-md">
+          </>
+        ) : (
+          <>
             {/* Desktop Title */}
             <div className="hidden lg:block text-center mb-8">
-              <h2 className="text-2xl font-bold text-foreground mb-2">
-                {isAdmin ? 'Admin Sign In' : 'Student Sign In'}
+              <h2 className="text-4xl font-bold bg-gradient-to-r from-primary via-primary to-primary/80 bg-clip-text text-transparent mb-2">
+                Admin & Officer Portal
               </h2>
-              <p className="text-muted-foreground">
-                {isAdmin 
-                  ? 'Access the administrative dashboard' 
-                  : 'Enter your credentials to continue'}
-              </p>
+              <div className="h-1 w-24 bg-gradient-to-r from-primary to-primary/60 mx-auto rounded-full" />
             </div>
 
-            {userType === 'student' ? (
-              <StudentAuthPanel />
-            ) : (
-              <LoginForm userType="admin" />
-            )}
-          </div>
-        </div>
+            {/* Admin/PNP Login Card - Unified */}
+            <div className="bg-white rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 backdrop-blur-sm overflow-hidden border border-slate-100">
+              {/* Admin Type Selector */}
+              <div className="flex border-b border-slate-200">
+                <button
+                  onClick={() => setAdminType('isu')}
+                  className={`flex-1 py-4 px-6 font-semibold flex items-center justify-center gap-2 transition-all duration-200 ${
+                    adminType === 'isu'
+                      ? 'bg-gradient-to-r from-primary to-primary/90 text-white border-b-2 border-primary'
+                      : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
+                  }`}
+                >
+                  <Building2 className="h-5 w-5" />
+                  ISU Admin
+                </button>
+                <button
+                  onClick={() => setAdminType('pnp')}
+                  className={`flex-1 py-4 px-6 font-semibold flex items-center justify-center gap-2 transition-all duration-200 ${
+                    adminType === 'pnp'
+                      ? 'bg-gradient-to-r from-blue-700 to-blue-600 text-white border-b-2 border-blue-700'
+                      : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
+                  }`}
+                >
+                  <Shield className="h-5 w-5" />
+                  PNP Admin
+                </button>
+                <button
+                  onClick={() => setAdminType('rescue')}
+                  className={`flex-1 py-4 px-6 font-semibold flex items-center justify-center gap-2 transition-all duration-200 ${
+                    adminType === 'rescue'
+                      ? 'bg-gradient-to-r from-red-700 to-orange-600 text-white border-b-2 border-red-700'
+                      : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
+                  }`}
+                >
+                  <Ambulance className="h-5 w-5" />
+                  Rescue Admin
+                </button>
+              </div>
 
-        {/* Footer */}
-        <div className="p-6 text-center text-sm text-muted-foreground">
-          © 2025 Isabela State University. All rights reserved.
-        </div>
+              {/* Login Form Content */}
+              <div className="grid grid-cols-1 md:grid-cols-2 min-h-56">
+                {/* Left Side - Branding & Info */}
+                <div className={`p-5 lg:p-6 flex flex-col justify-center items-start border-b md:border-b-0 md:border-r border-slate-100 ${
+                  adminType === 'isu'
+                    ? 'bg-gradient-to-br from-primary/15 via-primary/10 to-primary/5'
+                    : adminType === 'pnp'
+                    ? 'bg-gradient-to-br from-blue-700/15 via-blue-700/10 to-blue-700/5'
+                    : 'bg-gradient-to-br from-red-700/15 via-red-700/10 to-red-700/5'
+                }`}>
+                  {/* Security Badge */}
+                  <div className={`flex items-center gap-1.5 px-2 py-0.5 border rounded-full w-fit mb-3 ${
+                    adminType === 'isu'
+                      ? 'bg-green-50 border-green-200'
+                      : adminType === 'pnp'
+                      ? 'bg-blue-50 border-blue-200'
+                      : 'bg-red-50 border-red-200'
+                  }`}>
+                    <CheckCircle className={`h-3 w-3 ${
+                      adminType === 'isu'
+                        ? 'text-green-600'
+                        : adminType === 'pnp'
+                        ? 'text-blue-600'
+                        : 'text-red-600'
+                    }`} />
+                    <span className={`text-xs font-semibold ${
+                      adminType === 'isu'
+                        ? 'text-green-700'
+                        : adminType === 'pnp'
+                        ? 'text-blue-700'
+                        : 'text-red-700'
+                    }`}>Secure Connection</span>
+                  </div>
+
+                  {/* Logo */}
+                  <div className="mb-2">
+                    <img src={isuLogo} alt="ISU Logo" className="h-12 w-12 rounded-full object-cover shadow-lg" />
+                  </div>
+
+                  {/* Header */}
+                  <div>
+                    <h3 className="text-xl font-bold text-slate-900 mb-0.5">
+                      {adminType === 'isu' 
+                        ? 'ISU Admin Dashboard' 
+                        : adminType === 'pnp'
+                        ? 'PNP Command Center'
+                        : 'Rescue Admin Panel'}
+                    </h3>
+                    <p className="text-xs text-slate-600 font-medium">
+                      {adminType === 'isu' 
+                        ? 'Secure Campus Access'
+                        : adminType === 'pnp'
+                        ? 'Police Operations'
+                        : 'Emergency Response'}
+                    </p>
+                    <div className={`h-0.5 w-8 rounded-full mt-1.5 ${
+                      adminType === 'isu'
+                        ? 'bg-gradient-to-r from-primary to-primary/60'
+                        : adminType === 'pnp'
+                        ? 'bg-gradient-to-r from-blue-700 to-blue-600'
+                        : 'bg-gradient-to-r from-red-700 to-orange-600'
+                    }`} />
+                  </div>
+                </div>
+
+                {/* Right Side - Login Form */}
+                <div className="p-5 lg:p-6 flex flex-col justify-start bg-gradient-to-br from-white via-slate-50/30 to-white">
+                  {adminType === 'isu' ? (
+                    <LoginForm userType="admin" />
+                  ) : adminType === 'pnp' ? (
+                    <PNPLoginForm />
+                  ) : (
+                    <RescueLoginForm />
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Help Link */}
+            <div className="flex justify-center mt-6">
+              <Button
+                variant="ghost"
+                className="gap-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-all duration-200 text-sm"
+                onClick={() => navigate('/help')}
+              >
+                <HelpCircle className="h-4 w-4" />
+                Need Help?
+              </Button>
+            </div>
+          </>
+        )}
       </div>
+
     </div>
   );
 };
