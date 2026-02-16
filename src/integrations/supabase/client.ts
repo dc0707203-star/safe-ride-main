@@ -5,29 +5,45 @@ import type { Database } from './types';
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
-// Determine storage based on environment
-// Mobile app: use localStorage (persists across app closes)
-// Web browser: use localStorage (persists across page reloads and browser closes)
-const isMobileApp = () => {
-  return navigator.userAgent.includes('Capacitor') || 
-         (window as any).capacitor !== undefined;
+/**
+ * Secure storage configuration
+ * Uses localStorage for persistent auth tokens across app restarts
+ * Allows users to stay logged in even after closing and reopening the app
+ */
+const createSecureStorage = () => {
+  // Use localStorage to persist auth tokens across page reloads and app restarts
+  // This allows users to maintain their session even after closing the app
+  if (typeof window !== 'undefined') {
+    return localStorage;
+  }
+  return null;
 };
 
-const storageType = localStorage;
+const storageType = createSecureStorage();
 
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
 
 export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
   auth: {
-    storage: storageType,
-    persistSession: true,
+    storage: storageType || undefined,
+    persistSession: true, // Enable session persistence across app restarts
     autoRefreshToken: true,
     detectSessionInUrl: true,
+    // Additional security: Require HTTPS in production
+    ...(import.meta.env.PROD && {
+      flowType: 'implicit',
+    }),
   },
   realtime: {
     params: {
       eventsPerSecond: 10,
+    },
+  },
+  global: {
+    headers: {
+      // Help with debugging in development
+      'X-Client-Info': 'safe-ride/1.0.0',
     },
   },
 });

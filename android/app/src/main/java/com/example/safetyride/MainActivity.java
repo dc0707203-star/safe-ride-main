@@ -154,7 +154,7 @@ public class MainActivity extends BridgeActivity {
                 );
             }
             
-            // Clear the pending flag
+
             prefs.edit().putBoolean("pending_sos", false).apply();
         }
     }

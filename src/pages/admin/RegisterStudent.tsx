@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { validateStudentRegistration } from "@/lib/validators";
 import { useIsMobile } from "@/hooks/use-mobile";
 import campusBg from "@/assets/campus-bg.jpeg";
 import isuLogo from "@/assets/isu-logo.png";
@@ -68,31 +69,49 @@ const RegisterStudent = () => {
     password: "",
   });
 
-  const generatePassword = () => {
+  // Cryptographically secure password generation
+  const generatePassword = (): string => {
     const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
     const lowercase = 'abcdefghijklmnopqrstuvwxyz';
     const numbers = '0123456789';
     const symbols = '!@#$%^&*';
     const length = 16;
     const allChars = uppercase + lowercase + numbers + symbols;
-    
+
+    // Use crypto.getRandomValues for cryptographically secure randomness
+    const randomArray = new Uint8Array(length);
+    crypto.getRandomValues(randomArray);
+
     let password = '';
+    
     // Ensure at least one character from each category
-    password += uppercase[Math.floor(Math.random() * uppercase.length)];
-    password += lowercase[Math.floor(Math.random() * lowercase.length)];
-    password += numbers[Math.floor(Math.random() * numbers.length)];
-    password += symbols[Math.floor(Math.random() * symbols.length)];
-    
-    // Fill the rest randomly
+    password += uppercase[randomArray[0] % uppercase.length];
+    password += lowercase[randomArray[1] % lowercase.length];
+    password += numbers[randomArray[2] % numbers.length];
+    password += symbols[randomArray[3] % symbols.length];
+
+    // Fill the rest with secure random characters
     for (let i = 4; i < length; i++) {
-      password += allChars[Math.floor(Math.random() * allChars.length)];
+      password += allChars[randomArray[i] % allChars.length];
     }
-    
-    // Shuffle the password
-    password = password.split('').sort(() => Math.random() - 0.5).join('');
-    
-    setFormData({ ...formData, password });
-    setGeneratedPassword(password);
+
+    // Secure Fisher-Yates shuffle using crypto.getRandomValues
+    const chars = password.split('');
+    const shuffleArray = new Uint8Array(length);
+    crypto.getRandomValues(shuffleArray);
+
+    for (let i = chars.length - 1; i > 0; i--) {
+      const j = shuffleArray[i] % (i + 1);
+      [chars[i], chars[j]] = [chars[j], chars[i]];
+    }
+
+    return chars.join('');
+  };
+
+  const handleGeneratePassword = () => {
+    const securePassword = generatePassword();
+    setFormData({ ...formData, password: securePassword });
+    setGeneratedPassword(securePassword);
     toast.success("Secure password generated! Password will be sent to student's email after registration.");
   };
 
@@ -111,8 +130,18 @@ const RegisterStudent = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.password || formData.password.length < 6) {
-      toast.error("Password must be at least 6 characters. Click 'Generate' to create one.");
+    // Validate all form fields
+    const validation = validateStudentRegistration({
+      fullName: formData.fullName,
+      studentIdNumber: formData.studentIdNumber,
+      password: formData.password,
+      contactNumber: formData.contactNumber,
+    });
+
+    if (!validation.isValid) {
+      validation.errors.forEach(error => {
+        toast.error(`${error.field}: ${error.message}`);
+      });
       return;
     }
     
@@ -382,7 +411,7 @@ const RegisterStudent = () => {
                   <Button 
                     type="button" 
                     variant="outline" 
-                    onClick={generatePassword}
+                    onClick={handleGeneratePassword}
                     className="h-10 sm:h-11 rounded-xl px-3 sm:px-4 gap-1 sm:gap-2 border-green-200 hover:bg-green-50 hover:border-green-300 text-xs sm:text-sm"
                   >
                     <Sparkles className="h-4 w-4 text-green-600" />

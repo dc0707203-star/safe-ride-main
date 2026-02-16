@@ -57,19 +57,67 @@ const EmergencyAlerts = () => {
 
   const fetchAlerts = useCallback(async () => {
     try {
-      const { data, error } = await supabase
+      // Fetch alerts first
+      const { data: alertsData, error: alertsError } = await supabase
         .from("alerts" as any)
-        .select(
-          `
-          *,
-          students(full_name, student_id_number, photo_url, contact_number),
-          drivers(full_name, tricycle_plate_number, contact_number)
-        `
-        )
+        .select("*")
         .order("created_at", { ascending: false }) as { data: any[]; error: any };
 
-      if (error) throw error;
-      setAlerts(data || []);
+      if (alertsError) throw alertsError;
+
+      if (!alertsData || alertsData.length === 0) {
+        setAlerts([]);
+        return;
+      }
+
+      // Get unique student_ids and driver_ids
+      const studentIds = [...new Set(alertsData.map(a => a.student_id).filter(Boolean))];
+      const driverIds = [...new Set(alertsData.map(a => a.driver_id).filter(Boolean))];
+
+      // Fetch student data separately
+      let studentDataMap: { [key: string]: any } = {};
+      if (studentIds.length > 0) {
+        const { data: studentsData, error: studentsError } = await supabase
+          .from("students")
+          .select("id, full_name, student_id_number, photo_url, contact_number")
+          .in("id", studentIds);
+
+        if (studentsError) {
+          console.warn("Failed to fetch student data:", studentsError);
+        } else {
+          studentDataMap = (studentsData || []).reduce((acc, student) => {
+            acc[student.id] = student;
+            return acc;
+          }, {});
+        }
+      }
+
+      // Fetch driver data separately
+      let driverDataMap: { [key: string]: any } = {};
+      if (driverIds.length > 0) {
+        const { data: driversData, error: driversError } = await supabase
+          .from("drivers")
+          .select("id, full_name, tricycle_plate_number, contact_number")
+          .in("id", driverIds);
+
+        if (driversError) {
+          console.warn("Failed to fetch driver data:", driversError);
+        } else {
+          driverDataMap = (driversData || []).reduce((acc, driver) => {
+            acc[driver.id] = driver;
+            return acc;
+          }, {});
+        }
+      }
+
+      // Merge the data
+      const alertsWithData = alertsData.map(alert => ({
+        ...alert,
+        students: studentDataMap[alert.student_id] || null,
+        drivers: driverDataMap[alert.driver_id] || null,
+      }));
+
+      setAlerts(alertsWithData);
     } catch (error: any) {
       console.error("Fetch alerts error:", error);
       toast.error("Failed to load alerts");
@@ -90,7 +138,7 @@ const EmergencyAlerts = () => {
           schema: "public",
           table: "alerts",
         },
-        (payload) => {
+        async (payload) => {
           console.log("🚨 NEW EMERGENCY ALERT RECEIVED!", payload);
 
           if (!isSoundMuted) {
@@ -103,7 +151,29 @@ const EmergencyAlerts = () => {
             description: "A student needs immediate help!",
           });
 
-          setAlerts((prev) => [payload.new as any, ...prev]);
+          // Fetch the full alert data with student/driver relations
+          try {
+            const { data: fullAlert } = await supabase
+              .from("alerts" as any)
+              .select(
+                `
+                *,
+                students(full_name, student_id_number, photo_url, contact_number),
+                drivers(full_name, tricycle_plate_number, contact_number)
+              `
+              )
+              .eq("id", payload.new.id)
+              .single();
+
+            if (fullAlert) {
+              setAlerts((prev) => [fullAlert as any, ...prev]);
+            } else {
+              setAlerts((prev) => [payload.new as any, ...prev]);
+            }
+          } catch (error) {
+            console.error("Error fetching full alert data:", error);
+            setAlerts((prev) => [payload.new as any, ...prev]);
+          }
         }
       )
       .on(
@@ -128,11 +198,11 @@ const EmergencyAlerts = () => {
   }, [fetchAlerts, startSiren, stopSiren, isSoundMuted]);
 
   const getAlertColor = (level: string) => {
-    switch(level?.toLowerCase()) {
-      case 'critical': return { border: 'border-red-500', bg: 'from-red-500/20 to-red-600/10', text: 'text-red-400', badge: 'bg-red-500/80' };
-      case 'high': return { border: 'border-orange-500', bg: 'from-orange-500/20 to-orange-600/10', text: 'text-orange-400', badge: 'bg-orange-500/80' };
-      case 'medium': return { border: 'border-yellow-500', bg: 'from-yellow-500/20 to-yellow-600/10', text: 'text-yellow-400', badge: 'bg-yellow-500/80' };
-      default: return { border: 'border-blue-500', bg: 'from-blue-500/20 to-blue-600/10', text: 'text-blue-400', badge: 'bg-blue-500/80' };
+    switch (level?.toLowerCase()) {
+      case 'critical': return { border: 'border-red-500', bg: 'bg-white', text: 'text-red-600', badge: 'bg-red-500' };
+      case 'high': return { border: 'border-orange-500', bg: 'bg-white', text: 'text-orange-600', badge: 'bg-orange-500' };
+      case 'medium': return { border: 'border-yellow-500', bg: 'bg-white', text: 'text-yellow-600', badge: 'bg-yellow-500' };
+      default: return { border: 'border-blue-500', bg: 'bg-white', text: 'text-blue-600', badge: 'bg-blue-500' };
     }
   };
 
@@ -179,13 +249,13 @@ const EmergencyAlerts = () => {
     total: alerts.length,
     active: activeAlerts.length,
     resolved: resolvedAlerts.length,
-    avgResponseTime: resolvedAlerts.length > 0 
+    avgResponseTime: resolvedAlerts.length > 0
       ? Math.round(resolvedAlerts.reduce((sum, a) => {
-          if (a.resolved_at) {
-            return sum + (new Date(a.resolved_at).getTime() - new Date(a.created_at).getTime());
-          }
-          return sum;
-        }, 0) / resolvedAlerts.length / 1000)
+        if (a.resolved_at) {
+          return sum + (new Date(a.resolved_at).getTime() - new Date(a.created_at).getTime());
+        }
+        return sum;
+      }, 0) / resolvedAlerts.length / 1000)
       : 0,
   };
 
@@ -201,12 +271,12 @@ const EmergencyAlerts = () => {
   }
 
   return (
-    <div 
+    <div
       className="min-h-screen bg-cover bg-center bg-fixed"
       style={{ backgroundImage: `url(${campusBg})` }}
     >
       <div className="fixed inset-0 bg-gradient-to-br from-emerald-950/70 via-emerald-950/80 to-black/80 backdrop-blur-lg" />
-      
+
       {/* Header */}
       <div className="relative z-10 sticky top-0 bg-black/60 backdrop-blur-xl border-b border-white/20 shadow-lg">
         <div className="container mx-auto max-w-7xl px-4 py-4">
@@ -279,21 +349,19 @@ const EmergencyAlerts = () => {
         <div className="flex gap-2 mb-6">
           <button
             onClick={() => setActiveTab('active')}
-            className={`px-4 py-2 rounded-lg font-semibold transition-all ${
-              activeTab === 'active'
-                ? 'bg-red-500/80 text-white'
-                : 'bg-black/40 text-white/70 hover:bg-black/60 border border-white/20'
-            }`}
+            className={`px-4 py-2 rounded-lg font-semibold transition-all ${activeTab === 'active'
+              ? 'bg-red-500/80 text-white'
+              : 'bg-black/40 text-white/70 hover:bg-black/60 border border-white/20'
+              }`}
           >
             🚨 Active ({activeAlerts.length})
           </button>
           <button
             onClick={() => setActiveTab('resolved')}
-            className={`px-4 py-2 rounded-lg font-semibold transition-all ${
-              activeTab === 'resolved'
-                ? 'bg-green-500/80 text-white'
-                : 'bg-black/40 text-white/70 hover:bg-black/60 border border-white/20'
-            }`}
+            className={`px-4 py-2 rounded-lg font-semibold transition-all ${activeTab === 'resolved'
+              ? 'bg-green-500/80 text-white'
+              : 'bg-black/40 text-white/70 hover:bg-black/60 border border-white/20'
+              }`}
           >
             ✅ Resolved ({resolvedAlerts.length})
           </button>
@@ -314,7 +382,7 @@ const EmergencyAlerts = () => {
                   return (
                     <Card
                       key={alert.id}
-                      className={`group border-2 ${colors.border} bg-gradient-to-br ${colors.bg} backdrop-blur-xl shadow-2xl overflow-hidden hover:shadow-2xl transition-all cursor-pointer duration-300 hover:border-opacity-100 border-opacity-80`}
+                      className={`group border-2 ${colors.border} ${colors.bg} shadow-lg overflow-hidden hover:shadow-xl transition-all cursor-pointer duration-300 hover:border-opacity-100 border-opacity-100`}
                       onClick={() => setExpandedAlert(isExpanded ? null : alert.id)}
                     >
                       <div className={`absolute top-0 left-0 right-0 h-1.5 ${colors.badge} animate-pulse`} />
@@ -328,26 +396,23 @@ const EmergencyAlerts = () => {
                                 <img
                                   src={alert.students.photo_url}
                                   alt={alert.students.full_name}
-                                  className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl object-cover ring-4 ring-white/30 shadow-lg group-hover:ring-white/50 transition-all"
+                                  className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl object-cover ring-4 ring-gray-300 shadow-lg group-hover:ring-gray-400 transition-all"
                                   loading="lazy"
                                 />
                               ) : (
-                                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-gradient-to-br from-red-500/40 to-red-600/20 flex items-center justify-center ring-4 ring-white/30 shadow-lg group-hover:ring-white/50 transition-all">
-                                  <User className="h-10 w-10 sm:h-12 sm:w-12 text-red-300" />
+                                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-gradient-to-br from-gray-300 to-gray-200 flex items-center justify-center ring-4 ring-gray-300 shadow-lg group-hover:ring-gray-400 transition-all">
+                                  <User className="h-10 w-10 sm:h-12 sm:w-12 text-gray-600" />
                                 </div>
                               )}
-                              <div className="absolute -bottom-2 -right-2 h-8 w-8 rounded-full bg-gradient-to-r from-red-500 to-rose-600 flex items-center justify-center animate-pulse shadow-lg ring-2 ring-white">
-                                <AlertTriangle className="h-4 w-4 text-white font-bold" />
-                              </div>
                             </div>
 
                             <div className="flex-1 min-w-0 pt-1">
                               <div className="flex items-start justify-between gap-2 mb-2 flex-wrap">
                                 <div className="flex-1">
-                                  <h3 className="font-bold text-lg sm:text-2xl text-white truncate group-hover:text-red-100 transition-colors">
+                                  <h3 className="font-bold text-lg sm:text-2xl text-gray-900 truncate group-hover:text-gray-700 transition-colors">
                                     {alert.students?.full_name || "Unknown"}
                                   </h3>
-                                  <p className="text-xs sm:text-sm text-white/70 font-mono mt-0.5">
+                                  <p className="text-xs sm:text-sm text-gray-600 font-mono mt-0.5">
                                     📌 {alert.students?.student_id_number || "N/A"}
                                   </p>
                                 </div>
@@ -355,15 +420,15 @@ const EmergencyAlerts = () => {
                                   🚨 {alert.level || "HIGH"}
                                 </Badge>
                               </div>
-                              
+
                               {alert.message && (
-                                <div className="mb-3 p-2.5 sm:p-3 bg-white/10 border border-white/20 rounded-xl backdrop-blur-sm">
-                                  <p className="text-xs sm:text-sm font-medium text-white leading-relaxed">
-                                    <span className="text-red-300 font-bold">Incident:</span> {alert.message}
+                                <div className="mb-3 p-2.5 sm:p-3 bg-gray-100 border border-gray-300 rounded-xl">
+                                  <p className="text-xs sm:text-sm font-medium text-gray-800 leading-relaxed">
+                                    <span className="text-red-600 font-bold">Incident:</span> {alert.message}
                                   </p>
                                 </div>
                               )}
-                              
+
                               <div className={`flex items-center gap-2 font-bold text-base sm:text-lg ${colors.text}`}>
                                 <Clock className="h-4 w-4" />
                                 {mins > 0 ? `${mins}m ${secs}s` : `${secs}s`} ago
@@ -389,11 +454,10 @@ const EmergencyAlerts = () => {
                             )}
                             <Button
                               size="sm"
-                              className={`gap-2 font-semibold text-xs sm:text-sm shadow-lg hover:shadow-xl transition-all active:scale-95 rounded-xl py-2 px-4 ${
-                                alert.acknowledged_at
-                                  ? 'bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white'
-                                  : 'bg-gradient-to-r from-amber-400 to-yellow-500 hover:from-amber-500 hover:to-yellow-600 text-gray-900'
-                              }`}
+                              className={`gap-2 font-semibold text-xs sm:text-sm shadow-lg hover:shadow-xl transition-all active:scale-95 rounded-xl py-2 px-4 ${alert.acknowledged_at
+                                ? 'bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white'
+                                : 'bg-gradient-to-r from-amber-400 to-yellow-500 hover:from-amber-500 hover:to-yellow-600 text-gray-900'
+                                }`}
                               onClick={(e) => {
                                 e.stopPropagation();
                                 if (!alert.acknowledged_at) {
@@ -424,41 +488,41 @@ const EmergencyAlerts = () => {
 
                         {/* Expanded Details */}
                         {isExpanded && (
-                          <div className="mt-6 pt-6 border-t border-white/20 space-y-4 animate-in slide-in-from-top-2 duration-300">
+                          <div className="mt-6 pt-6 border-t border-gray-300 space-y-4 animate-in slide-in-from-top-2 duration-300">
                             {/* Info Grid */}
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                               {alert.drivers && (
-                                <div className="sm:col-span-2 bg-white/10 backdrop-blur-md rounded-xl p-3.5 border border-white/20 hover:border-white/40 transition-all">
-                                  <p className="text-xs text-white/80 font-bold uppercase tracking-wide mb-2">👤 Current Driver</p>
-                                  <p className="text-sm text-white font-semibold">{alert.drivers.full_name}</p>
-                                  <p className="text-xs text-white/70 mt-1">🚕 {alert.drivers.tricycle_plate_number}</p>
+                                <div className="sm:col-span-2 bg-gray-50 rounded-xl p-3.5 border border-gray-300 hover:border-gray-400 transition-all">
+                                  <p className="text-xs text-gray-600 font-bold uppercase tracking-wide mb-2">👤 Current Driver</p>
+                                  <p className="text-sm text-gray-900 font-semibold">{alert.drivers.full_name}</p>
+                                  <p className="text-xs text-gray-700 mt-1">🚕 {alert.drivers.tricycle_plate_number}</p>
                                   {alert.drivers.contact_number && (
-                                    <p className="text-xs text-white/70">📞 {alert.drivers.contact_number}</p>
+                                    <p className="text-xs text-gray-700">📞 {alert.drivers.contact_number}</p>
                                   )}
                                 </div>
                               )}
-                              <div className="bg-white/10 backdrop-blur-md rounded-xl p-3.5 border border-white/20 hover:border-white/40 transition-all">
-                                <p className="text-xs text-white/80 font-bold uppercase tracking-wide mb-2">⏰ Alert Time</p>
-                                <p className="text-sm text-white font-mono font-semibold">{new Date(alert.created_at).toLocaleTimeString()}</p>
-                                <p className="text-xs text-white/60 mt-1">{new Date(alert.created_at).toLocaleDateString()}</p>
+                              <div className="bg-gray-50 rounded-xl p-3.5 border border-gray-300 hover:border-gray-400 transition-all">
+                                <p className="text-xs text-gray-600 font-bold uppercase tracking-wide mb-2">⏰ Alert Time</p>
+                                <p className="text-sm text-gray-900 font-mono font-semibold">{new Date(alert.created_at).toLocaleTimeString()}</p>
+                                <p className="text-xs text-gray-500 mt-1">{new Date(alert.created_at).toLocaleDateString()}</p>
                               </div>
-                              <div className="bg-white/10 backdrop-blur-md rounded-xl p-3.5 border border-white/20 hover:border-white/40 transition-all">
-                                <p className="text-xs text-white/80 font-bold uppercase tracking-wide mb-2">📍 Location</p>
-                                <p className="text-sm text-white font-mono font-semibold">{alert.location_lat ? `${alert.location_lat.toFixed(3)}, ${alert.location_lng.toFixed(3)}` : 'N/A'}</p>
+                              <div className="bg-gray-50 rounded-xl p-3.5 border border-gray-300 hover:border-gray-400 transition-all">
+                                <p className="text-xs text-gray-600 font-bold uppercase tracking-wide mb-2">📍 Location</p>
+                                <p className="text-sm text-gray-900 font-mono font-semibold">{alert.location_lat ? `${alert.location_lat.toFixed(3)}, ${alert.location_lng.toFixed(3)}` : 'N/A'}</p>
                               </div>
                             </div>
 
                             {/* Response Notes Section */}
                             <div className="space-y-2">
-                              <label className="text-xs text-white font-bold uppercase tracking-wide flex items-center gap-2">
-                                <MessageSquare className="h-3.5 w-3.5 text-blue-300" />
+                              <label className="text-xs text-gray-700 font-bold uppercase tracking-wide flex items-center gap-2">
+                                <MessageSquare className="h-3.5 w-3.5 text-blue-600" />
                                 Response Notes
                               </label>
                               <textarea
                                 value={responseNotes[alert.id] || ''}
                                 onChange={(e) => setResponseNotes(prev => ({ ...prev, [alert.id]: e.target.value }))}
                                 placeholder="Add response notes, actions taken, follow-up needed..."
-                                className="w-full bg-white/10 backdrop-blur-md border border-white/30 rounded-xl p-3 text-sm text-white placeholder-white/50 focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-500/20 transition-all resize-none"
+                                className="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 text-sm text-gray-900 placeholder-gray-500 focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-500/20 transition-all resize-none"
                                 rows={3}
                               />
                             </div>
@@ -480,7 +544,7 @@ const EmergencyAlerts = () => {
                         {/* Expand Hint */}
                         {!isExpanded && (
                           <div className="mt-3 text-center">
-                            <p className="text-xs text-white/60 font-medium group-hover:text-white/80 transition-colors">
+                            <p className="text-xs text-gray-600 font-medium group-hover:text-gray-700 transition-colors">
                               Click card to view details →
                             </p>
                           </div>
@@ -493,8 +557,8 @@ const EmergencyAlerts = () => {
             ) : (
               <div className="text-center py-16">
                 <Shield className="h-16 w-16 text-green-500 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-white mb-2">All Clear</h3>
-                <p className="text-white/70">No active emergencies at this time</p>
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">All Clear</h3>
+                <p className="text-gray-600">No active emergencies at this time</p>
               </div>
             )}
           </div>
@@ -506,7 +570,7 @@ const EmergencyAlerts = () => {
             {resolvedAlerts.length > 0 ? (
               <div className="grid gap-3">
                 {resolvedAlerts.map((alert) => (
-                  <Card key={alert.id} className="bg-black/40 border border-white/20 hover:border-white/40 transition-all">
+                  <Card key={alert.id} className="bg-white border border-gray-300 hover:border-gray-400 transition-all shadow-sm">
                     <CardContent className="p-3 sm:p-4">
                       <div className="flex items-center justify-between gap-3">
                         <div className="flex items-center gap-3 min-w-0">
@@ -514,23 +578,23 @@ const EmergencyAlerts = () => {
                             <img
                               src={alert.students.photo_url}
                               alt={alert.students.full_name}
-                              className="w-10 h-10 rounded-full object-cover opacity-70"
+                              className="w-10 h-10 rounded-full object-cover opacity-80"
                               loading="lazy"
                             />
                           ) : (
-                            <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
-                              <User className="h-5 w-5 text-white/50" />
+                            <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">
+                              <User className="h-5 w-5 text-gray-400" />
                             </div>
                           )}
                           <div className="min-w-0">
-                            <p className="font-semibold text-white truncate text-sm">
+                            <p className="font-semibold text-gray-900 truncate text-sm">
                               {alert.students?.full_name || "Unknown"}
                             </p>
-                            <p className="text-xs text-white/70">
+                            <p className="text-xs text-gray-600">
                               {new Date(alert.created_at).toLocaleString()}
                             </p>
                             {alert.resolution_notes && (
-                              <p className="text-xs text-white/60 mt-1">{alert.resolution_notes}</p>
+                              <p className="text-xs text-gray-700 mt-1">{alert.resolution_notes}</p>
                             )}
                           </div>
                         </div>
@@ -544,8 +608,8 @@ const EmergencyAlerts = () => {
               </div>
             ) : (
               <div className="text-center py-12">
-                <CheckCircle2 className="h-12 w-12 text-white/50 mx-auto mb-3" />
-                <p className="text-white/70">No resolved alerts yet</p>
+                <CheckCircle2 className="h-12 w-12 text-gray-400 mx-auto mb-3" />
+                <p className="text-gray-600">No resolved alerts yet</p>
               </div>
             )}
           </div>

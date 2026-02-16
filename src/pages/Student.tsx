@@ -1,9 +1,10 @@
 import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { QrCode, AlertCircle, History, LogOut, Phone, MapPin, Megaphone, X, Bell, CheckCircle, User, Clock, Settings } from "lucide-react";
+import { QrCode, AlertCircle, History, LogOut, Phone, MapPin, Megaphone, X, Bell, CheckCircle, User, Clock, Settings, Car } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
+import { useOfflineSupport } from "@/hooks/useOfflineSupport";
 import { signOut } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import { useLocationTracker } from "@/hooks/useLocationTracker";
@@ -12,6 +13,7 @@ import { format } from "date-fns";
 import { toast } from "sonner";
 import QRScanner from "@/components/QRScanner";
 import NotificationBell from "@/components/NotificationBell";
+import { RideRequestDialog } from "@/components/RideRequestDialog";
 import isuLogo from "@/assets/isu-logo.png";
 import Agreement from "@/pages/student/Agreement";
 import campusBg from "@/assets/campus-bg.jpeg";
@@ -57,6 +59,7 @@ const Student = () => {
   const [showSOSConfirm, setShowSOSConfirm] = useState(false);
   const [showAccidentConfirm, setShowAccidentConfirm] = useState(false);
   const [showEmergencyMenu, setShowEmergencyMenu] = useState(false);
+  const [showRideRequest, setShowRideRequest] = useState(false);
   const [incidentType, setIncidentType] = useState<string>("accident");
 
   const INCIDENT_TYPES = [
@@ -72,6 +75,9 @@ const Student = () => {
 
   // Register Capacitor push notifications
   useCapacitorPush(user?.id || (null as unknown as string), "student");
+
+  // Get offline support
+  const { isOnline, queueSOSAlert } = useOfflineSupport();
 
   // Send SOS alert function (moved up for volume button trigger)
   const sendSOSAlert = useCallback(async () => {
@@ -107,8 +113,10 @@ const Student = () => {
         }
       }
 
-      const { error } = await supabase.from('alerts' as any).insert({
+      const sosData = {
         student_id: studentData.id,
+        student_full_name: studentData.full_name || 'Unknown Student',
+        student_id_number: studentData.student_id_number || null,
         trip_id: currentTrip?.id || null,
         driver_id: currentTrip?.driver_id || null,
         status: 'active',
@@ -117,26 +125,59 @@ const Student = () => {
         message: 'Emergency SOS triggered by student',
         location_lat: latitude,
         location_lng: longitude,
-      });
+      };
 
-      if (error) {
-        throw error;
+      console.log('[Student] Sending SOS with data:', sosData);
+
+      // Try to send directly - if it fails, we'll queue it as backup
+      // This way, even with small data/KB that can reach Supabase, it will work
+      // (like Facebook - works with captive portal as long as Supabase is reachable)
+      try {
+        const { error } = await Promise.race([
+          supabase.from('alerts' as any).insert(sosData),
+          new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Send timeout')), 3000)
+          )
+        ]);
+
+        if (error) {
+          console.error('[Student] Supabase insert error:', error);
+          throw error;
+        }
+
+        console.log('[Student] SOS Alert sent successfully');
+
+        toast.success("SOS Alert Sent!", { 
+          description: latitude ? "Your location has been shared with admin." : "Alert sent to admin." 
+        });
+
+        setTimeout(() => {
+          setIsSending(false);
+        }, 3000);
+        return;
+      } catch (directError) {
+        console.log('[Student] Direct send failed, queuing SOS:', directError);
+        // Direct send failed, queue it for offline retry
+        queueSOSAlert(sosData);
+        setTimeout(() => {
+          setIsSending(false);
+        }, 1500);
+        return;
       }
-
-      toast.success("SOS Alert Sent!", { 
-        description: latitude ? "Your location has been shared with admin." : "Alert sent to admin." 
-      });
-
-      setTimeout(() => {
-        setIsSending(false);
-      }, 3000);
 
     } catch (error: any) {
       console.error('Error sending emergency alert:', error);
-      toast.error("Failed to send SOS", { description: error.message });
+      
+      // Any error = queue it for offline retry
+      console.log('[Student] Error caught - queuing SOS as backup');
+      queueSOSAlert(sosData);
+      toast.success("SOS Alert Queued", { 
+        description: "Will be sent to admin when connection stabilizes." 
+      });
+      
       setIsSending(false);
     }
-  }, [studentData, isSending, currentTrip]);
+  }, [studentData, isSending, currentTrip, isOnline, queueSOSAlert]);
 
   // Send Accident Alert function
   const sendAccidentAlert = useCallback(async () => {
@@ -191,6 +232,8 @@ const Student = () => {
         .from('alerts')
         .insert({
           student_id: studentData.id,
+          student_full_name: studentData.full_name || 'Unknown Student',
+          student_id_number: studentData.student_id_number || null,
           status: 'active',
           level: getSeverity(incidentType) === 'high' ? 'high' : 'medium',
           alert_type: getAlertType(incidentType),
@@ -200,8 +243,11 @@ const Student = () => {
         });
 
       if (error) {
+        console.error('[Student] Incident alert error:', error);
         throw error;
       }
+
+      console.log('[Student] Incident alert sent successfully');
 
       toast.success("Alert Sent!", { 
         description: latitude ? "Your location has been shared with admin." : "Alert sent to admin." 
@@ -897,6 +943,23 @@ const Student = () => {
             </button>
           </div>
 
+          {/* Request Tricycle Grab Button */}
+          <button 
+            className="w-full relative group overflow-hidden cursor-pointer transition-all duration-300 touch-manipulation bg-gradient-to-br from-purple-600/20 to-purple-900/40 backdrop-blur-xl border border-purple-500/30 hover:border-purple-400/60 rounded-3xl p-5 text-left active:scale-95"
+            onClick={() => setShowRideRequest(true)}
+          >
+            <div className="absolute inset-0 bg-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="relative z-10 flex items-center gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center shadow-lg shadow-purple-500/20 group-hover:scale-110 transition-transform duration-300 flex-shrink-0">
+                <Car className="h-6 w-6 text-white" />
+              </div>
+              <div>
+                <p className="text-base font-bold text-white mb-0.5">Request Tricycle</p>
+                <p className="text-xs text-purple-200/70 font-medium">Get a ride from available drivers</p>
+              </div>
+            </div>
+          </button>
+
           {/* Emergency Hotline */}
           <a 
             href="tel:911"
@@ -997,6 +1060,13 @@ const Student = () => {
         </AlertDialogContent>
       </AlertDialog>
 
+      {/* Ride Request Dialog */}
+      <RideRequestDialog
+        isOpen={showRideRequest}
+        onClose={() => setShowRideRequest(false)}
+        studentId={studentData?.id || ''}
+        studentName={studentData?.full_name || 'Student'}
+      />
 
     </div>
   );

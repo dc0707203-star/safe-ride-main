@@ -6,12 +6,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import QRCodeComponent from "react-qr-code";
+import { RideRequestsPanel } from "@/components/RideRequestsPanel";
 import campusBg from "@/assets/campus-bg.jpeg";
 import isuLogo from "@/assets/isu-logo.png";
 import { format } from "date-fns";
 import { subscribeToPushNotifications } from "@/lib/notifications";
 import { registerServiceWorker } from "@/lib/serviceWorker";
 import { useCapacitorPush } from "@/hooks/useCapacitorPush";
+import "./DriverDashboard.css";
 import {
   Dialog,
   DialogContent,
@@ -269,11 +271,9 @@ const DriverDashboard = () => {
   }
 
   return (
-    <div
-      className="min-h-screen bg-cover bg-center bg-fixed pb-20"
-      style={{ backgroundImage: `url(${campusBg})` }}
-    >
-      <div className="fixed inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900" />
+    <div className="min-h-screen pb-20 relative overflow-x-hidden bg-slate-950">
+      {/* Gradient Overlay */}
+      <div className="fixed inset-0 z-0 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-950" />
 
       {/* Mobile Header */}
       <div className="z-10 sticky top-0 bg-gradient-to-b from-slate-900 via-slate-800 to-transparent backdrop-blur-xl border-b border-[#CCFF00]/20 shadow-lg">
@@ -294,6 +294,7 @@ const DriverDashboard = () => {
                 handleInboxOpen(true);
                 setShowInbox(true);
               }}
+              title="Announcements"
               className="relative p-2.5 bg-gradient-to-br from-blue-500/20 to-cyan-500/20 border border-blue-500/30 hover:border-blue-500/60 hover:bg-blue-500/30 rounded-xl transition-all shadow-lg shadow-blue-500/10"
             >
               <Megaphone className="h-6 w-6 text-blue-400" />
@@ -306,6 +307,7 @@ const DriverDashboard = () => {
             {/* Settings Button */}
             <button
               onClick={() => navigate("/driver-settings")}
+              title="Settings"
               className="p-2.5 bg-gradient-to-br from-[#CCFF00]/20 to-green-400/20 border border-[#CCFF00]/30 hover:border-[#CCFF00]/60 hover:bg-[#CCFF00]/30 rounded-xl transition-all shadow-lg shadow-[#CCFF00]/10"
             >
               <Settings className="h-6 w-6 text-[#CCFF00]" />
@@ -339,6 +341,7 @@ const DriverDashboard = () => {
               </div>
               <button
                 onClick={() => setShowInbox(false)}
+                title="Close"
                 className="p-2 hover:bg-white/10 rounded-lg transition-colors"
               >
                 <X className="h-5 w-5 text-white/70" />
@@ -453,6 +456,19 @@ const DriverDashboard = () => {
                 <span>Started at {format(new Date(activeTrip.start_time), 'h:mm a')}</span>
               </div>
             </div>
+          </div>
+        )}
+
+        {/* Ride Requests Section */}
+        {driver?.id && (
+          <div className="mb-8 bg-gradient-to-br from-slate-800/50 to-slate-900/50 border border-slate-500/30 rounded-2xl p-6 backdrop-blur-sm shadow-lg">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="p-2.5 rounded-lg bg-purple-500/20 border border-purple-500/30">
+                <Car className="h-5 w-5 text-purple-400" />
+              </div>
+              <h2 className="text-lg font-bold text-white">Tricycle Grab Requests</h2>
+            </div>
+            <RideRequestsPanel driverId={driver.id} />
           </div>
         )}
 

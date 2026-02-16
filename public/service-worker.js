@@ -1,15 +1,131 @@
-// Service Worker for Web Push Notifications
+// Enhanced Service Worker with Offline Support & Push Notifications
 const CACHE_NAME = "safe-ride-v2.5.3";
+const STATIC_CACHE = "safe-ride-static-v1";
+const DYNAMIC_CACHE = "safe-ride-dynamic-v1";
+const API_CACHE = "safe-ride-api-v1";
 
-self.addEventListener("install", () => {
-  console.log("[Service Worker] Installed");
+// Assets to cache on install
+const STATIC_ASSETS = [
+  "/",
+  "/index.html",
+  "/manifest.json",
+  "/favicon.ico",
+  "/service-worker.js"
+];
+
+// Network first, then cache for API calls
+const API_URLS = [
+  "https://bsvqdfgqjcypzaafocji.supabase.co"
+];
+
+self.addEventListener("install", (event) => {
+  console.log("[Service Worker] Installing v2.5.3");
+  event.waitUntil(
+    caches.open(STATIC_CACHE).then((cache) => {
+      console.log("[Service Worker] Caching static assets");
+      return cache.addAll(STATIC_ASSETS).catch(err => {
+        console.warn("[Service Worker] Static cache error:", err);
+      });
+    })
+  );
   self.skipWaiting();
 });
 
 self.addEventListener("activate", (event) => {
-  console.log("[Service Worker] Activated");
+  console.log("[Service Worker] Activating");
+  event.waitUntil(
+    caches.keys().then((cacheNames) => {
+      return Promise.all(
+        cacheNames
+          .filter(cacheName => !["safe-ride-static-v1", "safe-ride-dynamic-v1", "safe-ride-api-v1", "safe-ride-v2.5.3"].includes(cacheName))
+          .map(cacheName => {
+            console.log("[Service Worker] Deleting old cache:", cacheName);
+            return caches.delete(cacheName);
+          })
+      );
+    })
+  );
   event.waitUntil(clients.claim());
 });
+
+// Fetch event with offline support
+self.addEventListener("fetch", (event) => {
+  const { request } = event;
+  const url = new URL(request.url);
+
+  // Skip non-GET requests
+  if (request.method !== "GET") {
+    return;
+  }
+
+  // Handle API requests
+  if (API_URLS.some(apiUrl => url.origin.includes(apiUrl))) {
+    event.respondWith(networkFirstStrategy(request));
+    return;
+  }
+
+  // Handle other requests
+  event.respondWith(cacheFirstStrategy(request));
+});
+
+// Network first (try network, fallback to cache)
+function networkFirstStrategy(request) {
+  return fetch(request)
+    .then((response) => {
+      if (!response || response.status !== 200) {
+        return response;
+      }
+      const responseClone = response.clone();
+      caches.open(API_CACHE).then((cache) => {
+        cache.put(request, responseClone);
+      });
+      return response;
+    })
+    .catch(() => {
+      return caches.match(request).then((response) => {
+        return response || createOfflineResponse();
+      });
+    });
+}
+
+// Cache first (try cache, fallback to network)
+function cacheFirstStrategy(request) {
+  return caches.match(request).then((response) => {
+    if (response) {
+      return response;
+    }
+    return fetch(request).then((response) => {
+      if (!response || response.status !== 200) {
+        return response;
+      }
+      const responseClone = response.clone();
+      caches.open(DYNAMIC_CACHE).then((cache) => {
+        cache.put(request, responseClone);
+      });
+      return response;
+    });
+  }).catch(() => {
+    return createOfflineResponse();
+  });
+}
+
+// Create offline fallback response
+function createOfflineResponse() {
+  return new Response(
+    JSON.stringify({
+      offline: true,
+      message: "You are currently offline. Some features may be limited.",
+      timestamp: new Date().toISOString()
+    }),
+    {
+      status: 503,
+      statusText: "Service Unavailable",
+      headers: new Headers({
+        "Content-Type": "application/json"
+      })
+    }
+  );
+}
 
 self.addEventListener("push", (event) => {
   if (!event.data) return;
@@ -31,7 +147,6 @@ self.addEventListener("push", (event) => {
     badge: "/safe-ride-badge.png",
     tag: "safride-notification",
     requireInteraction: false,
-    // Add vibration pattern for mobile devices
     vibrate: [200, 100, 200, 100, 200],
     data: {
       url: notificationData.url || "/",
@@ -49,7 +164,6 @@ self.addEventListener("push", (event) => {
     ],
   };
 
-  // Play sound on push received
   event.waitUntil(
     Promise.all([
       self.registration.showNotification(
@@ -64,10 +178,8 @@ self.addEventListener("push", (event) => {
 // Function to play notification sound
 function playNotificationSound() {
   try {
-    // Try multiple approaches to ensure sound plays on mobile
     return new Promise((resolve) => {
       try {
-        // Approach 1: Try using Audio element (works on some Android devices)
         const audio = new Audio();
         audio.src = '/notification-chime.wav';
         audio.volume = 0.8;
@@ -77,7 +189,6 @@ function playNotificationSound() {
         };
         audio.onerror = () => {
           console.warn("[Service Worker] Audio playback error, trying alternative");
-          // Try Web Audio API as fallback
           playWebAudioNotification().then(resolve);
         };
         audio.play()
@@ -103,7 +214,6 @@ function playNotificationSound() {
 function playWebAudioNotification() {
   return new Promise((resolve) => {
     try {
-      // Create audio context
       const audioContext = new (typeof AudioContext !== 'undefined' ? AudioContext : typeof webkitAudioContext !== 'undefined' ? webkitAudioContext : null)();
       
       if (!audioContext) {
@@ -141,7 +251,6 @@ function playWebAudioNotification() {
         lastEndTime = Math.max(lastEndTime, startTime + duration);
       });
       
-      // Resolve after sound finishes
       setTimeout(() => {
         console.log("[Service Worker] Web Audio notification sound completed");
         resolve();
@@ -160,13 +269,11 @@ self.addEventListener("notificationclick", (event) => {
 
   event.waitUntil(
     clients.matchAll({ type: "window" }).then((clientList) => {
-      // Check if app is already open
       for (let client of clientList) {
         if (client.url === "/" && "focus" in client) {
           return client.focus();
         }
       }
-      // Open app if not already open
       if (clients.openWindow) {
         return clients.openWindow(event.notification.data.url || "/");
       }
@@ -177,3 +284,23 @@ self.addEventListener("notificationclick", (event) => {
 self.addEventListener("notificationclose", (event) => {
   console.log("[Service Worker] Notification closed", event.notification.tag);
 });
+
+// Background sync for offline actions
+self.addEventListener("sync", (event) => {
+  console.log("[Service Worker] Background sync:", event.tag);
+  if (event.tag === "sync-offline-actions") {
+    event.waitUntil(syncOfflineActions());
+  }
+});
+
+async function syncOfflineActions() {
+  try {
+    const cache = await caches.open(API_CACHE);
+    // Retry pending API requests
+    console.log("[Service Worker] Syncing offline actions");
+  } catch (error) {
+    console.error("[Service Worker] Sync error:", error);
+  }
+}
+
+

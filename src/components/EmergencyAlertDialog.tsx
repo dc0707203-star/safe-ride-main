@@ -34,36 +34,36 @@ export const EmergencyAlertDialog = ({ onResolve, filterByRole = true }: Emergen
 
   const fetchLatestActiveAlert = useCallback(async () => {
     try {
-      let query = supabase
+      const { data, error } = await supabase
         .from("alerts")
         .select(
           `
-          *,
-          students(full_name, student_id_number, photo_url, contact_number)
+          id,
+          status,
+          alert_type,
+          message,
+          level,
+          location_lat,
+          location_lng,
+          created_at,
+          student_id,
+          students(id, full_name, student_id_number, photo_url, contact_number)
         `
         )
         .eq("status", "active")
         .eq("alert_type", "incident")
         .order("created_at", { ascending: false })
-        .limit(1);
+        .limit(1)
+        .maybeSingle();
 
-      // Filter based on user role if enabled
-      if (filterByRole && user?.role === "pnp") {
-        // PNP sees only theft/harassment alerts
-        query = query
-          .or("message.ilike.%THEFT%,message.ilike.%HARASSMENT%");
-      } else if (filterByRole) {
-        // Other users see all alerts EXCEPT theft/harassment
-        query = query
-          .not("message", "ilike", "%THEFT%")
-          .not("message", "ilike", "%HARASSMENT%");
+      if (error) {
+        console.error("[EmergencyAlertDialog] Query error:", error);
+        throw error;
       }
 
-      const { data, error } = await query.maybeSingle();
-
-      if (error) throw error;
-
       if (data) {
+        console.log("[EmergencyAlertDialog] Fetched alert:", data);
+        console.log("[EmergencyAlertDialog] Student data:", data.students);
         setActiveAlert(data);
         setOpen(true);
         startSiren();
@@ -73,7 +73,9 @@ export const EmergencyAlertDialog = ({ onResolve, filterByRole = true }: Emergen
         stopSiren();
       }
     } catch (error: any) {
-      console.error("Fetch alert error:", error);
+      console.error("[EmergencyAlertDialog] Fetch alert error:", error);
+      setActiveAlert(null);
+      setOpen(false);
     }
   }, [startSiren, stopSiren, user?.role, filterByRole]);
 

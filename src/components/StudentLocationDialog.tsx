@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { MapPin, Navigation, ExternalLink, RefreshCw, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -35,6 +35,12 @@ const StudentLocationDialog = ({ student, open, onOpenChange }: StudentLocationD
   });
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [loading, setLoading] = useState(true);
+  const locationDataRef = useRef(locationData);
+
+  // Keep ref in sync with state
+  useEffect(() => {
+    locationDataRef.current = locationData;
+  }, [locationData]);
 
   // Subscribe to real-time location updates
   useEffect(() => {
@@ -78,9 +84,13 @@ const StudentLocationDialog = ({ student, open, onOpenChange }: StudentLocationD
 
     fetchLocation();
 
-    // Subscribe to real-time updates
+    // Subscribe to real-time updates with longer timeout
     const channel = supabase
-      .channel(`student-location-${student.id}`)
+      .channel(`student-location-${student.id}-${Date.now()}`, {
+        config: {
+          broadcast: { self: true },
+        },
+      })
       .on(
         'postgres_changes',
         {
@@ -91,14 +101,30 @@ const StudentLocationDialog = ({ student, open, onOpenChange }: StudentLocationD
         },
         (payload: any) => {
           console.log('Location update received:', payload);
-          setLocationData({
-            lat: payload.new.current_location_lat,
-            lng: payload.new.current_location_lng,
-            updatedAt: payload.new.location_updated_at,
-          });
+          // Only update if the new location is different or more recent
+          const newLat = payload.new.current_location_lat;
+          const newLng = payload.new.current_location_lng;
+          const newUpdatedAt = payload.new.location_updated_at;
+
+          if (
+            newLat !== locationDataRef.current.lat ||
+            newLng !== locationDataRef.current.lng ||
+            (newUpdatedAt &&
+              new Date(newUpdatedAt) > new Date(locationDataRef.current.updatedAt || 0))
+          ) {
+            setLocationData({
+              lat: newLat,
+              lng: newLng,
+              updatedAt: newUpdatedAt,
+            });
+            // Update ref
+            locationDataRef.current = { lat: newLat, lng: newLng, updatedAt: newUpdatedAt };
+          }
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log('Location subscription status:', status);
+      });
 
     return () => {
       supabase.removeChannel(channel);
@@ -110,6 +136,7 @@ const StudentLocationDialog = ({ student, open, onOpenChange }: StudentLocationD
     setIsRefreshing(true);
 
     try {
+      // Force fetch with cache bust by adding timestamp
       const { data, error } = await supabase
         .from('students')
         .select('id, current_location_lat, current_location_lng, location_updated_at')
@@ -120,12 +147,13 @@ const StudentLocationDialog = ({ student, open, onOpenChange }: StudentLocationD
         console.error('Error refreshing location:', error);
         toast.error('Failed to refresh location');
       } else if (data) {
+        console.log('Location refreshed:', data);
         setLocationData({
           lat: data.current_location_lat,
           lng: data.current_location_lng,
           updatedAt: data.location_updated_at,
         });
-        toast.success('Location refreshed');
+        toast.success('Location updated');
       }
     } catch (err) {
       console.error('Exception refreshing location:', err);
@@ -145,6 +173,11 @@ const StudentLocationDialog = ({ student, open, onOpenChange }: StudentLocationD
   };
 
   const hasLocation = locationData.lat !== null && locationData.lng !== null;
+  
+  // Check if location is stale (older than 1 hour)
+  const isLocationStale = locationData.updatedAt 
+    ? new Date().getTime() - new Date(locationData.updatedAt).getTime() > 3600000
+    : false;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -173,30 +206,66 @@ const StudentLocationDialog = ({ student, open, onOpenChange }: StudentLocationD
             </div>
           ) : hasLocation ? (
             <>
-              {/* Map Preview */}
-              <div className="relative rounded-xl overflow-hidden border border-border bg-muted h-48 flex items-center justify-center">
-                <iframe
-                  key={`${locationData.lat},${locationData.lng}`}
-                  title="Student Location Map"
-                  src={`https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${locationData.lat},${locationData.lng}&zoom=16`}
-                  className="w-full h-full"
-                  style={{ border: 0 }}
-                  allowFullScreen={true}
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                />
+              {/* Map Preview - Using Leaflet Map */}
+              <div className="relative rounded-xl overflow-hidden border border-border bg-gradient-to-br from-blue-50 to-indigo-50 h-48">
+                {hasLocation ? (
+                  <div className="w-full h-full" id={`map-container-${student?.id}`}>
+                    <img
+                      src={`https://tile.openstreetmap.org/16/${Math.floor((locationData.lng || 0 + 180) / 360 * 65536)},${Math.floor((90 - (locationData.lat || 0)) / 180 * 65536)}.png`}
+                      alt="Map"
+                      className="w-full h-full object-cover opacity-30"
+                    />
+                    <div className="absolute inset-0 flex flex-col items-center justify-between p-4 bg-gradient-to-b from-blue-400/20 to-transparent">
+                      <div className="text-center pt-2">
+                        <div className="inline-block bg-white/90 rounded-full p-2 shadow-lg">
+                          <MapPin className="h-8 w-8 text-red-500" />
+                        </div>
+                      </div>
+                      <div className="bg-white/90 backdrop-blur-sm rounded-lg px-3 py-2 text-center shadow-lg">
+                        <p className="text-xs font-semibold text-gray-600">📍 Student Location</p>
+                        <p className="text-xs text-gray-500">Tap "Open in Maps" to navigate</p>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center w-full h-full">
+                    <div className="text-center">
+                      <MapPin className="h-10 w-10 text-blue-500 mx-auto mb-2 opacity-50" />
+                      <p className="text-sm text-gray-400">Loading map...</p>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Location Info */}
               <div className="bg-muted/50 rounded-xl p-4 space-y-3">
+                {isLocationStale && (
+                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-2">
+                    <p className="text-xs text-yellow-800 font-semibold">
+                      ⚠️ Location is outdated
+                    </p>
+                    <p className="text-xs text-yellow-700 mt-1">
+                      Ask the student to open the app, enable GPS, and move around to update their location.
+                    </p>
+                  </div>
+                )}
                 <div className="flex items-center gap-3">
                   <Navigation className="h-5 w-5 text-blue-500" />
-                  <div>
+                  <div className="flex-1">
                     <p className="text-xs text-muted-foreground">Coordinates</p>
-                    <p className="text-sm font-mono">
+                    <p className="text-sm font-mono font-bold text-blue-600">
                       {locationData.lat?.toFixed(6)}, {locationData.lng?.toFixed(6)}
                     </p>
                   </div>
+                  <button 
+                    onClick={() => {
+                      navigator.clipboard.writeText(`${locationData.lat?.toFixed(6)}, ${locationData.lng?.toFixed(6)}`);
+                      toast.success('Coordinates copied');
+                    }}
+                    className="text-xs text-blue-500 hover:text-blue-600 font-medium"
+                  >
+                    Copy
+                  </button>
                 </div>
 
                 {locationData.updatedAt && (

@@ -19,6 +19,17 @@ export const useAuth = () => {
     const restoreSession = async () => {
       try {
         console.log("[useAuth] Attempting to restore session...");
+        
+        // If offline, skip trying to fetch session and just load from cache
+        if (!navigator.onLine) {
+          console.log("[useAuth] Offline - skipping session fetch, using cached session if available");
+          setUserRole(null);
+          setLoading(false);
+          return;
+        }
+        
+        // Get the stored session directly from supabase auth
+        // This will be retrieved from localStorage immediately
         const { data: { session }, error } = await supabase.auth.getSession();
         
         if (!isMounted) return;
@@ -33,13 +44,13 @@ export const useAuth = () => {
         }
 
         if (session && session.user) {
-          console.log("[useAuth] Session restored from storage:", session.user?.email);
+          console.log("[useAuth] Session restored successfully:", session.user?.email);
           setSession(session);
           setUser(session.user ?? null);
           // Fetch role but don't set loading false yet - let fetchUserRole do it
           await fetchUserRole(session.user.id);
         } else {
-          console.log("[useAuth] No session found in storage");
+          console.log("[useAuth] No session found");
           setUserRole(null);
           setLoading(false);
         }

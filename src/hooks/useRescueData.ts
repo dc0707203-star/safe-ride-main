@@ -77,7 +77,8 @@ export const useRescueData = () => {
           location_lng,
           created_at,
           student_id,
-          students (full_name)
+          student_full_name,
+          students(id, full_name, student_id_number, phone, photo_url)
         `
         )
         .eq("status", "active")
@@ -93,10 +94,18 @@ export const useRescueData = () => {
 
       const formattedAlerts: Alert[] =
         data?.map((alert: any) => {
-          console.log("[useRescueData] Formatting alert:", alert.students?.full_name, alert.message);
+          // First try to use the stored student_full_name, then fallback to the relationship, then Unknown
+          const studentName = alert.student_full_name || alert.students?.full_name || "Unknown Student";
+          console.log("[useRescueData] Alert from DB:", {
+            alertId: alert.id,
+            storedName: alert.student_full_name,
+            relationshipName: alert.students?.full_name,
+            finalName: studentName
+          });
+          console.log("[useRescueData] Formatting alert - Student:", studentName, "Message:", alert.message);
           return {
             id: alert.id,
-            studentName: alert.students?.full_name || "Unknown Student",
+            studentName: studentName,
             location: alert.message || "Unknown Location",
             severity: (alert.level || "medium") as "high" | "medium" | "low",
             timestamp: new Date(alert.created_at).toLocaleTimeString(),

@@ -217,6 +217,7 @@ const PNPReports = () => {
             <select
               value={dateRange}
               onChange={(e) => setDateRange(e.target.value)}
+              aria-label="Date range filter"
               className="px-4 py-2.5 bg-blue-950/40 border border-cyan-600/50 text-cyan-100 rounded-lg focus:outline-none focus:border-cyan-400 focus:bg-blue-950/60 focus:ring-2 focus:ring-cyan-500/20 transition-all font-semibold"
             >
               <option value="today" className="bg-blue-950">
@@ -310,11 +311,14 @@ const PNPReports = () => {
                     <span className="text-orange-400 font-bold text-sm px-2 py-1 bg-orange-500/20 rounded">{report.criticalCount}</span>
                   </div>
                   <div className="h-3 bg-blue-950/60 rounded-full overflow-hidden border border-orange-500/20">
+                    {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions */}
                     <div
                       className="h-full bg-gradient-to-r from-orange-500 to-orange-400 transition-all duration-500"
                       style={{
                         width: `${(report.criticalCount / Math.max(report.totalAlerts, 1)) * 100}%`,
                       }}
+                      aria-label={`Critical alerts: ${report.criticalCount}`}
+                      role="progressbar"
                     />
                   </div>
                 </div>
@@ -325,6 +329,7 @@ const PNPReports = () => {
                     <span className="text-orange-400 font-bold text-sm px-2 py-1 bg-orange-500/20 rounded">{report.highCount}</span>
                   </div>
                   <div className="h-3 bg-blue-950/60 rounded-full overflow-hidden border border-orange-500/20">
+                    {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions */}
                     <div
                       className="h-full bg-gradient-to-r from-orange-500 to-orange-400 transition-all duration-500"
                       style={{
@@ -340,6 +345,7 @@ const PNPReports = () => {
                     <span className="text-cyan-400 font-bold text-sm px-2 py-1 bg-cyan-500/20 rounded">{report.mediumCount}</span>
                   </div>
                   <div className="h-3 bg-blue-950/60 rounded-full overflow-hidden border border-cyan-500/20">
+                    {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions */}
                     <div
                       className="h-full bg-gradient-to-r from-cyan-500 to-cyan-400 transition-all duration-500"
                       style={{
@@ -355,11 +361,14 @@ const PNPReports = () => {
                     <span className="text-lime-400 font-bold text-sm px-2 py-1 bg-lime-500/20 rounded">{report.lowCount}</span>
                   </div>
                   <div className="h-3 bg-blue-950/60 rounded-full overflow-hidden border border-lime-500/20">
+                    {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions */}
                     <div
                       className="h-full bg-gradient-to-r from-lime-500 to-lime-400 transition-all duration-500"
                       style={{
                         width: `${(report.lowCount / Math.max(report.totalAlerts, 1)) * 100}%`,
                       }}
+                      aria-label={`Low alerts: ${report.lowCount}`}
+                      role="progressbar"
                     />
                   </div>
                 </div>
@@ -407,19 +416,21 @@ const PNPReports = () => {
           </div>
           <Card className="bg-blue-950/40 border-cyan-500/30 backdrop-blur">
             <CardContent className="p-6">
-              <div className="grid grid-cols-24 gap-1">
+              <div className="flex flex-wrap gap-1">
               {Array.from({ length: 24 }).map((_, hour) => {
                 const count = report.alertsByHour[hour] || 0;
                 const maxCount = Math.max(...Object.values(report.alertsByHour), 1);
                 const height = (count / maxCount) * 100;
 
                 return (
-                  <div key={hour} className="flex flex-col items-center gap-1">
+                  <div key={hour} className="flex flex-col items-center gap-1" style={{ width: 'calc(100% / 24)' }}>
                     <div className="w-full h-16 bg-blue-950/40 rounded-t-lg relative overflow-hidden border-b border-cyan-500/30 hover:bg-blue-950/60 transition-all">
                       {count > 0 && (
                         <div
                           className="w-full bg-gradient-to-t from-cyan-500 to-cyan-400 absolute bottom-0 transition-all"
                           style={{ height: `${height}%` }}
+                          aria-label={`Hour ${String(hour).padStart(2, '0')}: ${count} alerts`}
+                          role="progressbar"
                         />
                       )}
                       {count > 0 && (

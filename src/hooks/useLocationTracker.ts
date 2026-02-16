@@ -13,16 +13,29 @@ interface UseLocationTrackerProps {
 export function useLocationTracker({ 
   studentId, 
   enabled = true, 
-  intervalMs = 10000 // Update every 10 seconds
+  intervalMs = 5000 // Update every 5 seconds (more frequent)
 }: UseLocationTrackerProps) {
   const watchIdRef = useRef<number | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const lastLocationRef = useRef<{ lat: number; lng: number } | null>(null);
 
   const updateLocation = useCallback(async (latitude: number, longitude: number) => {
     if (!studentId) return;
 
+    // Skip if location hasn't changed significantly (avoid excessive DB writes)
+    const LOCATION_THRESHOLD = 0.0001; // ~10 meters
+    if (
+      lastLocationRef.current &&
+      Math.abs(lastLocationRef.current.lat - latitude) < LOCATION_THRESHOLD &&
+      Math.abs(lastLocationRef.current.lng - longitude) < LOCATION_THRESHOLD
+    ) {
+      return;
+    }
+
+    lastLocationRef.current = { lat: latitude, lng: longitude };
+
     try {
-      await supabase
+      const { error } = await supabase
         .from('students' as any)
         .update({
           current_location_lat: latitude,
@@ -30,6 +43,12 @@ export function useLocationTracker({
           location_updated_at: new Date().toISOString(),
         })
         .eq('id', studentId);
+
+      if (error) {
+        console.error('Failed to update location:', error);
+      } else {
+        console.log('Location updated:', { latitude, longitude });
+      }
     } catch (error) {
       console.error('Failed to update location:', error);
     }

@@ -1,54 +1,87 @@
 import { supabase } from "@/integrations/supabase/client";
+import { logSuccessfulLogin, logFailedLogin, logAdminAction } from "@/lib/auditLog";
 
 export const signInWithGoogle = async () => {
-  const { data, error } = await supabase.auth.signInWithOAuth({
-    provider: 'google',
-    options: {
-      redirectTo: `${window.location.origin}/student`,
-      queryParams: {
-        access_type: 'offline',
-        prompt: 'consent',
+  try {
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/student`,
+        queryParams: {
+          access_type: 'offline',
+          prompt: 'consent',
+        },
       },
-    },
-  });
+    });
 
-  if (error) {
-    console.error('Error signing in with Google:', error);
+    if (error) {
+      console.error('Error signing in with Google:', error);
+      await logFailedLogin('', `Google OAuth error: ${error.message}`);
+      throw error;
+    }
+
+    // Log successful Google OAuth login
+    await logSuccessfulLogin('google');
+    return data;
+  } catch (error: any) {
+    await logFailedLogin('', error.message || 'Google OAuth failed');
     throw error;
   }
-
-  return data;
 };
 
 export const signInWithEmail = async (email: string, password: string) => {
-  const { data, error } = await supabase.auth.signInWithPassword({
-    email,
-    password,
-  });
+  try {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
 
-  if (error) {
-    console.error('Error signing in:', error);
+    if (error) {
+      console.error('Error signing in:', error);
+      await logFailedLogin(email, error.message);
+      throw error;
+    }
+
+    // Log successful login
+    await logSuccessfulLogin('email');
+    return data;
+  } catch (error: any) {
+    await logFailedLogin(email, error.message || 'Sign in failed');
     throw error;
   }
-
-  return data;
 };
 
 export const signUpWithEmail = async (email: string, password: string, metadata: { full_name?: string }) => {
-  const { data, error } = await supabase.auth.signUp({
-    email,
-    password,
-    options: {
-      data: metadata,
-    },
-  });
+  try {
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: metadata,
+      },
+    });
 
-  if (error) {
-    console.error('Error signing up:', error);
+    if (error) {
+      console.error('Error signing up:', error);
+      await logFailedLogin(email, `Sign up failed: ${error.message}`);
+      throw error;
+    }
+
+    // Log account creation
+    const userId = data.user?.id;
+    if (userId) {
+      await logAdminAction('ACCOUNT_CREATE', 'users', userId, {
+        email,
+        signupMethod: 'email',
+        metadata,
+      });
+    }
+
+    return data;
+  } catch (error: any) {
+    await logFailedLogin(email, error.message || 'Sign up failed');
     throw error;
   }
-
-  return data;
 };
 
 export const signOut = async () => {
@@ -60,6 +93,9 @@ export const signOut = async () => {
         .from('push_tokens')
         .delete()
         .eq('user_id', user.id);
+
+      // Log logout
+      await logAdminAction('LOGOUT', 'auth', user.id);
     }
     
     const { error } = await supabase.auth.signOut();
