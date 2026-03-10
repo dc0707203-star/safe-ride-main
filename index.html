@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    
+    <!-- Security: Content Security Policy -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' https://cdn.jsdelivr.net https://maps.googleapis.com https://mts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https: blob:; font-src 'self' https://fonts.gstatic.com data:; connect-src 'self' https: wss: wss://*.supabase.co https://*.supabase.co https://firebaseremoteconfig.googleapis.com https://cesium.com https://*.cesium.com https://api.mapbox.com https://tiles.openstreetmap.org https://maps.googleapis.com https://mts.googleapis.com https://mts1.googleapis.com https://mts2.googleapis.com https://mts3.googleapis.com https://mts4.googleapis.com https://mts5.googleapis.com https://mts6.googleapis.com https://mts7.googleapis.com https://fcm.googleapis.com https://dev.virtualearth.net http://dev.virtualearth.net; base-uri 'self'; form-action 'self'; upgrade-insecure-requests;">
+    
+    <!-- Security: Additional Headers -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+
+    <title>ISU Emergency System - Student Safety & Transportation Monitoring</title>
+    <meta name="description" content="Comprehensive safety and transportation monitoring system for Isabela State University students with real-time tracking and emergency alerts." />
+    <meta name="author" content="Isabela State University" />
+
+    <!-- Favicon -->
+    <link rel="icon" href="/favicon-32x32.png" type="image/png" />
+    <link rel="shortcut icon" href="/favicon-32x32.png" type="image/png" />
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="ISU Emergency System - Student Safety & Transportation" />
+    <meta property="og:description" content="Real-time student safety monitoring with QR code scanning, emergency alerts, and live tracking for ISU campus transportation." />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="/og-image.png" />
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="ISU Safe Ride" />
+    <link rel="apple-touch-icon" href="/icon-192.png" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:title" content="ISU Emergency System - Student Safety & Transportation" />
+    <meta name="twitter:description" content="Real-time student safety monitoring with QR code scanning, emergency alerts, and live tracking for ISU campus transportation." />
+    <meta name="twitter:image" content="/og-image.png" />
+  </head>
+
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

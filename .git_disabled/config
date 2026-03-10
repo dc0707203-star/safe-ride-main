@@ -1,0 +1,15 @@
+[core]
+	repositoryformatversion = 0
+	filemode = true
+	bare = false
+	logallrefupdates = true
+[branch "main"]
+	vscode-merge-base = origin/main
+	remote = origin
+	merge = refs/heads/main
+[remote "origin"]
+	url = https://github.com/dc0707203-star/safe-ride-main.git
+	fetch = +refs/heads/*:refs/remotes/origin/*
+[user]
+	name = Jens
+	email = dc0707203@gmail.com

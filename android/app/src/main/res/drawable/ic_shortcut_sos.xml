@@ -1,0 +1,18 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Red circle background -->
+    <path
+        android:pathData="M54,8C30.75,8 12,26.75 12,50s18.75,42 42,42 42,-18.75 42,-42 -18.75,-42 -42,-42z"
+        android:fillColor="#EF4444" />
+    <!-- White exclamation mark -->
+    <path
+        android:pathData="M54,25c1.5,0 2.7,1.2 2.7,2.7v22.9c0,1.5 -1.2,2.7 -2.7,2.7s-2.7,-1.2 -2.7,-2.7V27.7c0,-1.5 1.2,-2.7 2.7,-2.7z"
+        android:fillColor="#FFFFFF" />
+    <!-- Dot using circle path -->
+    <path
+        android:pathData="M51,72 C51,70.9 52.3,70 54,70 C55.7,70 57,70.9 57,72 C57,73.1 55.7,74 54,74 C52.3,74 51,73.1 51,72 Z"
+        android:fillColor="#FFFFFF" />
+</vector>

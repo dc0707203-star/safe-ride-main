@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Emergency SOS Shortcut -->
+    <shortcut
+        android:shortcutId="sos_emergency"
+        android:enabled="true"
+        android:icon="@drawable/ic_shortcut_sos"
+        android:shortcutShortLabel="@string/shortcut_sos_short"
+        android:shortcutLongLabel="@string/shortcut_sos_long"
+        android:shortcutDisabledMessage="@string/shortcut_sos_disabled">
+        <intent
+            android:action="android.intent.action.MAIN"
+            android:targetPackage="com.example.safetyride"
+            android:targetClass="com.example.safetyride.MainActivity">
+            <extra
+                android:name="trigger_sos"
+                android:value="true" />
+        </intent>
+    </shortcut>
+
+    <!-- Report Incident Shortcut -->
+    <shortcut
+        android:shortcutId="incident_report"
+        android:enabled="true"
+        android:icon="@drawable/ic_shortcut_incident"
+        android:shortcutShortLabel="@string/shortcut_incident_short"
+        android:shortcutLongLabel="@string/shortcut_incident_long"
+        android:shortcutDisabledMessage="@string/shortcut_incident_disabled">
+        <intent
+            android:action="android.intent.action.MAIN"
+            android:targetPackage="com.example.safetyride"
+            android:targetClass="com.example.safetyride.MainActivity">
+            <extra
+                android:name="trigger_incident"
+                android:value="true" />
+        </intent>
+    </shortcut>
+
+    <!-- Request Ride Shortcut -->
+    <shortcut
+        android:shortcutId="request_ride"
+        android:enabled="true"
+        android:icon="@drawable/ic_shortcut_ride"
+        android:shortcutShortLabel="@string/shortcut_ride_short"
+        android:shortcutLongLabel="@string/shortcut_ride_long"
+        android:shortcutDisabledMessage="@string/shortcut_ride_disabled">
+        <intent
+            android:action="android.intent.action.MAIN"
+            android:targetPackage="com.example.safetyride"
+            android:targetClass="com.example.safetyride.MainActivity">
+            <extra
+                android:name="trigger_ride"
+                android:value="true" />
+        </intent>
+    </shortcut>
+</shortcuts>

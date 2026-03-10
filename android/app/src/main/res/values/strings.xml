@@ -1,0 +1,28 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Safety Ride</string>
+    <string name="title_activity_main">Safety ride</string>
+    <string name="package_name">com.example.safetyride</string>
+    <string name="custom_url_scheme">com.example.safetyride</string>
+    <string name="sos_tile_label">Emergency SOS</string>
+    
+    <!-- App Shortcuts -->
+    <string name="shortcut_sos_short">Emergency</string>
+    <string name="shortcut_sos_long">Send Emergency SOS Alert</string>
+    <string name="shortcut_sos_disabled">Emergency SOS unavailable</string>
+    
+    <string name="shortcut_incident_short">Report</string>
+    <string name="shortcut_incident_long">Report an Incident</string>
+    <string name="shortcut_incident_disabled">Incident reporting unavailable</string>
+    
+    <string name="shortcut_ride_short">Request Ride</string>
+    <string name="shortcut_ride_long">Request a Safe Ride</string>
+    <string name="shortcut_ride_disabled">Ride request unavailable</string>
+    
+    <!-- Widget Strings -->
+    <string name="widget_sos_text">SOS</string>
+    <string name="widget_title">EMERGENCY</string>
+    <string name="widget_label">Tap to send help alert</string>
+    <string name="widget_button_desc">Emergency SOS Button</string>
+    <string name="widget_description">Emergency SOS button for quick access</string>
+</resources>

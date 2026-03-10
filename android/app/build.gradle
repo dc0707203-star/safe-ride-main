@@ -1,0 +1,87 @@
+apply plugin: 'com.android.application'
+
+android {
+    namespace "com.example.safetyride"
+
+
+    compileSdkVersion 36
+
+    defaultConfig {
+        applicationId "com.example.safetyride"
+        minSdkVersion 24
+        targetSdkVersion 34
+        versionCode 3
+        versionName "2.5.3"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+
+    }
+
+    signingConfigs {
+        release {
+            // CORRECTED PATH - now points to keystore in project root
+            storeFile file("keystore/my-release-key.keystore.jks")
+            storePassword "103546120165isu"
+            keyAlias "mykey"
+            keyPassword "103546120165isu"
+
+
+            v1SigningEnabled true
+            v2SigningEnabled true
+        }
+    }
+
+    buildTypes {
+        debug {
+            debuggable true
+
+            signingConfig signingConfigs.release
+        }
+        release {
+            minifyEnabled false
+            shrinkResources false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
+        }
+    }
+
+
+    packagingOptions {
+        resources {
+            excludes += '/META-INF/{AL2.0,LGPL2.1}'
+        }
+    }
+}
+
+repositories {
+    flatDir {
+        dirs '../capacitor-cordova-android-plugins/src/main/libs', 'libs'
+    }
+}
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+
+    implementation "androidx.appcompat:appcompat:1.7.0" // Stable version
+    implementation "androidx.coordinatorlayout:coordinatorlayout:1.2.0"
+    implementation "androidx.core:core-splashscreen:1.0.1"
+
+    implementation project(':capacitor-android')
+    implementation project(':capacitor-cordova-android-plugins')
+
+    testImplementation "junit:junit:4.13.2"
+    androidTestImplementation "androidx.test.ext:junit:1.1.5"
+    androidTestImplementation "androidx.test.espresso:espresso-core:3.5.1"
+}
+
+apply from: 'capacitor.build.gradle'
+
+try {
+    def servicesJSON = file('google-services.json')
+    if (servicesJSON.exists()) {
+        apply plugin: 'com.google.gms.google-services'
+    }
+} catch(Exception) {
+    logger.lifecycle("google-services.json not found, skipping google-services plugin")
+}

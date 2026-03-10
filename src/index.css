@@ -1,0 +1,299 @@
+:root {
+  --color-primary: #004d25;
+  --color-accent: #CCFF00;
+  --color-secondary: #a8e600;
+  --color-bg: #f6fef7;
+  --color-surface: #ffffff;
+  --color-text: #1a2e22;
+  --color-muted: #b5c9b0;
+}
+
+/* Disable pinch zoom and prevent user scaling */
+body, html {
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    /* ISU Emergency App Design System - Professional Safety Theme */
+    
+    /* Base colors - Clean, trustworthy */
+    --background: 0 0% 99%;
+    --foreground: 222 47% 11%;
+
+    /* Cards - Elevated surfaces */
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+
+    /* Popovers */
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+
+    /* Primary - Deep Navy (Trust & Security) */
+    --primary: 217 91% 20%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Secondary - Lighter Navy */
+    --secondary: 217 50% 95%;
+    --secondary-foreground: 217 91% 20%;
+
+    /* Muted - Subtle backgrounds */
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 9% 46%;
+
+    /* Accent - Emergency Red */
+    --accent: 0 84% 60%;
+    --accent-foreground: 0 0% 100%;
+
+    /* Success - Safety Green */
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 100%;
+
+    /* Warning - Alert Orange */
+    --warning: 25 95% 53%;
+    --warning-foreground: 0 0% 100%;
+
+    /* Destructive - Critical Red */
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Borders & Inputs */
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 217 91% 20%;
+
+    /* Border Radius */
+    --radius: 0.75rem;
+
+    /* Sidebar */
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 222 47% 11%;
+    --sidebar-primary: 217 91% 20%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 14% 96%;
+    --sidebar-accent-foreground: 217 91% 20%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217 91% 20%;
+
+    /* Custom Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(217 91% 20%) 0%, hsl(217 91% 35%) 100%);
+    --gradient-emergency: linear-gradient(135deg, hsl(0 84% 60%) 0%, hsl(0 84% 45%) 100%);
+    --gradient-success: linear-gradient(135deg, hsl(142 76% 36%) 0%, hsl(142 76% 50%) 100%);
+    
+    /* Shadows */
+    --shadow-sm: 0 1px 2px 0 hsl(217 91% 20% / 0.05);
+    --shadow-md: 0 4px 6px -1px hsl(217 91% 20% / 0.1), 0 2px 4px -2px hsl(217 91% 20% / 0.1);
+    --shadow-lg: 0 10px 15px -3px hsl(217 91% 20% / 0.1), 0 4px 6px -4px hsl(217 91% 20% / 0.1);
+    --shadow-emergency: 0 0 40px hsl(0 84% 60% / 0.3);
+    
+    /* Transitions */
+    --transition-base: all 0.2s ease;
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .dark {
+    --background: 222 47% 7%;
+    --foreground: 0 0% 98%;
+
+    --card: 222 47% 10%;
+    --card-foreground: 0 0% 98%;
+
+    --popover: 222 47% 10%;
+    --popover-foreground: 0 0% 98%;
+
+    --primary: 217 91% 60%;
+    --primary-foreground: 222 47% 11%;
+
+    --secondary: 217 33% 17%;
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 217 33% 17%;
+    --muted-foreground: 215 20% 65%;
+
+    --accent: 0 84% 60%;
+    --accent-foreground: 0 0% 100%;
+
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 100%;
+
+    --warning: 25 95% 53%;
+    --warning-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 217 33% 17%;
+    --input: 217 33% 17%;
+    --ring: 217 91% 60%;
+
+    --sidebar-background: 222 47% 10%;
+    --sidebar-foreground: 0 0% 98%;
+    --sidebar-primary: 217 91% 60%;
+    --sidebar-primary-foreground: 222 47% 11%;
+    --sidebar-accent: 217 33% 17%;
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 217 33% 17%;
+    --sidebar-ring: 217 91% 60%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Scroll Animation Styles */
+@layer components {
+  .scroll-fade-in {
+    opacity: 0;
+    animation: fadeInUp 0.6s ease-out forwards;
+  }
+
+  .scroll-fade-in-delay-1 {
+    animation-delay: 0.1s;
+  }
+
+  .scroll-fade-in-delay-2 {
+    animation-delay: 0.2s;
+  }
+
+  .scroll-fade-in-delay-3 {
+    animation-delay: 0.3s;
+  }
+
+  .scroll-fade-in-delay-4 {
+    animation-delay: 0.4s;
+  }
+
+  .scroll-slide-in-left {
+    opacity: 0;
+    animation: slideInLeft 0.6s ease-out forwards;
+  }
+
+  .scroll-slide-in-right {
+    opacity: 0;
+    animation: slideInRight 0.6s ease-out forwards;
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes slideInLeft {
+    from {
+      opacity: 0;
+      transform: translateX(-40px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes slideInRight {
+    from {
+      opacity: 0;
+      transform: translateX(40px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+}
+
+/* ============================================
+   PERFORMANCE OPTIMIZATION FOR LOW-SPEC DEVICES
+   ============================================ */
+
+/* Set custom properties for animation control */
+:root {
+  --animation-duration: 300ms;
+  --transition-duration: 300ms;
+}
+
+/* Low-spec device optimizations */
+html.low-spec-device {
+  --animation-duration: 0ms;
+  --transition-duration: 100ms;
+}
+
+/* Disable all animations on low-spec devices or reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Specifically disable animations on low-spec devices */
+html.low-spec-device,
+html.reduce-motion {
+  /* Override all animate-* classes */
+  .animate-pulse,
+  .animate-bounce,
+  .animate-ping,
+  .animate-spin {
+    animation: none !important;
+    opacity: 1 !important;
+  }
+
+  /* Reduce blur effects */
+  .backdrop-blur-xl,
+  .backdrop-blur-2xl,
+  .blur-3xl {
+    backdrop-filter: none !important;
+    filter: none !important;
+  }
+
+  /* Reduce shadow complexity */
+  .shadow-2xl {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+  }
+
+  /* Simplify transitions */
+  * {
+    transition: none !important;
+  }
+}
+
+/* Remove opacity animations on low-spec */
+html.low-spec-device .animate-pulse,
+html.low-spec-device .animate-bounce,
+html.low-spec-device .animate-ping {
+  animation: none;
+  opacity: 1;
+}
+
+/* Reduce transform animations */
+html.low-spec-device [style*="animation"] {
+  animation: none !important;
+}
+

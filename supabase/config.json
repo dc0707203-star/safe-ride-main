@@ -1,0 +1,20 @@
+{
+  "functions": [
+    {
+      "name": "send-push-notifications",
+      "cors": {
+        "allowedOrigins": ["*"],
+        "allowedMethods": ["POST", "OPTIONS", "GET"],
+        "allowedHeaders": [
+          "Content-Type",
+          "Authorization",
+          "x-client-info",
+          "x-supabase-auth",
+          "x-supabase-signature",
+          "apikey"
+        ],
+        "maxAge": 3600
+      }
+    }
+  ]
+}

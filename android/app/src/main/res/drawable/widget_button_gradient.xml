@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Shadow layer -->
+    <item android:bottom="3dp" android:left="1dp" android:right="1dp" android:top="1dp">
+        <shape android:shape="oval">
+            <solid android:color="#991B1B" />
+        </shape>
+    </item>
+    
+    <!-- Main gradient button -->
+    <item android:bottom="0dp" android:left="0dp" android:right="0dp" android:top="0dp">
+        <shape android:shape="oval">
+            <!-- Red gradient from bright to darker -->
+            <gradient
+                android:angle="45"
+                android:startColor="#FF4444"
+                android:centerColor="#EF4444"
+                android:endColor="#DC2626"
+                android:type="linear" />
+            <stroke android:width="2dp" android:color="#7F1D1D" />
+        </shape>
+    </item>
+</layer-list>

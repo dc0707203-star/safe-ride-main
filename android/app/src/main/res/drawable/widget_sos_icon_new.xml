@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="100dp"
+    android:height="100dp"
+    android:viewportWidth="100"
+    android:viewportHeight="100">
+    
+    <!-- Alert triangle with exclamation mark -->
+    <!-- Triangle outline -->
+    <path
+        android:pathData="M50,10 L90,85 L10,85 Z"
+        android:fillColor="#FFFFFF"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="2" />
+    
+    <!-- Exclamation mark - Dot (using small circle path) -->
+    <path
+        android:pathData="M50,68 C52.2,68 54,69.8 54,72 C54,74.2 52.2,76 50,76 C47.8,76 46,74.2 46,72 C46,69.8 47.8,68 50,68 Z"
+        android:fillColor="#DC2626" />
+    
+    <!-- Exclamation mark - Line -->
+    <path
+        android:pathData="M50,50 L50,64"
+        android:strokeColor="#DC2626"
+        android:strokeWidth="3"
+        android:strokeLineCap="round" />
+</vector>

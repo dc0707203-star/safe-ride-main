@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Permissions -->
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.BIND_QUICK_SETTINGS_TILE" />
+    <uses-permission android:name="android.permission.BIND_APPWIDGET" />
+
+    <!-- Storage permissions -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme"
+        tools:replace="android:theme">
+
+        <!-- Main Activity -->
+        <activity
+            android:name=".MainActivity"
+            android:label="@string/title_activity_main"
+            android:launchMode="singleTask"
+            android:exported="true"
+            android:theme="@style/AppTheme.NoActionBarLaunch"
+            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|smallestScreenSize|screenLayout|uiMode|navigation|density"
+            android:windowSoftInputMode="adjustResize">
+
+            <!-- Fullscreen configuration -->
+            <meta-data
+                android:name="android.window.FULLSCREEN"
+                android:value="true" />
+
+            <meta-data
+                android:name="android.window.STATUS_BAR_HIDDEN"
+                android:value="true" />
+
+            <meta-data
+                android:name="android.window.HIDE_NAVIGATION"
+                android:value="true" />
+
+            <!-- Android 15 specific -->
+            <meta-data
+                android:name="android.window.FITS_SYSTEM_WINDOWS"
+                android:value="false" />
+
+            <!-- Immersive mode -->
+            <meta-data
+                android:name="android.window.IMMERSIVE"
+                android:value="sticky" />
+
+            <!-- Window layout -->
+            <meta-data
+                android:name="android.window.LAYOUT_IN_DISPLAY_CUTOUT_MODE"
+                android:value="shortEdges" />
+
+            <!-- App Shortcuts -->
+            <meta-data
+                android:name="android.app.shortcuts"
+                android:resource="@xml/shortcuts" />
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+        </activity>
+
+        <!-- File provider for camera/photos if needed -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
+        <!-- SOS Emergency Quick Settings Tile -->
+        <service
+            android:name=".SOSQuickSettingsTile"
+            android:label="@string/sos_tile_label"
+            android:icon="@drawable/ic_sos_tile"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
+
+        <!-- Home Screen Widget Provider -->
+        <receiver
+            android:name=".SOSWidgetProvider"
+            android:label="@string/sos_tile_label"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_sos_metadata" />
+        </receiver>
+
+    </application>
+
+</manifest>

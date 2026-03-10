@@ -1,0 +1,8 @@
+/* Footer link glow effect */
+.footer-link-glow {
+  transition: color 0.2s, text-shadow 0.2s;
+}
+.footer-link-glow:hover, .footer-link-glow:focus-visible {
+  color: #CCFF00 !important;
+  text-shadow: 0 0 8px #CCFF00, 0 0 16px #CCFF00;
+}

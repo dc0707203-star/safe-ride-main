@@ -1,0 +1,88 @@
+-- Drop existing restrictive policies and recreate as permissive for students table
+DROP POLICY IF EXISTS "Admins can view all students" ON public.students;
+DROP POLICY IF EXISTS "Admins can insert students" ON public.students;
+DROP POLICY IF EXISTS "Admins can update students" ON public.students;
+DROP POLICY IF EXISTS "Students can view their own data" ON public.students;
+DROP POLICY IF EXISTS "Students can insert their own data" ON public.students;
+DROP POLICY IF EXISTS "Students can update their own data" ON public.students;
+
+-- Create permissive policies for students
+CREATE POLICY "Admins can view all students" 
+ON public.students 
+FOR SELECT 
+TO authenticated
+USING (public.has_role(auth.uid(), 'admin'));
+
+CREATE POLICY "Admins can insert students" 
+ON public.students 
+FOR INSERT 
+TO authenticated
+WITH CHECK (public.has_role(auth.uid(), 'admin'));
+
+CREATE POLICY "Admins can update students" 
+ON public.students 
+FOR UPDATE 
+TO authenticated
+USING (public.has_role(auth.uid(), 'admin'))
+WITH CHECK (public.has_role(auth.uid(), 'admin'));
+
+CREATE POLICY "Students can view their own data" 
+ON public.students 
+FOR SELECT 
+TO authenticated
+USING (auth.uid() = user_id);
+
+CREATE POLICY "Students can insert their own data" 
+ON public.students 
+FOR INSERT 
+TO authenticated
+WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Students can update their own data" 
+ON public.students 
+FOR UPDATE 
+TO authenticated
+USING (auth.uid() = user_id);
+
+-- Drop existing restrictive policies and recreate as permissive for drivers table
+DROP POLICY IF EXISTS "Admins can manage drivers" ON public.drivers;
+DROP POLICY IF EXISTS "Drivers can view their own data" ON public.drivers;
+DROP POLICY IF EXISTS "Students can view drivers" ON public.drivers;
+
+-- Create permissive policies for drivers
+CREATE POLICY "Admins can view drivers" 
+ON public.drivers 
+FOR SELECT 
+TO authenticated
+USING (public.has_role(auth.uid(), 'admin'));
+
+CREATE POLICY "Admins can insert drivers" 
+ON public.drivers 
+FOR INSERT 
+TO authenticated
+WITH CHECK (public.has_role(auth.uid(), 'admin'));
+
+CREATE POLICY "Admins can update drivers" 
+ON public.drivers 
+FOR UPDATE 
+TO authenticated
+USING (public.has_role(auth.uid(), 'admin'))
+WITH CHECK (public.has_role(auth.uid(), 'admin'));
+
+CREATE POLICY "Admins can delete drivers" 
+ON public.drivers 
+FOR DELETE 
+TO authenticated
+USING (public.has_role(auth.uid(), 'admin'));
+
+CREATE POLICY "Drivers can view their own data" 
+ON public.drivers 
+FOR SELECT 
+TO authenticated
+USING (auth.uid() = user_id);
+
+CREATE POLICY "Students can view drivers" 
+ON public.drivers 
+FOR SELECT 
+TO authenticated
+USING (public.has_role(auth.uid(), 'student'));
