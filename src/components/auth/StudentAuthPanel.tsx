@@ -1,5 +1,5 @@
 
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -36,7 +36,6 @@ const StudentAuthPanel = ({ embedded = false }: StudentAuthPanelProps) => {
   const navigate = useNavigate();
   const [mode, setMode] = useState<'login' | 'register'>('login');
   const [loading, setLoading] = useState(false);
-  const registrationInProgress = useRef(false);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string>("");
   
@@ -118,8 +117,6 @@ const StudentAuthPanel = ({ embedded = false }: StudentAuthPanelProps) => {
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (registrationInProgress.current) return;
     
     if (registerData.password !== registerData.confirmPassword) {
       toast.error("Passwords do not match");
@@ -136,7 +133,6 @@ const StudentAuthPanel = ({ embedded = false }: StudentAuthPanelProps) => {
       return;
     }
     
-    registrationInProgress.current = true;
     setLoading(true);
 
     try {
@@ -210,7 +206,6 @@ const StudentAuthPanel = ({ embedded = false }: StudentAuthPanelProps) => {
         toast.error(error.message || "Failed to create account");
       }
     } finally {
-      registrationInProgress.current = false;
       setLoading(false);
     }
   };
