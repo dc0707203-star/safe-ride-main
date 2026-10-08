@@ -182,15 +182,18 @@ export type Database = {
           contact_number: string | null
           course: string | null
           created_at: string | null
+          email: string | null
           full_name: string
           id: string
           is_active: boolean | null
           is_approved: boolean | null
           is_registered: boolean | null
           photo_url: string | null
+          section: string | null
           student_id_number: string
           updated_at: string | null
           user_id: string
+          year_level: string | null
         }
         Insert: {
           address?: string | null
@@ -199,15 +202,18 @@ export type Database = {
           contact_number?: string | null
           course?: string | null
           created_at?: string | null
+          email?: string | null
           full_name: string
           id?: string
           is_active?: boolean | null
           is_approved?: boolean | null
           is_registered?: boolean | null
           photo_url?: string | null
+          section?: string | null
           student_id_number: string
           updated_at?: string | null
           user_id: string
+          year_level?: string | null
         }
         Update: {
           address?: string | null
@@ -216,15 +222,18 @@ export type Database = {
           contact_number?: string | null
           course?: string | null
           created_at?: string | null
+          email?: string | null
           full_name?: string
           id?: string
           is_active?: boolean | null
           is_approved?: boolean | null
           is_registered?: boolean | null
           photo_url?: string | null
+          section?: string | null
           student_id_number?: string
           updated_at?: string | null
           user_id?: string
+          year_level?: string | null
         }
         Relationships: []
       }

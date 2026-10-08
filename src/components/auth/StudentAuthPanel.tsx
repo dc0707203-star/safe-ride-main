@@ -180,7 +180,7 @@ const StudentAuthPanel = ({ embedded = false }: StudentAuthPanelProps) => {
           is_registered: true,
           is_active: false,
           email: registerData.email,
-        } as any);
+        });
 
       if (studentError) throw studentError;
 
