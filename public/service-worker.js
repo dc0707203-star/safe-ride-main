@@ -1,8 +1,8 @@
 // Enhanced Service Worker with Offline Support & Push Notifications
-const CACHE_NAME = "safe-ride-v2.5.3";
-const STATIC_CACHE = "safe-ride-static-v1";
-const DYNAMIC_CACHE = "safe-ride-dynamic-v1";
-const API_CACHE = "safe-ride-api-v1";
+const CACHE_NAME = "safe-ride-v2.5.4";
+const STATIC_CACHE = "safe-ride-static-v2";
+const DYNAMIC_CACHE = "safe-ride-dynamic-v2";
+const API_CACHE = "safe-ride-api-v2";
 
 // Assets to cache on install
 const STATIC_ASSETS = [
@@ -37,7 +37,7 @@ self.addEventListener("activate", (event) => {
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames
-          .filter(cacheName => !["safe-ride-static-v1", "safe-ride-dynamic-v1", "safe-ride-api-v1", "safe-ride-v2.5.3"].includes(cacheName))
+          .filter(cacheName => !["safe-ride-static-v2", "safe-ride-dynamic-v2", "safe-ride-api-v2", "safe-ride-v2.5.4"].includes(cacheName))
           .map(cacheName => {
             console.log("[Service Worker] Deleting old cache:", cacheName);
             return caches.delete(cacheName);
@@ -58,6 +58,11 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
+  if (request.mode === "navigate") {
+    event.respondWith(networkFirstStrategy(request, STATIC_CACHE));
+    return;
+  }
+
   // Handle API requests
   if (API_URLS.some(apiUrl => url.origin.includes(apiUrl))) {
     event.respondWith(networkFirstStrategy(request));
@@ -69,21 +74,29 @@ self.addEventListener("fetch", (event) => {
 });
 
 // Network first (try network, fallback to cache)
-function networkFirstStrategy(request) {
+function networkFirstStrategy(request, cacheName = API_CACHE) {
   return fetch(request)
     .then((response) => {
       if (!response || response.status !== 200) {
         return response;
       }
       const responseClone = response.clone();
-      caches.open(API_CACHE).then((cache) => {
+      caches.open(cacheName).then((cache) => {
         cache.put(request, responseClone);
       });
       return response;
     })
     .catch(() => {
       return caches.match(request).then((response) => {
-        return response || createOfflineResponse();
+        if (response) {
+          return response;
+        }
+        if (request.mode === "navigate") {
+          return caches.match("/index.html").then((cachedPage) => {
+            return cachedPage || createOfflineResponse();
+          });
+        }
+        return createOfflineResponse();
       });
     });
 }
@@ -302,5 +315,4 @@ async function syncOfflineActions() {
     console.error("[Service Worker] Sync error:", error);
   }
 }
-
 
